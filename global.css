@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --color-background: #070314;
+    --color-background-dark: #09050d;
+    --color-accent: #8800ffa8;
+    --color-card: #14141e;
+    --color-card-active: #28323c;
+    --color-text-muted: #888888;
+    --color-text-dim: #aaaaaa;
+    --color-text-secondary: #cccccc;
+  }
+}

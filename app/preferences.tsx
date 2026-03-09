@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Check, ChevronDown, ChevronUp, Plus, X } from 'lucide-react-native';
+import { Calendar, Check, ChevronDown, ChevronUp, Film, Plus, Star, X } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -12,23 +12,50 @@ const defaultGenres = [
     'Fantasy', 'Komedia', 'Kryminał', '18+'
 ];
 
-const eras = ['Złota Era Hollywood', 'Lata 80.', 'Lata 90.', 'Kino współczesne'];
+const eras = [
+    { id: 1, name: 'Złota Era Hollywood', short: 'Z.E.H.' },
+    { id: 2, name: 'Lata 80.', short: 'L.80.' },
+    { id: 3, name: 'Lata 90.', short: 'L.90.' },
+    { id: 4, name: 'Kino współczesne', short: 'K.W.' }
+];
 
-function CollapsibleSection({ title, children, defaultOpen = false }: { title: string, children: React.ReactNode, defaultOpen?: boolean }) {
+interface CollapsibleSectionProps {
+    title: string;
+    subtitle: string;
+    value: number | string;
+    icon: any;
+    children: React.ReactNode;
+    defaultOpen?: boolean;
+}
+
+function CollapsibleSection({ title, subtitle, value, icon: IconComponent, children, defaultOpen = false }: CollapsibleSectionProps) {
     const [open, setOpen] = useState(defaultOpen);
 
     return (
-        <Animated.View layout={LinearTransition} className="bg-[#14141e]/40 border border-white/5 rounded-2xl mb-4 overflow-hidden">
+        <Animated.View layout={LinearTransition} className="bg-[#14141e]/50 border border-white/5 rounded-[36px] mb-4 overflow-hidden">
             <TouchableOpacity
-                className="flex-row justify-between items-center p-[18px]"
+                className="p-5 flex-col justify-between min-h-[140px]"
                 onPress={() => setOpen(!open)}
                 activeOpacity={0.7}
             >
-                <Text className="font-outfit-semi text-[16px] text-white">{title}</Text>
-                {open ? <ChevronUp color="#fff" size={20} /> : <ChevronDown color="#888" size={20} />}
+                <View className="flex-row justify-between items-start">
+                    <View className="w-[48px] h-[48px] rounded-full bg-white/5 items-center justify-center border border-white/5">
+                        <IconComponent color="#ccc" size={22} />
+                    </View>
+                    <View className="w-9 h-9 rounded-full bg-white/5 items-center justify-center border border-white/5">
+                        {open ? <ChevronUp color="#888" size={18} /> : <ChevronDown color="#888" size={18} />}
+                    </View>
+                </View>
+                <View className="flex-row justify-between items-end mt-6 mb-1.5">
+                    <View className="flex-1 mr-4">
+                        <Text className="font-outfit text-[12px] text-[#888] uppercase tracking-widest">{subtitle}</Text>
+                        <Text className="font-outfit-semi text-[18px] text-white leading-tight">{title}</Text>
+                    </View>
+                    <Text className="font-outfit-bold text-[32px] text-white relative top-[8px]">{value}</Text>
+                </View>
             </TouchableOpacity>
             {open && (
-                <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} className="px-4 pb-5">
+                <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} className="px-5 pb-6 pt-2">
                     {children}
                 </Animated.View>
             )}
@@ -40,7 +67,7 @@ export default function PreferencesScreen() {
     const router = useRouter();
     const [preferences, setPreferences] = useState({
         genres: ['Akcja', 'Kryminał'],
-        era: 'Lata 90.',
+        era: eras[0],
         movies: [] as string[]
     });
 
@@ -84,7 +111,7 @@ export default function PreferencesScreen() {
     const allDisplayedGenres = Array.from(new Set([...defaultGenres, ...preferences.genres]));
 
     return (
-        <View className="flex-1 bg-[#070314] pt-10">
+        <View className="flex-1 bg-background pt-10">
             <AnimatedBackground />
             <SafeAreaView className="flex-1">
                 <MotiView
@@ -95,7 +122,7 @@ export default function PreferencesScreen() {
                 >
                     <Text className="font-outfit-bold text-[24px] text-white">Krótko o sobie</Text>
                     <TouchableOpacity onPress={() => router.push('/parameters')}>
-                        <Text className="font-outfit text-[15px] text-[#aaa]">Pomiń</Text>
+                        <Text className="font-outfit text-[15px] text-text-dim">Pomiń</Text>
                     </TouchableOpacity>
                 </MotiView>
 
@@ -105,14 +132,20 @@ export default function PreferencesScreen() {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 200, duration: 600 }}
                     >
-                        <CollapsibleSection title="Lubiane przez Ciebie gatunki" defaultOpen={true}>
+                        <CollapsibleSection
+                            title="Lubiane przez Ciebie gatunki"
+                            subtitle="Kategorie"
+                            value={preferences.genres.length}
+                            icon={Film}
+                            defaultOpen={true}
+                        >
                             <View className="flex-row flex-wrap gap-2 mb-4">
                                 {allDisplayedGenres.map(genre => {
                                     const isSelected = preferences.genres.includes(genre);
                                     return (
                                         <TouchableOpacity
                                             key={genre}
-                                            className={`py-1.5 px-3 rounded-[20px] border border-white/15 bg-transparent ${isSelected ? 'bg-white border-white' : ''}`}
+                                            className={`py-1.5 px-3 rounded-[12px] border border-white/15 ${isSelected ? 'bg-white border-white' : 'bg-black/20'}`}
                                             onPress={() => toggleGenre(genre)}
                                         >
                                             <Text className={`font-outfit text-[13px] text-[#ccc] ${isSelected ? 'text-black font-outfit-semi' : ''}`}>{genre}</Text>
@@ -122,7 +155,7 @@ export default function PreferencesScreen() {
                             </View>
                             <View className="flex-row gap-2.5">
                                 <TextInput
-                                    className="flex-1 bg-black/30 border border-white/10 rounded-xl px-3.5 h-[44px] text-white font-outfit"
+                                    className="flex-1 bg-black/20 border border-white/10 rounded-[12px_12px_12px_16px] px-3.5 h-[44px] text-white font-outfit"
                                     placeholder="Dodaj własne..."
                                     placeholderTextColor="#666"
                                     value={customGenre}
@@ -131,7 +164,7 @@ export default function PreferencesScreen() {
                                     returnKeyType="done"
                                 />
                                 <TouchableOpacity
-                                    className="w-[44px] h-[44px] bg-white/5 border border-white/10 rounded-xl justify-center items-center"
+                                    className="w-[44px] h-[44px] bg-white/5 border border-white/10 rounded-[12px] justify-center items-center"
                                     onPress={addCustomGenre}
                                 >
                                     <Plus color="#fff" size={20} />
@@ -139,24 +172,36 @@ export default function PreferencesScreen() {
                             </View>
                         </CollapsibleSection>
 
-                        <CollapsibleSection title="Ulubiona epoka filmowa" defaultOpen={false}>
+                        <CollapsibleSection
+                            title="Ulubiona epoka filmowa"
+                            subtitle="Czas produkcji"
+                            value={preferences.era.short}
+                            icon={Calendar}
+                            defaultOpen={false}
+                        >
                             <View className="gap-3.5">
                                 {eras.map(ep => (
                                     <TouchableOpacity
-                                        key={ep}
+                                        key={ep.id}
                                         className="flex-row items-center gap-3"
                                         onPress={() => setPreferences(prev => ({ ...prev, era: ep }))}
                                     >
                                         <View className="w-5 h-5 rounded-full border border-white/50 justify-center items-center">
-                                            <View className={preferences.era === ep ? "w-2.5 h-2.5 rounded-full bg-white" : ""} />
+                                            <View className={preferences.era.id === ep.id ? "w-2.5 h-2.5 rounded-full bg-white" : ""} />
                                         </View>
-                                        <Text className={`font-outfit text-[15px] ${preferences.era === ep ? 'text-white' : 'text-[#ccc]'}`}>{ep}</Text>
+                                        <Text className={`font-outfit text-[15px] ${preferences.era.id === ep.id ? 'text-white' : 'text-[#ccc]'}`}>{ep.name}</Text>
                                     </TouchableOpacity>
                                 ))}
                             </View>
                         </CollapsibleSection>
 
-                        <CollapsibleSection title="Ulubione filmy (tytuł, rok)" defaultOpen={false}>
+                        <CollapsibleSection
+                            title="Ulubione filmy (tytuł, rok)"
+                            subtitle="Twoja baza"
+                            value={preferences.movies.length}
+                            icon={Star}
+                            defaultOpen={false}
+                        >
                             <Animated.View layout={LinearTransition} className="gap-2.5">
                                 {preferences.movies.map((movie, index) => (
                                     <Animated.View
@@ -175,7 +220,7 @@ export default function PreferencesScreen() {
 
                                 <View className="flex-row gap-2.5 mt-1.5">
                                     <TextInput
-                                        className="flex-1 bg-black/30 border border-white/10 rounded-xl px-3.5 h-[44px] text-white font-outfit"
+                                        className="flex-1 bg-black/20 border border-white/10 rounded-[12px_12px_12px_16px] px-3.5 h-[44px] text-white font-outfit"
                                         placeholder="Np. Matrix, 1999"
                                         placeholderTextColor="#666"
                                         value={movieInput}
@@ -184,7 +229,7 @@ export default function PreferencesScreen() {
                                         returnKeyType="done"
                                     />
                                     <TouchableOpacity
-                                        className="w-[44px] h-[44px] bg-white/5 border border-white/10 rounded-xl justify-center items-center"
+                                        className="w-[44px] h-[44px] bg-white/5 border border-white/10 rounded-[12px] justify-center items-center"
                                         onPress={addMovie}
                                     >
                                         <Plus color="#fff" size={20} />

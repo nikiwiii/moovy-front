@@ -18,7 +18,7 @@ export default function WelcomeScreen() {
     };
 
     return (
-        <View className="flex-1 bg-[#070314] pt-10">
+        <View className="flex-1 bg-background pt-10">
             <AnimatedBackground />
             <SafeAreaView className="flex-1">
                 <View className="flex-1 px-6 justify-center">
@@ -29,7 +29,7 @@ export default function WelcomeScreen() {
                         className="mb-10"
                     >
                         <Text className="font-outfit-bold text-[26px] text-white mb-1.5">Witamy w MovieNight</Text>
-                        <Text className="font-outfit text-[15px] text-[#a0a0a0]">Gdzie chcesz zapisywać preferencje?</Text>
+                        <Text className="font-outfit text-[15px] text-text-dim">Gdzie chcesz zapisywać preferencje?</Text>
                     </MotiView>
 
                     <MotiView
@@ -39,25 +39,25 @@ export default function WelcomeScreen() {
                         className="gap-4"
                     >
                         <TouchableOpacity onPress={() => setSelected('cloud')} activeOpacity={0.8}>
-                            <View className={`flex-row items-center bg-[#14141e]/40 border border-white/5 rounded-2xl p-5 ${selected === 'cloud' ? 'bg-[#28323c]/20 border-[#00e5ff] border-1' : ''}`}>
+                            <View className={`flex-row items-center bg-black/20 border rounded-3xl p-5 ${selected === 'cloud' ? 'bg-card-active/20 border-accent border-1' : 'border-white/5'}`}>
                                 <View className="mr-4">
                                     <Cloud color={selected === 'cloud' ? '#fff' : '#888'} size={28} strokeWidth={1.5} />
                                 </View>
                                 <View className="flex-1">
-                                    <Text className={`font-outfit-semi text-[18px] mb-1 ${selected === 'cloud' ? 'text-white' : 'text-[#dddddd]'}`}>Chmura</Text>
-                                    <Text className="font-outfit text-[13px] text-[#888] leading-[18px]">Preferencje filmowe powiązane z kontem</Text>
+                                    <Text className={`font-outfit-semi text-[18px] mb-1 ${selected === 'cloud' ? 'text-white' : 'text-text-secondary'}`}>Chmura</Text>
+                                    <Text className="font-outfit text-[13px] text-text-muted leading-[18px]">Preferencje filmowe powiązane z kontem</Text>
                                 </View>
                             </View>
                         </TouchableOpacity>
 
                         <TouchableOpacity onPress={() => setSelected('local')} activeOpacity={0.8}>
-                            <View className={`flex-row items-center bg-[#14141e]/40 border border-white/5 rounded-2xl p-5 ${selected === 'local' ? 'bg-[#28323c]/20 border-[#00e5ff] border-1' : ''}`}>
+                            <View className={`flex-row items-center bg-black/20 border rounded-3xl p-5 ${selected === 'local' ? 'bg-card-active/20 border-accent border-1' : 'border-white/5'}`}>
                                 <View className="mr-4">
                                     <Smartphone color={selected === 'local' ? '#fff' : '#888'} size={28} strokeWidth={1.5} />
                                 </View>
                                 <View className="flex-1">
-                                    <Text className={`font-outfit-semi text-[18px] mb-1 ${selected === 'local' ? 'text-white' : 'text-[#dddddd]'}`}>Lokalnie</Text>
-                                    <Text className="font-outfit text-[13px] text-[#888] leading-[18px]">Preferencje filmowe tylko na Twoim urządzeniu</Text>
+                                    <Text className={`font-outfit-semi text-[18px] mb-1 ${selected === 'local' ? 'text-white' : 'text-text-secondary'}`}>Lokalnie</Text>
+                                    <Text className="font-outfit text-[13px] text-text-muted leading-[18px]">Preferencje filmowe tylko na Twoim urządzeniu</Text>
                                 </View>
                             </View>
                         </TouchableOpacity>

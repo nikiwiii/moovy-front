@@ -1,41 +1,57 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Dimensions, View } from 'react-native';
 import Animated, {
     Easing,
     useAnimatedStyle,
     useSharedValue,
     withRepeat,
-    withTiming,
+    withSequence,
+    withTiming
 } from 'react-native-reanimated';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 const { width, height } = Dimensions.get('window');
 
-export default function AnimatedBackground() {
+interface AnimatedOrbProps {
+    color: string;
+    size: number;
+    startPos: { x: number; y: number };
+    animDuration: number;
+    translateRange: { x: number; y: number };
+}
+
+const AnimatedOrb = ({ color, size, startPos, animDuration, translateRange }: AnimatedOrbProps) => {
     const scale = useSharedValue(1);
     const translateX = useSharedValue(0);
     const translateY = useSharedValue(0);
 
+    const gradientId = useMemo(() => `glow-${color.replace('#', '')}-${Math.random()}`, [color]);
+
     useEffect(() => {
         // Płynne skalowanie promienia
         scale.value = withRepeat(
-            withTiming(1.3, { duration: 10000, easing: Easing.inOut(Easing.ease) }),
+            withSequence(
+                withTiming(1.2, { duration: animDuration * 0.8, easing: Easing.inOut(Easing.ease) }),
+                withTiming(1, { duration: animDuration * 0.8, easing: Easing.inOut(Easing.ease) })
+            ),
             -1,
             true
         );
-        // Lekkie pływanie w poziomie
+
+        // Pływanie w poziomie
         translateX.value = withRepeat(
-            withTiming(40, { duration: 8000, easing: Easing.inOut(Easing.ease) }),
+            withTiming(translateRange.x, { duration: animDuration, easing: Easing.inOut(Easing.ease) }),
             -1,
             true
         );
-        // Lekkie pływanie w pionie
+
+        // Pływanie w pionie
         translateY.value = withRepeat(
-            withTiming(-40, { duration: 9000, easing: Easing.inOut(Easing.ease) }),
+            withTiming(translateRange.y, { duration: animDuration * 1.1, easing: Easing.inOut(Easing.ease) }),
             -1,
             true
         );
-    }, []);
+    }, [animDuration, translateRange.x, translateRange.y, scale, translateX, translateY]);
 
     const animatedStyle = useAnimatedStyle(() => {
         return {
@@ -48,38 +64,83 @@ export default function AnimatedBackground() {
     });
 
     return (
-        <View className="absolute inset-0 bg-indigo-950 overflow-hidden">
-            <Animated.View
-                style={[
-                    {
-                        position: 'absolute',
-                        bottom: -width * 0.5,
-                        left: -width * 0.4,
-                        width: width * 1.8,
-                        height: width * 1.8,
-                        opacity: 0.5,
-                    },
-                    animatedStyle
-                ]}
-            >
-                <Svg width="100%" height="100%">
-                    <Defs>
-                        <RadialGradient
-                            id="glow"
-                            cx="50%"
-                            cy="50%"
-                            r="50%"
-                            fx="50%"
-                            fy="50%"
-                        >
-                            <Stop offset="0%" stopColor="#00e5ff" stopOpacity="1" />
-                            <Stop offset="40%" stopColor="#00e5ff" stopOpacity="0.6" />
-                            <Stop offset="100%" stopColor="#00e5ff" stopOpacity="0" />
-                        </RadialGradient>
-                    </Defs>
-                    <Rect x="0" y="0" width="100%" height="100%" fill="url(#glow)" />
-                </Svg>
-            </Animated.View>
+        <Animated.View
+            style={[
+                {
+                    position: 'absolute',
+                    top: startPos.y - size / 2,
+                    left: startPos.x - size / 2,
+                    width: size,
+                    height: size,
+                    opacity: 0.65,
+                },
+                animatedStyle
+            ]}
+        >
+            <Svg width="100%" height="100%">
+                <Defs>
+                    <RadialGradient
+                        id={gradientId}
+                        cx="50%"
+                        cy="50%"
+                        r="50%"
+                        fx="50%"
+                        fy="50%"
+                    >
+                        <Stop offset="0%" stopColor={color} stopOpacity="1" />
+                        <Stop offset="50%" stopColor={color} stopOpacity="0.5" />
+                        <Stop offset="100%" stopColor={color} stopOpacity="0" />
+                    </RadialGradient>
+                </Defs>
+                <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${gradientId})`} />
+            </Svg>
+        </Animated.View>
+    );
+};
+
+export default function AnimatedBackground() {
+    return (
+        <View className="absolute inset-0 bg-background-dark overflow-hidden">
+            {/* Lewy górny - głęboki burgund / wiśnia */}
+            <AnimatedOrb
+                color="#701a40"
+                size={width * 2.2}
+                startPos={{ x: -width * 0.2, y: -height * 0.1 }}
+                animDuration={12000}
+                translateRange={{ x: 80, y: 120 }}
+            />
+            {/* Prawy górny - ciepły pomarańcz / miedź słabo widoczna */}
+            <AnimatedOrb
+                color="#92400e"
+                size={width * 1.8}
+                startPos={{ x: width * 0.9, y: height * 0.2 }}
+                animDuration={15000}
+                translateRange={{ x: -100, y: 80 }}
+            />
+            {/* Ciemny fiolet */}
+            <AnimatedOrb
+                color="#3b0764"
+                size={width * 2}
+                startPos={{ x: -width * 0.1, y: height * 0.9 }}
+                animDuration={13000}
+                translateRange={{ x: 120, y: -100 }}
+            />
+            {/* Ciemny granat/indigo */}
+            <AnimatedOrb
+                color="#1e1b4b"
+                size={width * 2.5}
+                startPos={{ x: width * 1.1, y: height * 1.1 }}
+                animDuration={16000}
+                translateRange={{ x: -150, y: -150 }}
+            />
+            {/* Centralny wypełniający - stonowany fiolet/purpura */}
+            <AnimatedOrb
+                color="#4c1d95"
+                size={width * 1.6}
+                startPos={{ x: width * 0.5, y: height * 0.5 }}
+                animDuration={20000}
+                translateRange={{ x: -60, y: -80 }}
+            />
         </View>
     );
 }

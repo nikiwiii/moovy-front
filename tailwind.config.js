@@ -7,6 +7,22 @@ module.exports = {
     presets: [require("nativewind/preset")],
     theme: {
         extend: {
+            colors: {
+                background: {
+                    DEFAULT: "var(--color-background)",
+                    dark: "var(--color-background-dark)",
+                },
+                accent: "var(--color-accent)",
+                card: {
+                    DEFAULT: "var(--color-card)",
+                    active: "var(--color-card-active)",
+                },
+                text: {
+                    muted: "var(--color-text-muted)",
+                    dim: "var(--color-text-dim)",
+                    secondary: "var(--color-text-secondary)",
+                }
+            },
             fontFamily: {
                 outfit: ['Outfit_400Regular'],
                 'outfit-semi': ['Outfit_600SemiBold'],
