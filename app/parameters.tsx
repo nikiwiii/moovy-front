@@ -1,64 +1,15 @@
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
-import { Check, ChevronDown, ChevronUp, Film, Heart, Plus, Users } from 'lucide-react-native';
+import { Check, Clock, Film, Heart, LucideIcon, Plus, ScanEye, Settings, Sparkle, Users } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState } from 'react';
-import { Image, Modal, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import { Image, Modal, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 import AnimatedBackground from '../components/AnimatedBackground';
-
-interface CollapsibleSectionProps {
-    title: string;
-    subtitle: string;
-    value: number | string;
-    icon: any;
-    children: React.ReactNode;
-    defaultOpen?: boolean;
-    rightIcon?: React.ReactNode;
-    onRightIconPress?: () => void;
-}
-
-function CollapsibleSection({ title, subtitle, value, icon: IconComponent, children, defaultOpen = false, rightIcon = null, onRightIconPress }: CollapsibleSectionProps) {
-    const [open, setOpen] = useState(defaultOpen);
-
-    return (
-        <Animated.View layout={LinearTransition} className="bg-[#14141e]/50 border border-white/5 rounded-[36px] mb-4 overflow-hidden">
-            <TouchableOpacity
-                className="p-5 flex-col justify-between min-h-[140px]"
-                onPress={() => setOpen(!open)}
-                activeOpacity={0.7}
-            >
-                <View className="flex-row justify-between items-start">
-                    <View className="w-[48px] h-[48px] rounded-full bg-white/5 items-center justify-center border border-white/5">
-                        <IconComponent color="#ccc" size={22} />
-                    </View>
-                    <View className="flex-row items-center">
-                        {rightIcon && (
-                            <TouchableOpacity onPress={onRightIconPress} className="w-9 h-9 bg-white/5 rounded-full justify-center items-center mr-3 border border-white/5">
-                                {rightIcon}
-                            </TouchableOpacity>
-                        )}
-                        <View className="w-9 h-9 rounded-full bg-white/5 items-center justify-center border border-white/5">
-                            {open ? <ChevronUp color="#888" size={18} /> : <ChevronDown color="#888" size={18} />}
-                        </View>
-                    </View>
-                </View>
-                <View className="flex-row justify-between items-end mt-6 mb-1.5">
-                    <View className="flex-1 mr-4">
-                        <Text className="font-outfit text-[12px] text-[#888] uppercase tracking-widest">{subtitle}</Text>
-                        <Text className="font-outfit-semi text-[18px] text-white leading-tight">{title}</Text>
-                    </View>
-                    <Text className="font-outfit-bold text-[28px] text-white relative top-[8px]">{value}</Text>
-                </View>
-            </TouchableOpacity>
-            {open && (
-                <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} className="px-5 pb-6 pt-2">
-                    {children}
-                </Animated.View>
-            )}
-        </Animated.View>
-    );
-}
+import CollapsibleSection from '../components/CollapsibleSection';
+import Navbar from '../components/Navbar';
+import TouchableOpacity from '../components/TouchableOpacity';
+import { FillStyles } from '../constants/themeStyles';
 
 const defaultGenres = [
     'Sci-fi', 'Akcja', 'Dramat', 'Przygodowy',
@@ -77,23 +28,32 @@ interface Group {
     id: string;
     title: string;
     description: string;
+    icon: LucideIcon;
 }
 
 export default function ParametersScreen() {
     const router = useRouter();
     const [selectedGroup, setSelectedGroup] = useState<string | null>('tlum');
     const [groups, setGroups] = useState<Group[]>([
-        { id: 'tlum', title: 'Tłum', description: 'nienudne filmy, skuteczne przy wielu gustach' },
-        { id: 'randewu', title: 'Randewu', description: 'angażujące, wzruszające kino' }
+        { id: 'tlum', icon: Users, title: 'Tłum', description: 'nienudne filmy, skuteczne przy wielu gustach' },
+        { id: 'randewu', icon: Heart, title: 'Randewu', description: 'angażujące, wzruszające kino' }
     ]);
+    //checklist ustawień
+    const [settings, setSettings] = useState([
+        { icon: ScanEye, title: "Filmy które widziałeś", value: false },
+        { icon: Clock, title: "Długość", value: 0 },
+        { icon: Heart, title: "Używaj preferencji profilu", value: false },
+    ])
+
+    const setSettingValue = (title: string, value: boolean | number) => {
+        setSettings(prev => prev.map(setting => setting.title === title ? { ...setting, value } : setting));
+    }
 
     const [modalVisible, setModalVisible] = useState(false);
     const [newTitle, setNewTitle] = useState('');
     const [newDesc, setNewDesc] = useState('');
 
     const [selectedMixGenres, setSelectedMixGenres] = useState<string[]>([]);
-
-    const [useMyPreferences, setUseMyPreferences] = useState(true);
 
     const toggleMixGenre = (genre: string) => {
         if (selectedMixGenres.includes(genre)) {
@@ -106,7 +66,7 @@ export default function ParametersScreen() {
     const handleAddGroup = () => {
         if (newTitle.trim()) {
             const newId = newTitle.toLowerCase().replace(/\s+/g, '-');
-            setGroups(prev => [...prev, { id: newId, title: newTitle.trim(), description: newDesc.trim() }]);
+            setGroups(prev => [...prev, { id: newId, icon: Sparkle, title: newTitle.trim(), description: newDesc.trim() }]);
             setSelectedGroup(newId);
             setModalVisible(false);
             setNewTitle('');
@@ -124,20 +84,14 @@ export default function ParametersScreen() {
         <View className="flex-1 bg-background pt-10">
             <AnimatedBackground />
             <SafeAreaView className="flex-1">
-                <MotiView
-                    from={{ opacity: 0, translateY: -20 }}
-                    animate={{ opacity: 1, translateY: 0 }}
-                    transition={{ duration: 600 }}
-                    className="px-6 pt-5 pb-5"
-                >
-                    <Text className="font-outfit-bold text-[24px] text-white">Pomysł na film</Text>
-                </MotiView>
+                <Navbar />
 
                 <ScrollView contentContainerClassName="px-6 pb-[60px]" showsVerticalScrollIndicator={false}>
                     <MotiView
                         from={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 200, duration: 600 }}
+                        className="flex flex-col gap-2"
                     >
                         <CollapsibleSection
                             title="Wybierz grono"
@@ -145,18 +99,23 @@ export default function ParametersScreen() {
                             value={groups.find(g => g.id === selectedGroup)?.title || '-'}
                             icon={Users}
                             defaultOpen={true}
-                            rightIcon={<Plus color="#fff" size={18} />}
+                            rightIcon={<Plus size={18} />}
                             onRightIconPress={() => setModalVisible(true)}
                         >
-                            <Animated.View layout={LinearTransition} className="gap-2.5">
-                                {groups.map((group) => (
+                            <Animated.View layout={LinearTransition} className="gap-2">
+                                {groups.map((group, i) => (
                                     <TouchableOpacity
                                         key={group.id}
-                                        className={`border rounded-3xl p-4 ${selectedGroup === group.id ? 'bg-black/10 border-accent' : 'border-white/5 bg-black/20'}`}
+                                        className={`${FillStyles.pillBase} ${selectedGroup === group.id ? FillStyles.pillActive : FillStyles.pillInactive} py-3 px-4 ${i === 0 ? FillStyles.pillFirst : ''} ${i === groups.length - 1 ? FillStyles.pillLast : ''} flex-row gap-4`}
                                         onPress={() => setSelectedGroup(group.id)}
                                     >
-                                        <Text className="font-outfit-semi text-[15px] text-white mb-1">{group.title}</Text>
-                                        <Text className="font-outfit text-[13px] text-text-muted">{group.description}</Text>
+                                        <View className="flex-row items-center gap-2">
+                                            {selectedGroup === group.id ? <group.icon size={18} fill="currentColor" /> : <group.icon size={18} />}
+                                        </View>
+                                        <View>
+                                            <Text className="font-outfit uppercase text-[16px] opacity-70">{group.title}</Text>
+                                            <Text className="font-outfit text-[14px]">{group.description}</Text>
+                                        </View>
                                     </TouchableOpacity>
                                 ))}
                             </Animated.View>
@@ -175,37 +134,67 @@ export default function ParametersScreen() {
                                     return (
                                         <TouchableOpacity
                                             key={genre}
-                                            className={`py-1.5 px-3 rounded-[12px] border border-white/15 ${isSelected ? 'bg-white border-white' : 'bg-black/20'}`}
+                                            className={`${FillStyles.pillBase} ${isSelected ? FillStyles.pillActive : FillStyles.pillInactive}`}
                                             onPress={() => toggleMixGenre(genre)}
                                         >
-                                            <Text className={`font-outfit text-[13px] text-[#ccc] ${isSelected ? 'text-black font-outfit-semi' : ''}`}>{genre}</Text>
+                                            <Text className={`font-outfit text-[13px]`}>{genre}</Text>
                                         </TouchableOpacity>
                                     );
                                 })}
                             </View>
                         </CollapsibleSection>
+                        <CollapsibleSection
+                            title="Ustawienia"
+                            subtitle="Dostosuj preferencje"
+                            icon={Settings}
+                            defaultOpen={false}
+                        >
+                            <View className="flex-col gap-2">
+                                {settings.map((setting, i) =>
+                                    <TouchableOpacity
+                                        key={setting.title}
+                                        className={`${FillStyles.pillBase} ${setting.value ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center justify-between gap-x-2 min-h-16 ${i === 0 ? FillStyles.pillFirst : ''} ${i === settings.length - 1 ? FillStyles.pillLast : ''}`}
+                                        onPress={() => {
+                                            if (typeof setting.value === 'boolean') {
+                                                setSettingValue(setting.title, !setting.value)
+                                            }
+                                        }}
+                                    >
+                                        <View className="flex-row items-center gap-x-2">
+                                            {setting.value ? <setting.icon size={18} fill="currentColor" /> : <setting.icon size={18} />}
+                                            <Text className={`font-outfit text-[13px]`}>{setting.title}</Text>
+                                        </View>
+                                        {typeof setting.value === 'boolean' ? (
+                                            <Text className={`font-outfit uppercase tracking-wider opacity-70 text-[13px] ${setting.value ? 'font-outfit-bold' : ''}`}>{setting.value ? 'Zezwalaj' : 'Nie zezwalaj'}</Text>
+                                        ) : (
+                                            <View className="flex-row items-center gap-x-2">
+                                                <TextInput
+                                                    className={`${FillStyles.pillBase} font-outfit text-[13px]`}
+                                                    onChangeText={textValue => {
+                                                        if (textValue && !isNaN(parseInt(textValue))) {
+                                                            setSettingValue(setting.title, parseInt(textValue))
+                                                        } else if (textValue === "") {
+                                                            setSettingValue(setting.title, 0)
+                                                        }
+                                                    }}
+                                                    value={setting.value?.toString()}
+                                                    keyboardType="numeric"
+                                                />
+                                                <Text className="font-outfit text-[13px]">minut</Text>
+                                            </View>
+                                        )}
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                        </CollapsibleSection>
 
                         <Animated.View layout={LinearTransition}>
                             <TextInput
-                                className="bg-[#14141e]/40 border border-white/5 rounded-3xl px-4 h-[52px] text-white font-outfit mb-6"
+                                className={`${FillStyles.inputLarge} mb-4`}
                                 placeholder="Specjalne wymagania..."
-                                placeholderTextColor="#667"
                             />
 
                             <View className="flex-col items-end gap-4 mb-10 z-50">
-                                <TouchableOpacity
-                                    onPress={() => setUseMyPreferences(!useMyPreferences)}
-                                    className={`flex-row gap-x-2 items-center border py-3 px-5 rounded-full ${useMyPreferences
-                                        ? 'bg-card-active/40 border-[#8800ff]/50'//what
-                                        : 'bg-card/50 border-white/10'
-                                        }`}
-                                >
-                                    <Heart color={useMyPreferences ? "#8800ff" : "#888"} size={18} className="mr-0" />
-                                    <Text className={`font-outfit text-[15px] ${useMyPreferences ? 'text-white' : 'text-text-muted'}`}>
-                                        Dla moich preferencji
-                                    </Text>
-                                </TouchableOpacity>
-
                                 <TouchableOpacity className="flex-row gap-x-2 items-center bg-white py-3.5 px-6 rounded-full shadow-[0_0_10px_rgba(0,229,255,0.3)] elevation-5">
                                     <Check color="#000" size={20} strokeWidth={2} className="mr-2" />
                                     <Text className="font-outfit-semi text-[16px] text-black">Znajdź film</Text>

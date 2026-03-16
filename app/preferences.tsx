@@ -1,16 +1,15 @@
 import { useRouter } from 'expo-router';
-import { Calendar, Check, ChevronDown, ChevronUp, Film, Plus, Star, X } from 'lucide-react-native';
+import { Calendar, Check, Film, Plus, Star, X } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Modal, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import AnimatedBackground from '../components/AnimatedBackground';
+import MiniCollapsibleSection from '../components/MiniCollapsibleSection';
+import TouchableOpacity from '../components/TouchableOpacity';
+import { defaultGenres } from '../constants/genres';
+import { FillStyles } from '../constants/themeStyles';
 
-const defaultGenres = [
-    'Sci-fi', 'Akcja', 'Dramat', 'Przygodowy',
-    'Horror', 'Thriller', 'Animacja', 'Familijny',
-    'Fantasy', 'Komedia', 'Kryminał', '18+'
-];
 
 const eras = [
     { id: 1, name: 'Złota Era Hollywood', short: 'Z.E.H.' },
@@ -19,76 +18,17 @@ const eras = [
     { id: 4, name: 'Kino współczesne', short: 'K.W.' }
 ];
 
-interface CollapsibleSectionProps {
-    title: string;
-    subtitle: string;
-    value: number | string;
-    icon: any;
-    children: React.ReactNode;
-    defaultOpen?: boolean;
-}
-
-function CollapsibleSection({ title, subtitle, value, icon: IconComponent, children, defaultOpen = false }: CollapsibleSectionProps) {
-    const [open, setOpen] = useState(defaultOpen);
-
-    return (
-        <Animated.View layout={LinearTransition} className="bg-[#14141e]/50 border border-white/5 rounded-[36px] mb-4 overflow-hidden">
-            <TouchableOpacity
-                className="p-5 flex-col justify-between min-h-[140px]"
-                onPress={() => setOpen(!open)}
-                activeOpacity={0.7}
-            >
-                <View className="flex-row justify-between items-start">
-                    <View className="w-[48px] h-[48px] rounded-full bg-white/5 items-center justify-center border border-white/5">
-                        <IconComponent color="#ccc" size={22} />
-                    </View>
-                    <View className="w-9 h-9 rounded-full bg-white/5 items-center justify-center border border-white/5">
-                        {open ? <ChevronUp color="#888" size={18} /> : <ChevronDown color="#888" size={18} />}
-                    </View>
-                </View>
-                <View className="flex-row justify-between items-end mt-6 mb-1.5">
-                    <View className="flex-1 mr-4">
-                        <Text className="font-outfit text-[12px] text-[#888] uppercase tracking-widest">{subtitle}</Text>
-                        <Text className="font-outfit-semi text-[18px] text-white leading-tight">{title}</Text>
-                    </View>
-                    <Text className="font-outfit-bold text-[32px] text-white relative top-[8px]">{value}</Text>
-                </View>
-            </TouchableOpacity>
-            {open && (
-                <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} className="px-5 pb-6 pt-2">
-                    {children}
-                </Animated.View>
-            )}
-        </Animated.View>
-    );
-}
+import { BlurView } from 'expo-blur';
+import CollapsibleSection from '../components/CollapsibleSection';
 
 export default function PreferencesScreen() {
     const router = useRouter();
     const [preferences, setPreferences] = useState({
-        genres: ['Akcja', 'Kryminał'],
-        era: eras[0],
+        genres: { liked: [], disliked: [] },
+        eras: new Set<number>(),
         movies: [] as string[]
     });
-
-    const [customGenre, setCustomGenre] = useState('');
     const [movieInput, setMovieInput] = useState('');
-
-    const toggleGenre = (genre: string) => {
-        if (preferences.genres.includes(genre)) {
-            setPreferences(prev => ({ ...prev, genres: prev.genres.filter(g => g !== genre) }));
-        } else {
-            setPreferences(prev => ({ ...prev, genres: [...prev.genres, genre] }));
-        }
-    };
-
-    const addCustomGenre = () => {
-        const val = customGenre.trim();
-        if (val && !preferences.genres.includes(val)) {
-            setPreferences(prev => ({ ...prev, genres: [...prev.genres, val] }));
-        }
-        setCustomGenre('');
-    };
 
     const addMovie = () => {
         const val = movieInput.trim();
@@ -108,7 +48,21 @@ export default function PreferencesScreen() {
         router.push('/parameters');
     };
 
-    const allDisplayedGenres = Array.from(new Set([...defaultGenres, ...preferences.genres]));
+    //add liked and disliked categories
+    const toggleGenre = (genre: string, type: 'liked' | 'disliked' | '') => {
+        if (!type) return;
+        setPreferences(prev => {
+            const newGenres = prev.genres[type];
+            if (newGenres.includes(genre)) {
+                newGenres.splice(newGenres.indexOf(genre), 1);
+            } else {
+                newGenres.push(genre);
+            }
+            return { ...prev, genres: { ...prev.genres, [type]: newGenres } };
+        });
+    };
+
+    const [modalState, setModalState] = useState<'liked' | 'disliked' | ''>('');
 
     return (
         <View className="flex-1 bg-background pt-10">
@@ -131,65 +85,80 @@ export default function PreferencesScreen() {
                         from={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 200, duration: 600 }}
+                        className="flex flex-col gap-2"
                     >
                         <CollapsibleSection
-                            title="Lubiane przez Ciebie gatunki"
+                            title="Lubiane/nielubiane gatunki"
                             subtitle="Kategorie"
-                            value={preferences.genres.length}
                             icon={Film}
                             defaultOpen={true}
                         >
-                            <View className="flex-row flex-wrap gap-2 mb-4">
-                                {allDisplayedGenres.map(genre => {
-                                    const isSelected = preferences.genres.includes(genre);
-                                    return (
-                                        <TouchableOpacity
-                                            key={genre}
-                                            className={`py-1.5 px-3 rounded-[12px] border border-white/15 ${isSelected ? 'bg-white border-white' : 'bg-black/20'}`}
-                                            onPress={() => toggleGenre(genre)}
-                                        >
-                                            <Text className={`font-outfit text-[13px] text-[#ccc] ${isSelected ? 'text-black font-outfit-semi' : ''}`}>{genre}</Text>
-                                        </TouchableOpacity>
-                                    );
-                                })}
-                            </View>
-                            <View className="flex-row gap-2.5">
-                                <TextInput
-                                    className="flex-1 bg-black/20 border border-white/10 rounded-[12px_12px_12px_16px] px-3.5 h-[44px] text-white font-outfit"
-                                    placeholder="Dodaj własne..."
-                                    placeholderTextColor="#666"
-                                    value={customGenre}
-                                    onChangeText={setCustomGenre}
-                                    onSubmitEditing={addCustomGenre}
-                                    returnKeyType="done"
-                                />
-                                <TouchableOpacity
-                                    className="w-[44px] h-[44px] bg-white/5 border border-white/10 rounded-[12px] justify-center items-center"
-                                    onPress={addCustomGenre}
+                            <View className="flex-col gap-2">
+                                <MiniCollapsibleSection
+                                    title="Lubiane"
+                                    value={preferences.genres.liked.length}
+                                    defaultOpen={false}
+                                    rightIcon={<Plus size={18} />}
+                                    onRightIconPress={() => setModalState('liked')}
+                                    className="rounded-b-[12px]"
                                 >
-                                    <Plus color="#fff" size={20} />
-                                </TouchableOpacity>
+                                    <View className="flex-col gap-2 divide-y divide-text-muted">
+                                        {preferences.genres.liked.map(genre => (
+                                            <View className="flex flex-row justify-between items-center py-1" key={genre}>
+                                                <Text className="font-outfit text-[15px]">{genre}</Text>
+                                                <TouchableOpacity onPress={() => toggleGenre(genre, 'liked')}>
+                                                    <X size={18} />
+                                                </TouchableOpacity>
+                                            </View>
+                                        ))}
+                                    </View>
+                                </MiniCollapsibleSection>
+                                <MiniCollapsibleSection
+                                    title="Nielubiane"
+                                    value={preferences.genres.disliked.length}
+                                    defaultOpen={false}
+                                    rightIcon={<Plus size={18} />}
+                                    onRightIconPress={() => setModalState('disliked')}
+                                    className="rounded-t-[12px]"
+                                >
+                                    <View className="flex-col gap-2 divide-y divide-text-muted">
+                                        {preferences.genres.disliked.map(genre => (
+                                            <View className="flex flex-row justify-between items-center py-1" key={genre}>
+                                                <Text className={"font-outfit text-[15px]"}>{genre}</Text>
+                                                <TouchableOpacity onPress={() => toggleGenre(genre, 'disliked')}>
+                                                    <X size={18} />
+                                                </TouchableOpacity>
+                                            </View>
+                                        ))}
+                                    </View>
+                                </MiniCollapsibleSection>
                             </View>
+
                         </CollapsibleSection>
 
                         <CollapsibleSection
-                            title="Ulubiona epoka filmowa"
+                            title="Ulubione epoki filmowe"
                             subtitle="Czas produkcji"
-                            value={preferences.era.short}
+                            value={preferences.eras.size}
                             icon={Calendar}
                             defaultOpen={false}
                         >
-                            <View className="gap-3.5">
+                            <View className="flex flex-wrap flex-row gap-2">
                                 {eras.map(ep => (
                                     <TouchableOpacity
                                         key={ep.id}
                                         className="flex-row items-center gap-3"
-                                        onPress={() => setPreferences(prev => ({ ...prev, era: ep }))}
+                                        onPress={() => setPreferences(prev => {
+                                            const newEras = new Set(prev.eras);
+                                            if (newEras.has(ep.id)) {
+                                                newEras.delete(ep.id);
+                                            } else {
+                                                newEras.add(ep.id);
+                                            }
+                                            return { ...prev, eras: newEras };
+                                        })}
                                     >
-                                        <View className="w-5 h-5 rounded-full border border-white/50 justify-center items-center">
-                                            <View className={preferences.era.id === ep.id ? "w-2.5 h-2.5 rounded-full bg-white" : ""} />
-                                        </View>
-                                        <Text className={`font-outfit text-[15px] ${preferences.era.id === ep.id ? 'text-white' : 'text-[#ccc]'}`}>{ep.name}</Text>
+                                        <Text className={`font-outfit ${FillStyles.pillBase} ${preferences.eras.has(ep.id) ? FillStyles.pillActive : FillStyles.pillInactive}`}>{ep.name}</Text>
                                     </TouchableOpacity>
                                 ))}
                             </View>
@@ -220,16 +189,15 @@ export default function PreferencesScreen() {
 
                                 <View className="flex-row gap-2.5 mt-1.5">
                                     <TextInput
-                                        className="flex-1 bg-black/20 border border-white/10 rounded-[12px_12px_12px_16px] px-3.5 h-[44px] text-white font-outfit"
+                                        className={FillStyles.inputInline}
                                         placeholder="Np. Matrix, 1999"
-                                        placeholderTextColor="#666"
                                         value={movieInput}
                                         onChangeText={setMovieInput}
                                         onSubmitEditing={addMovie}
                                         returnKeyType="done"
                                     />
                                     <TouchableOpacity
-                                        className="w-[44px] h-[44px] bg-white/5 border border-white/10 rounded-[12px] justify-center items-center"
+                                        className={FillStyles.inputIconBtn}
                                         onPress={addMovie}
                                     >
                                         <Plus color="#fff" size={20} />
@@ -255,6 +223,31 @@ export default function PreferencesScreen() {
                     </TouchableOpacity>
                 </MotiView>
             </SafeAreaView>
+            <Modal visible={modalState !== ''} animationType="fade">
+                <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill}>
+                    <View className="flex-1 justify-center items-center px-6">
+                        <Animated.View entering={FadeIn} className="w-full bg-[#14141e]/90 border border-white/10 rounded-[28px] p-6 overflow-hidden">
+                            <Text className="font-outfit-bold text-xl text-white mb-4">Wybierz gatunki</Text>
+                            <View className="flex-row flex-wrap gap-2">
+                                {defaultGenres.map(genre => (
+                                    <TouchableOpacity
+                                        key={genre}
+                                        className="flex-row items-center gap-3"
+                                        onPress={() => toggleGenre(genre, modalState)}
+                                    >
+                                        {modalState && <Text className={`font-outfit ${FillStyles.pillBase} ${preferences.genres[modalState as keyof typeof preferences.genres].includes(genre) ? FillStyles.pillActive : FillStyles.pillInactive}`}>{genre}</Text>}
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                            <View className="flex-row justify-end gap-3">
+                                <TouchableOpacity onPress={() => setModalState('')} className="py-2.5 px-4 rounded-xl border border-white/5 justify-center">
+                                    <Text className="font-outfit text-text-dim">Wyjdź</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </Animated.View>
+                    </View>
+                </BlurView>
+            </Modal>
         </View>
     );
 }

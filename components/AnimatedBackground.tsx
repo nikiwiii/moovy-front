@@ -98,44 +98,61 @@ const AnimatedOrb = ({ color, size, startPos, animDuration, translateRange }: An
     );
 };
 
-export default function AnimatedBackground() {
+export type BackgroundTheme = 'default' | 'ocean' | 'cyberpunk' | 'sunset' | 'aurora' | 'monochrome';
+
+export const BACKGROUND_THEMES: Record<BackgroundTheme, string[]> = {
+    default: ['#701a40', '#92400e', '#3b0764', '#1e1b4b', '#4c1d95'], // Oryginalny (ciemny, stonowany)
+    ocean: ['#0284c7', '#0369a1', '#1e3a8a', '#172554', '#1e40af'], // Oceaniczny głęboki
+    cyberpunk: ['#be185d', '#86198f', '#4c1d95', '#0e7490', '#3730a3'], // Cyberpunk
+    sunset: ['#9f1239', '#ea580c', '#c2410c', '#6b21a8', '#4c1d95'], // Ciepły zachód słońca
+    aurora: ['#047857', '#0f766e', '#1e3a8a', '#312e81', '#115e59'], // Zorza polarna
+    monochrome: ['#334155', '#1e293b', '#0f172a', '#020617', '#1e293b'] // Odcienie szarości i granatu
+};
+
+interface AnimatedBackgroundProps {
+    theme?: BackgroundTheme;
+}
+
+export default function AnimatedBackground({ theme = 'sunset' }: AnimatedBackgroundProps) {
+    const colors = BACKGROUND_THEMES[theme] || BACKGROUND_THEMES.default;
+
     return (
         <View className="absolute inset-0 bg-background-dark overflow-hidden">
-            {/* Lewy górny - głęboki burgund / wiśnia */}
+            {/* Lewy górny */}
             <AnimatedOrb
-                color="#701a40"
+                color={colors[0]}
                 size={width * 2.2}
                 startPos={{ x: -width * 0.2, y: -height * 0.1 }}
                 animDuration={12000}
                 translateRange={{ x: 80, y: 120 }}
             />
-            {/* Prawy górny - ciepły pomarańcz / miedź słabo widoczna */}
+            {/* Prawy górny */}
             <AnimatedOrb
-                color="#92400e"
+                color={colors[1]}
                 size={width * 1.8}
                 startPos={{ x: width * 0.9, y: height * 0.2 }}
                 animDuration={15000}
                 translateRange={{ x: -100, y: 80 }}
             />
-            {/* Ciemny fiolet */}
+            {/* Lewy dolny */}
             <AnimatedOrb
-                color="#3b0764"
+                color={colors[2]}
                 size={width * 2}
                 startPos={{ x: -width * 0.1, y: height * 0.9 }}
                 animDuration={13000}
                 translateRange={{ x: 120, y: -100 }}
             />
-            {/* Ciemny granat/indigo */}
+            {/* Prawy dolny */}
             <AnimatedOrb
-                color="#1e1b4b"
+                color={colors[3]}
                 size={width * 2.5}
                 startPos={{ x: width * 1.1, y: height * 1.1 }}
                 animDuration={16000}
                 translateRange={{ x: -150, y: -150 }}
             />
-            {/* Centralny wypełniający - stonowany fiolet/purpura */}
+            {/* Centralny wypełniający */}
             <AnimatedOrb
-                color="#4c1d95"
+                color={colors[4]}
                 size={width * 1.6}
                 startPos={{ x: width * 0.5, y: height * 0.5 }}
                 animDuration={20000}
