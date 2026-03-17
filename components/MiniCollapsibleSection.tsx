@@ -23,13 +23,13 @@ export default function CollapsibleSection({ title, value, children, defaultOpen
     return (
         <Animated.View layout={LinearTransition} className={`${FillStyles.subsection} overflow-hidden ${className}`}>
             <TouchableOpacity
-                className="p-3 flex-col justify-between"
+                className={`flex-col justify-between ${value ? "p-3" : "p-2"}`}
                 onPress={() => setOpen(!open)}
             >
                 <View className="flex-row justify-between items-center gap-4">
                     {img && <Image source={{ uri: img }} className="w-14 h-14 rounded-2xl" />}
                     <View className="flex-1 mr-4">
-                        <Text className={"font-outfit uppercase tracking-widest" + (img ? " text-[16px]" : " text-[12px] opacity-70")}>{title} ({value})</Text>
+                        <Text className={`font-outfit uppercase tracking-widest ${!value && "text-white"} ${img ? " text-[16px]" : " text-[12px] opacity-70"}`}>{title} {value && `(${value})`}</Text>
                     </View>
                     <View className="flex-row items-center">
                         {rightIcon && (

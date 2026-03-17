@@ -86,7 +86,7 @@ export default function ParametersScreen() {
             <SafeAreaView className="flex-1">
                 <Navbar />
 
-                <ScrollView contentContainerClassName="px-6 pb-[60px]" showsVerticalScrollIndicator={false}>
+                <ScrollView contentContainerClassName="px-4 pb-[60px]" showsVerticalScrollIndicator={false}>
                     <MotiView
                         from={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -195,7 +195,8 @@ export default function ParametersScreen() {
                             />
 
                             <View className="flex-col items-end gap-4 mb-10 z-50">
-                                <TouchableOpacity className="flex-row gap-x-2 items-center bg-white py-3.5 px-6 rounded-full shadow-[0_0_10px_rgba(0,229,255,0.3)] elevation-5">
+                                <TouchableOpacity className="flex-row gap-x-2 items-center bg-white py-3.5 px-6 rounded-full shadow-[0_0_10px_rgba(0,229,255,0.3)] elevation-5"
+                                    onPress={() => router.push('/idea')}>
                                     <Check color="#000" size={20} strokeWidth={2} className="mr-2" />
                                     <Text className="font-outfit-semi text-[16px] text-black">Znajdź film</Text>
                                 </TouchableOpacity>

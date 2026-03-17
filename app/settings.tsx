@@ -24,7 +24,7 @@ export default function Settings() {
             </MotiView>
 
             <ScrollView className="px-6">
-                <View className="gap-y-1">
+                <View className="gap-y-2">
                     <TouchableOpacity
                         onPress={() => router.push('/')}
                         className={`${FillStyles.pillBase} ${FillStyles.pillMiddle} ${FillStyles.pillFirst} flex-row items-center justify-between gap-x-2 min-h-16`}

@@ -43,7 +43,7 @@ export default function FriendBoard() {
                     <Plus color="currentColor" size={18} />
                 </TouchableOpacity>
             </MotiView>
-            <ScrollView className="px-6">
+            <ScrollView className="px-4">
                 <View className="flex flex-col gap-1">
                     {friends.map((friend) => (
                         <MiniCollapsibleSection
@@ -55,27 +55,27 @@ export default function FriendBoard() {
                             img={friend.img}
                         >
                             <View className="flex-col gap-2">
-                                <ScrollView horizontal className={`flex-row gap-2 divide-y divide-text-muted ${FillStyles.pillBase} ${FillStyles.pillInactive} px-2 py-2 !rounded-t-3xl`}>
+                                <ScrollView horizontal className={`flex-row gap-2 divide-y divide-text-muted ${FillStyles.pillBase} ${FillStyles.pillInactive} px-2 py-1 !rounded-t-2xl`}>
                                     <View className={`flex flex-row gap-2 items-center py-1 mr-3`}>
                                         <Heart strokeWidth={1.5} size={16} color="currentColor" />
                                         <Text className="font-outfit text-md uppercase tracking-widest">Lubi</Text>
                                     </View>
                                     <View className="flex-row gap-2 pr-5">
                                         {friend.genre_likes.map(genre => (
-                                            <View className={`flex flex-row justify-between items-center py-1 ${FillStyles.pillBase} ${FillStyles.pillActive}`} key={genre}>
+                                            <View className={`flex flex-row justify-between items-center ${FillStyles.pillBase} ${FillStyles.pillActive} px-1.5 rounded-lg`} key={genre}>
                                                 <Text className="font-outfit text-md">{genre}</Text>
                                             </View>
                                         ))}
                                     </View>
                                 </ScrollView>
-                                <ScrollView horizontal className={`flex-row gap-2 divide-y divide-text-muted ${FillStyles.pillBase} ${FillStyles.pillInactive} px-2 py-2 !rounded-b-3xl`}>
+                                <ScrollView horizontal className={`flex-row gap-2 divide-y divide-text-muted ${FillStyles.pillBase} ${FillStyles.pillInactive} px-2 py-1 !rounded-b-2xl`}>
                                     <View className={`flex flex-row gap-2 items-center py-1 mr-3`}>
                                         <HeartOff strokeWidth={1.5} size={16} color="currentColor" />
                                         <Text className="font-outfit text-md uppercase tracking-widest">Nie lubi</Text>
                                     </View>
                                     <View className="flex-row gap-2 pr-5">
                                         {friend.genre_dislikes.map(genre => (
-                                            <View className={`flex flex-row justify-between items-center py-1 ${FillStyles.pillBase} ${FillStyles.pillInactive}`} key={genre}>
+                                            <View className={`flex flex-row justify-between items-center ${FillStyles.pillBase} ${FillStyles.pillInactive} px-1.5 rounded-lg`} key={genre}>
                                                 <Text className="font-outfit text-md">{genre}</Text>
                                             </View>
                                         ))}

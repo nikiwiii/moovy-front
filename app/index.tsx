@@ -25,12 +25,12 @@ export default function WelcomeScreen() {
         <View className="flex-1 bg-background">
             <AnimatedBackground />
             <SafeAreaView className="flex-1">
-                <View className="flex-1 px-6 justify-center">
+                <View className="flex-1 px-4 justify-center">
                     <MotiView
                         from={{ opacity: 0, translateY: 20 }}
                         animate={{ opacity: 1, translateY: 0 }}
                         transition={{ delay: 200, type: 'timing', duration: 800 }}
-                        className="mb-10"
+                        className="mb-10 px-4"
                     >
                         <Text className="font-outfit-bold text-white text-[26px] mb-1.5">Witamy w MovieNight</Text>
                         <Text className="font-outfit text-white text-[15px]">Gdzie chcesz zapisywać preferencje?</Text>

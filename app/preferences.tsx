@@ -76,11 +76,11 @@ export default function PreferencesScreen() {
                 >
                     <Text className="font-outfit-bold text-[24px] text-white">Krótko o sobie</Text>
                     <TouchableOpacity onPress={() => router.push('/parameters')}>
-                        <Text className="font-outfit text-[15px] text-text-dim">Pomiń</Text>
+                        <Text className="font-outfit text-md text-white/70">Pomiń</Text>
                     </TouchableOpacity>
                 </MotiView>
 
-                <ScrollView contentContainerClassName="px-6 pb-[100px]" showsVerticalScrollIndicator={false}>
+                <ScrollView contentContainerClassName="px-4 pb-[100px]" showsVerticalScrollIndicator={false}>
                     <MotiView
                         from={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
