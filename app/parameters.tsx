@@ -1,3 +1,4 @@
+import Slider from '@react-native-community/slider';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { Check, Clock, Film, Heart, LucideIcon, Plus, ScanEye, Settings, Sparkle, Users } from 'lucide-react-native';
@@ -41,7 +42,7 @@ export default function ParametersScreen() {
     //checklist ustawień
     const [settings, setSettings] = useState([
         { icon: ScanEye, title: "Filmy które widziałeś", value: false },
-        { icon: Clock, title: "Długość", value: 0 },
+        { icon: Clock, title: "Długość", value: 120 },
         { icon: Heart, title: "Używaj preferencji profilu", value: false },
     ])
 
@@ -159,28 +160,28 @@ export default function ParametersScreen() {
                                                 setSettingValue(setting.title, !setting.value)
                                             }
                                         }}
+                                        disabled={typeof setting.value !== 'boolean'}
                                     >
                                         <View className="flex-row items-center gap-x-2">
-                                            {setting.value ? <setting.icon size={18} fill="currentColor" /> : <setting.icon size={18} />}
+                                            {setting.value && typeof setting.value === 'boolean' ? <setting.icon size={18} fill="currentColor" /> : <setting.icon size={18} />}
                                             <Text className={`font-outfit text-[13px]`}>{setting.title}</Text>
                                         </View>
                                         {typeof setting.value === 'boolean' ? (
                                             <Text className={`font-outfit uppercase tracking-wider opacity-70 text-[13px] ${setting.value ? 'font-outfit-bold' : ''}`}>{setting.value ? 'Zezwalaj' : 'Nie zezwalaj'}</Text>
                                         ) : (
-                                            <View className="flex-row items-center gap-x-2">
-                                                <TextInput
-                                                    className={`${FillStyles.pillBase} font-outfit text-[13px]`}
-                                                    onChangeText={textValue => {
-                                                        if (textValue && !isNaN(parseInt(textValue))) {
-                                                            setSettingValue(setting.title, parseInt(textValue))
-                                                        } else if (textValue === "") {
-                                                            setSettingValue(setting.title, 0)
-                                                        }
-                                                    }}
-                                                    value={setting.value?.toString()}
-                                                    keyboardType="numeric"
+                                            <View className="flex-row items-center gap-x-2 justify-end flex-1 pl-4">
+                                                <Slider
+                                                    style={{ flex: 1, minWidth: 100, height: 40 }}
+                                                    minimumValue={60}
+                                                    maximumValue={240}
+                                                    step={10}
+                                                    value={setting.value as number}
+                                                    onValueChange={(val) => setSettingValue(setting.title, val)}
+                                                    minimumTrackTintColor="#FFFFFF"
+                                                    maximumTrackTintColor="#ffffff50"
+                                                    thumbTintColor="#FFFFFF"
                                                 />
-                                                <Text className="font-outfit text-[13px]">minut</Text>
+                                                <Text className="font-outfit text-[13px] w-14 text-right">{setting.value} min</Text>
                                             </View>
                                         )}
                                     </TouchableOpacity>

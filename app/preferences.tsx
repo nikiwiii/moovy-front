@@ -24,7 +24,7 @@ import CollapsibleSection from '../components/CollapsibleSection';
 export default function PreferencesScreen() {
     const router = useRouter();
     const [preferences, setPreferences] = useState({
-        genres: { liked: [], disliked: [] },
+        genres: { liked: [] as string[], disliked: [] as string[] },
         eras: new Set<number>(),
         movies: [] as string[]
     });
@@ -52,7 +52,7 @@ export default function PreferencesScreen() {
     const toggleGenre = (genre: string, type: 'liked' | 'disliked' | '') => {
         if (!type) return;
         setPreferences(prev => {
-            const newGenres = prev.genres[type];
+            const newGenres = [...prev.genres[type]];
             if (newGenres.includes(genre)) {
                 newGenres.splice(newGenres.indexOf(genre), 1);
             } else {
