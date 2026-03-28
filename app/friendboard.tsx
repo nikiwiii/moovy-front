@@ -43,7 +43,7 @@ export default function FriendBoard() {
                     <Plus color="currentColor" size={18} />
                 </TouchableOpacity>
             </MotiView>
-            <ScrollView className="px-4">
+            <ScrollView className="px-4" contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
                 <View className="flex flex-col gap-1">
                     {friends.map((friend) => (
                         <MiniCollapsibleSection

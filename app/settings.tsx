@@ -23,7 +23,7 @@ export default function Settings() {
                 <Text className="font-outfit-bold text-[24px] text-white">Ustawienia</Text>
             </MotiView>
 
-            <ScrollView className="px-6">
+            <ScrollView className="px-6" contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
                 <View className="gap-y-2">
                     <TouchableOpacity
                         onPress={() => router.push('/')}

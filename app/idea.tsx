@@ -20,7 +20,7 @@ export default function IdeaScreen() {
         <View className="flex-1 bg-background pt-10">
             <AnimatedBackground />
             <Navbar />
-            <ScrollView contentContainerClassName="px-2 pb-[100px]" showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerClassName="px-2 pb-[120px]" showsVerticalScrollIndicator={false}>
                 <MotiView
                     from={{ opacity: 0, translateY: -20 }}
                     animate={{ opacity: 1, translateY: 0 }}

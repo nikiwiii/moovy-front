@@ -87,7 +87,16 @@ export default function ParametersScreen() {
             <SafeAreaView className="flex-1">
                 <Navbar />
 
-                <ScrollView contentContainerClassName="px-4 pb-[60px]" showsVerticalScrollIndicator={false}>
+                <MotiView
+                    from={{ opacity: 0, translateY: -20 }}
+                    animate={{ opacity: 1, translateY: 0 }}
+                    transition={{ duration: 600 }}
+                    className="px-6 pt-5 pb-5 flex-row justify-between items-center"
+                >
+                    <Text className="font-outfit-bold text-[24px] text-white">MN</Text>
+                </MotiView>
+
+                <ScrollView contentContainerClassName="px-4 pb-[120px]" showsVerticalScrollIndicator={false}>
                     <MotiView
                         from={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}

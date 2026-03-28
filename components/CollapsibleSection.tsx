@@ -14,13 +14,14 @@ export interface CollapsibleSectionProps {
     defaultOpen?: boolean;
     rightIcon?: React.ReactNode;
     onRightIconPress?: () => void;
+    className?: string;
 }
 
-export default function CollapsibleSection({ title, subtitle, value, icon: IconComponent, children, defaultOpen = false, rightIcon = null, onRightIconPress }: CollapsibleSectionProps) {
+export default function CollapsibleSection({ title, subtitle, value, icon: IconComponent, children, defaultOpen = false, rightIcon = null, onRightIconPress, className }: CollapsibleSectionProps) {
     const [open, setOpen] = useState(defaultOpen);
 
     return (
-        <Animated.View layout={LinearTransition} className={`${FillStyles.section} overflow-hidden`}>
+        <Animated.View layout={LinearTransition} className={`${FillStyles.section} overflow-hidden ${className}`}>
             <TouchableOpacity
                 className="p-5 flex-col justify-between min-h-[140px]"
                 onPress={() => setOpen(!open)}
