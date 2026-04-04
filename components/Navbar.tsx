@@ -28,7 +28,7 @@ export default function Navbar() {
                     intensity={40}
                     tint="dark"
                     style={styles.blurBackground}
-                    className="flex-row items-center justify-between px-2 py-2 rounded-[32px] border border-white/10 bg-[#12121ab3]"
+                    className="flex-row items-center justify-between px-1 py-2 rounded-[36px] border border-white/10 bg-[#12121ab3]"
                 >
                     {tabs.map((tab, index) => {
                         const isActive = pathname === tab.path || (pathname === '/' && index === 0);

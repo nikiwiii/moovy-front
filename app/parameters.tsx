@@ -6,17 +6,11 @@ import { MotiView } from 'moti';
 import React, { useState } from 'react';
 import { Image, Modal, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
-import AnimatedBackground from '../components/AnimatedBackground';
 import CollapsibleSection from '../components/CollapsibleSection';
-import Navbar from '../components/Navbar';
+import GenreSelection from '../components/GenreSelection';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { FillStyles } from '../constants/themeStyles';
 
-const defaultGenres = [
-    'Sci-fi', 'Akcja', 'Dramat', 'Przygodowy',
-    'Horror', 'Thriller', 'Animacja', 'Familijny',
-    'Fantasy', 'Komedia', 'Kryminał', '18+'
-];
 
 const posters = [
     'https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg', // Lord of the rings
@@ -54,15 +48,20 @@ export default function ParametersScreen() {
     const [newTitle, setNewTitle] = useState('');
     const [newDesc, setNewDesc] = useState('');
 
-    const [selectedMixGenres, setSelectedMixGenres] = useState<string[]>([]);
+    const [genres, setGenres] = useState({ liked: [] as string[], disliked: [] as string[] });
 
-    const toggleMixGenre = (genre: string) => {
-        if (selectedMixGenres.includes(genre)) {
-            setSelectedMixGenres(prev => prev.filter(g => g !== genre));
-        } else {
-            setSelectedMixGenres(prev => [...prev, genre]);
-        }
+    const toggleGenre = (genre: string, type: 'liked' | 'disliked') => {
+        setGenres(prev => {
+            const newGenres = [...prev[type]];
+            if (newGenres.includes(genre)) {
+                newGenres.splice(newGenres.indexOf(genre), 1);
+            } else {
+                newGenres.push(genre);
+            }
+            return { ...prev, [type]: newGenres };
+        });
     };
+
 
     const handleAddGroup = () => {
         if (newTitle.trim()) {
@@ -82,10 +81,8 @@ export default function ParametersScreen() {
     };
 
     return (
-        <View className="flex-1 bg-background pt-10">
-            <AnimatedBackground />
+        <View className="flex-1 bg-transparent pt-10">
             <SafeAreaView className="flex-1">
-                <Navbar />
 
                 <MotiView
                     from={{ opacity: 0, translateY: -20 }}
@@ -134,24 +131,17 @@ export default function ParametersScreen() {
                         <CollapsibleSection
                             title="Wybierz gatunki"
                             subtitle="Kategorie"
-                            value={selectedMixGenres.length}
+                            value={genres.liked.length + genres.disliked.length}
                             icon={Film}
                             defaultOpen={false}
                         >
-                            <View className="flex-row flex-wrap gap-2">
-                                {defaultGenres.map(genre => {
-                                    const isSelected = selectedMixGenres.includes(genre);
-                                    return (
-                                        <TouchableOpacity
-                                            key={genre}
-                                            className={`${FillStyles.pillBase} ${isSelected ? FillStyles.pillActive : FillStyles.pillInactive}`}
-                                            onPress={() => toggleMixGenre(genre)}
-                                        >
-                                            <Text className={`font-outfit text-[13px]`}>{genre}</Text>
-                                        </TouchableOpacity>
-                                    );
-                                })}
-                            </View>
+                            <GenreSelection
+                                liked={genres.liked}
+                                disliked={genres.disliked}
+                                onToggleGenre={toggleGenre}
+                                label1="Uwzględniaj"
+                                label2="Wyklucz"
+                            />
                         </CollapsibleSection>
                         <CollapsibleSection
                             title="Ustawienia"

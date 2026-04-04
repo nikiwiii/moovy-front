@@ -4,7 +4,6 @@ import { MotiView } from 'moti';
 import React, { useState } from 'react';
 import { Dimensions, SafeAreaView, Text, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
-import AnimatedBackground from '../components/AnimatedBackground';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { FillStyles } from '../constants/themeStyles';
 
@@ -16,14 +15,15 @@ export default function WelcomeScreen() {
     const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
     const handleNext = () => {
-        if (selected) {
+        if (selected === 'cloud') {
+            router.push('/login');
+        } else if (selected === 'local') {
             router.push('/preferences');
         }
     };
 
     return (
-        <View className="flex-1 bg-background">
-            <AnimatedBackground />
+        <View className="flex-1 bg-transparent">
             <SafeAreaView className="flex-1">
                 <View className="flex-1 px-4 justify-center">
                     <MotiView
@@ -55,7 +55,7 @@ export default function WelcomeScreen() {
                                     <Cloud color={selected === 'cloud' ? '#8800ffa8' : '#000'} size={28} strokeWidth={selected === 'cloud' ? 2.0 : 1.5} />
                                 </View>
                                 <View className="flex-1">
-                                    <Text className="text-[18px] font-outfit uppercase tracking-wider">Chmura</Text>
+                                    <Text className="text-[18px] font-outfit-semi opacity-80 uppercase tracking-wider">Chmura</Text>
                                     <Text className="font-outfit text-[14px] leading-[18px]">Preferencje filmowe powiązane z kontem</Text>
                                 </View>
                             </AnimatedTouchableOpacity>
@@ -74,7 +74,7 @@ export default function WelcomeScreen() {
                                     <Smartphone color={selected === 'local' ? '#8800ffa8' : '#000'} size={28} strokeWidth={selected === 'local' ? 2.0 : 1.5} />
                                 </View>
                                 <View className="flex-1">
-                                    <Text className="text-[18px] font-outfit uppercase tracking-wider">Lokalnie</Text>
+                                    <Text className="text-[18px] font-outfit-semi opacity-80 uppercase tracking-wider">Lokalnie</Text>
                                     <Text className="font-outfit text-[14px] leading-[18px]">Preferencje filmowe tylko na urządzeniu</Text>
                                 </View>
                             </AnimatedTouchableOpacity>

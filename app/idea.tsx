@@ -4,9 +4,7 @@ import { Clock, Film, RotateCcw, UserPlus, Users } from "lucide-react-native";
 import { MotiView } from "moti";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Animated, { LinearTransition } from "react-native-reanimated";
-import AnimatedBackground from "../components/AnimatedBackground";
 import CollapsibleSection from "../components/CollapsibleSection";
-import Navbar from "../components/Navbar";
 
 export default function IdeaScreen() {
     const router = useRouter();
@@ -17,9 +15,7 @@ export default function IdeaScreen() {
         friendsAdded: 0
     }
     return (
-        <View className="flex-1 bg-background pt-10">
-            <AnimatedBackground />
-            <Navbar />
+        <View className="flex-1 bg-transparent pt-10">
             <ScrollView contentContainerClassName="px-2 pb-[120px]" showsVerticalScrollIndicator={false}>
                 <MotiView
                     from={{ opacity: 0, translateY: -20 }}

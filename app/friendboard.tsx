@@ -5,8 +5,6 @@ import { Heart, HeartOff, Plus } from "lucide-react-native";
 import { MotiView } from "moti";
 import { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import AnimatedBackground from "../components/AnimatedBackground";
-import Navbar from "../components/Navbar";
 
 interface FriendProps {
     id: number;
@@ -29,9 +27,7 @@ export default function FriendBoard() {
         { id: 8, img: "https://images.unsplash.com/photo-1511485977113-f34c92461ad9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80", name: "Krzysztof", genre_likes: ["Sci-fi", "Akcja", "Dramat"], genre_dislikes: ["Horror", "Thriller", "Kryminał"] },
     ]);
     return (
-        <View className="flex-1 bg-background pt-10">
-            <AnimatedBackground />
-            <Navbar />
+        <View className="flex-1 bg-transparent pt-10">
             <MotiView
                 from={{ opacity: 0, translateY: -20 }}
                 animate={{ opacity: 1, translateY: 0 }}
@@ -49,9 +45,8 @@ export default function FriendBoard() {
                         <MiniCollapsibleSection
                             key={friend.id}
                             title={friend.name}
-                            value={friend.genre_likes.length}
                             defaultOpen={false}
-                            className="bg-white/50"
+                            className="bg-white/30"
                             img={friend.img}
                         >
                             <View className="flex-col gap-2">
