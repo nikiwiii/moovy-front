@@ -5,18 +5,18 @@ import { Modal, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import MiniCollapsibleSection from './MiniCollapsibleSection';
 import TouchableOpacity from './TouchableOpacity';
-import { defaultGenres } from '../constants/genres';
+import { defaultVibes } from '../constants/vibes';
 import { FillStyles } from '../constants/themeStyles';
 
 interface GenreSelectionProps {
     liked: string[];
     disliked: string[];
-    onToggleGenre: (genre: string, type: 'liked' | 'disliked') => void;
+    onToggleVibe: (vibe: string, type: 'liked' | 'disliked') => void;
     label1: string;
     label2: string;
 }
 
-export default function GenreSelection({ liked, disliked, onToggleGenre, label1, label2 }: GenreSelectionProps) {
+export default function VibeSelection({ liked, disliked, onToggleVibe, label1, label2 }: GenreSelectionProps) {
     const [modalState, setModalState] = useState<'liked' | 'disliked' | ''>('');
 
     return (
@@ -30,10 +30,10 @@ export default function GenreSelection({ liked, disliked, onToggleGenre, label1,
                 className="rounded-b-[12px]"
             >
                 <View className="flex-col gap-2 divide-y divide-text-muted">
-                    {liked.map(genre => (
-                        <View className="flex flex-row justify-between items-center py-1" key={genre}>
-                            <Text className="font-outfit text-[15px]">{genre}</Text>
-                            <TouchableOpacity onPress={() => onToggleGenre(genre, 'liked')}>
+                    {liked.map(vibe => (
+                        <View className="flex flex-row justify-between items-center py-1" key={vibe}>
+                            <Text className="font-outfit text-[15px]">{vibe}</Text>
+                            <TouchableOpacity onPress={() => onToggleVibe(vibe, 'liked')}>
                                 <X size={18} />
                             </TouchableOpacity>
                         </View>
@@ -49,10 +49,10 @@ export default function GenreSelection({ liked, disliked, onToggleGenre, label1,
                 className="rounded-t-[12px]"
             >
                 <View className="flex-col gap-2 divide-y divide-text-muted">
-                    {disliked.map(genre => (
-                        <View className="flex flex-row justify-between items-center py-1" key={genre}>
-                            <Text className="font-outfit text-[15px]">{genre}</Text>
-                            <TouchableOpacity onPress={() => onToggleGenre(genre, 'disliked')}>
+                    {disliked.map(vibe => (
+                        <View className="flex flex-row justify-between items-center py-1" key={vibe}>
+                            <Text className="font-outfit text-[15px]">{vibe}</Text>
+                            <TouchableOpacity onPress={() => onToggleVibe(vibe, 'disliked')}>
                                 <X size={18} />
                             </TouchableOpacity>
                         </View>
@@ -64,23 +64,23 @@ export default function GenreSelection({ liked, disliked, onToggleGenre, label1,
                 <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill}>
                     <View className="flex-1 justify-center items-center px-6">
                         <Animated.View entering={FadeIn} className="w-full bg-[#14141e]/90 border border-white/10 rounded-[28px] p-6 overflow-hidden">
-                            <Text className="font-outfit-bold text-xl text-white mb-4">Wybierz gatunki</Text>
+                            <Text className="font-outfit-bold text-xl text-white mb-4">Wybierz vibe</Text>
                             <View className="flex-row flex-wrap gap-2 mb-6">
-                                {defaultGenres
-                                    .filter(genre => {
+                                {defaultVibes
+                                    .filter(vibe => {
                                         const oppositeArray = modalState === 'liked' ? disliked : liked;
-                                        return !oppositeArray.includes(genre);
+                                        return !oppositeArray.includes(vibe);
                                     })
-                                    .map(genre => {
+                                    .map(vibe => {
                                         const currentArray = modalState === 'liked' ? liked : disliked;
-                                        const isActive = currentArray.includes(genre);
+                                        const isActive = currentArray.includes(vibe);
                                         return (
                                             <TouchableOpacity
-                                                key={genre}
+                                                key={vibe}
                                                 className="flex-row items-center gap-3"
-                                                onPress={() => modalState && onToggleGenre(genre, modalState)}
+                                                onPress={() => modalState && onToggleVibe(vibe, modalState)}
                                             >
-                                                <Text className={`font-outfit ${FillStyles.pillBase} ${isActive ? FillStyles.pillActive : FillStyles.pillInactive}`}>{genre}</Text>
+                                                <Text className={`font-outfit ${FillStyles.pillBase} ${isActive ? FillStyles.pillActive : FillStyles.pillInactive}`}>{vibe}</Text>
                                             </TouchableOpacity>
                                         );
                                     })}

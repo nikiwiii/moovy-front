@@ -129,7 +129,7 @@ export default function ParametersScreen() {
                         </CollapsibleSection>
 
                         <CollapsibleSection
-                            title="Wybierz gatunki"
+                            title="Wybierz vibe"
                             subtitle="Kategorie"
                             value={genres.liked.length + genres.disliked.length}
                             icon={Film}

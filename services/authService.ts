@@ -1,4 +1,4 @@
-const API_URL = 'http://10.0.2.2:8000'; // Ustaw adres lokalny swojego backendu
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const authService = {
   async login(email: string, password: string) {

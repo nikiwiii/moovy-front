@@ -6,7 +6,7 @@ import { Modal, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } fr
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import MiniCollapsibleSection from '../components/MiniCollapsibleSection';
 import TouchableOpacity from '../components/TouchableOpacity';
-import { defaultGenres } from '../constants/genres';
+import { defaultVibes } from '../constants/vibes';
 import { FillStyles } from '../constants/themeStyles';
 
 
@@ -19,12 +19,12 @@ const eras = [
 
 import { BlurView } from 'expo-blur';
 import CollapsibleSection from '../components/CollapsibleSection';
-import GenreSelection from '../components/GenreSelection';
+import VibeSelection from '../components/GenreSelection';
 
 export default function PreferencesScreen() {
     const router = useRouter();
     const [preferences, setPreferences] = useState({
-        genres: { liked: [] as string[], disliked: [] as string[] },
+        vibes: { liked: [] as string[], disliked: [] as string[] },
         eras: new Set<number>(),
         movies: [] as string[]
     });
@@ -49,16 +49,16 @@ export default function PreferencesScreen() {
     };
 
     //add liked and disliked categories
-    const toggleGenre = (genre: string, type: 'liked' | 'disliked' | '') => {
+    const toggleVibe = (vibe: string, type: 'liked' | 'disliked' | '') => {
         if (!type) return;
         setPreferences(prev => {
-            const newGenres = [...prev.genres[type]];
-            if (newGenres.includes(genre)) {
-                newGenres.splice(newGenres.indexOf(genre), 1);
+            const newVibes = [...prev.vibes[type]];
+            if (newVibes.includes(vibe)) {
+                newVibes.splice(newVibes.indexOf(vibe), 1);
             } else {
-                newGenres.push(genre);
+                newVibes.push(vibe);
             }
-            return { ...prev, genres: { ...prev.genres, [type]: newGenres } };
+            return { ...prev, vibes: { ...prev.vibes, [type]: newVibes } };
         });
     };
 
@@ -86,15 +86,15 @@ export default function PreferencesScreen() {
                         className="flex flex-col gap-2"
                     >
                         <CollapsibleSection
-                            title="Lubiane/nielubiane gatunki"
+                            title="Lubiany/nielubiany vibe"
                             subtitle="Kategorie"
                             icon={Film}
                             defaultOpen={true}
                         >
-                            <GenreSelection
-                                liked={preferences.genres.liked}
-                                disliked={preferences.genres.disliked}
-                                onToggleGenre={(genre, type) => toggleGenre(genre, type)}
+                            <VibeSelection
+                                liked={preferences.vibes.liked}
+                                disliked={preferences.vibes.disliked}
+                                onToggleVibe={(vibe, type) => toggleVibe(vibe, type)}
                                 label1="Lubiane"
                                 label2="Nielubiane"
                             />
