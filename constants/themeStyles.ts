@@ -1,34 +1,35 @@
 export const FillStyles = {
-    // Sekcje i duże panele
-    section: "bg-white/40 border border-white/5 rounded-[36px] w-full",
-    subsection: "bg-white/10 border border-white/5 rounded-[24px]",
+    // Sekcje i duże panele — glassmorphism
+    section: "bg-white/[0.04] border border-white/[0.08] rounded-[32px] w-full",
+    subsection: "bg-white/[0.03] border border-white/[0.08] rounded-[20px]",
+    miniSection: "bg-white/[0.03] border border-white/[0.08] rounded-[16px]",
 
     // Karty (np. ekran powitalny)
-    cardBase: "rounded-[36px] border border-white/5",
-    cardInactive: "bg-white/40",
-    cardActive: "bg-white/30",
-    cardIcon: "w-[48px] h-[48px] rounded-full bg-white/40 items-center justify-center",
+    cardBase: "rounded-[32px] border border-white/[0.08]",
+    cardInactive: "bg-white/[0.03]",
+    cardActive: "bg-white/[0.08] border-[#CDFF64]/30",
+    cardIcon: "w-[48px] h-[48px] rounded-full bg-white/[0.06] border border-white/[0.1] items-center justify-center",
 
     // Grupy i większe przyciski wyboru
-    groupItemBase: "border rounded-3xl p-4",
-    groupItemInactive: "border-white/5 bg-white/30",
-    groupItemActive: "bg-white/20 border-accent",
+    groupItemBase: "border rounded-2xl p-4",
+    groupItemInactive: "border-white/[0.08] bg-white/[0.03]",
+    groupItemActive: "bg-[#CDFF64]/10 border-[#CDFF64]/30",
 
     // Bąbelki z tagami, kategoriami (pills)
-    pillBase: "py-1.5 px-3 rounded-[12px] border",
-    pillInactive: "border-white/15 bg-white/20",
-    pillActive: "bg-white/40 border-white/50",
-    pillFirst: "rounded-t-[18px]",
-    pillLast: "rounded-b-[18px]",
-    pillMiddle: "border-white/20 bg-white/60",
+    pillBase: "py-2 px-3.5 rounded-[14px] border border-white/[0.08]",
+    pillInactive: "bg-white/[0.03]",
+    pillActive: "bg-[#CDFF64]/10 border-[#CDFF64]/25",
+    pillFirst: "rounded-t-[20px]",
+    pillLast: "rounded-b-[20px]",
+    pillMiddle: "",
 
     // Inputy
-    inputLarge: "bg-white/40 border border-white/5 rounded-3xl px-4 h-[52px] font-outfit",
-    inputInline: "flex-1 bg-white/20 border border-white/10 rounded-[12px_12px_12px_16px] px-3.5 h-[44px] font-outfit",
-    inputIconBtn: "w-[44px] h-[44px] bg-white/10 border border-white/10 rounded-[12px] justify-center items-center font-outfit",
+    inputLarge: "bg-white/[0.04] border border-white/[0.08] rounded-2xl px-4 h-[52px] font-outfit",
+    inputInline: "flex-1 bg-white/[0.04] border border-white/[0.08] rounded-[14px] px-3.5 h-[44px] font-outfit",
+    inputIconBtn: "w-[44px] h-[44px] bg-[#CDFF64] rounded-[14px] justify-center items-center",
 
-    // Przyciski akcji z obramowaniem
-    actionBtnBase: "flex-row gap-x-2 items-center border border-white/10 py-3 px-5 rounded-full",
-    actionBtnInactive: "bg-white/50",
-    actionBtnActive: "bg-white/70",
+    // Przyciski akcji
+    actionBtnBase: "flex-row gap-x-2 items-center py-3.5 px-6 rounded-full",
+    actionBtnPrimary: "bg-[#CDFF64]",
+    actionBtnSecondary: "bg-white/[0.06] border border-white/[0.08]",
 };

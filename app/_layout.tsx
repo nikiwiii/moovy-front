@@ -2,8 +2,9 @@ import { Outfit_400Regular, Outfit_600SemiBold, Outfit_700Bold, useFonts } from 
 import { Stack, usePathname } from 'expo-router';
 import { MotiScrollView, MotiView } from 'moti';
 import { cssInterop } from 'nativewind';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Text, TextInput } from 'react-native';
 import '../global.css';
+
 
 cssInterop(MotiView, { className: 'style' });
 cssInterop(MotiScrollView, { className: 'style', contentContainerClassName: 'contentContainerStyle' });
@@ -21,8 +22,8 @@ export default function RootLayout() {
 
     if (!fontsLoaded) {
         return (
-            <View style={{ flex: 1, backgroundColor: '#070314', justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator color="#ffffff" />
+            <View style={{ flex: 1, backgroundColor: '#030108', justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator color="#CDFF64" />
             </View>
         );
     }
@@ -30,7 +31,7 @@ export default function RootLayout() {
     const showNavbar = !['/', '/preferences', '/login'].includes(pathname);
 
     return (
-        <View style={{ flex: 1, backgroundColor: '#070314' }}>
+        <View style={{ flex: 1, backgroundColor: '#030108' }} className="text-white">
             <AnimatedBackground />
             <Stack
                 screenOptions={{

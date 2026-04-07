@@ -3,7 +3,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Calendar, Check, Film, Plus, Star, X } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, ScrollView, Text, TextInput, View, ActivityIndicator, Alert } from 'react-native';
+import { SafeAreaView, ScrollView, TextInput, View, ActivityIndicator, Alert } from 'react-native';
+import { AppText as Text } from '@/components/AppText';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import CollapsibleSection from '../components/CollapsibleSection';
 import VibeSelection from '../components/GenreSelection';
@@ -19,8 +20,6 @@ const eras = [
     'Kino współczesne',
     'Nowości (Lata 20.)'
 ];
-
-
 
 export default function PreferencesScreen() {
     const router = useRouter();
@@ -46,17 +45,15 @@ export default function PreferencesScreen() {
 
                 let prefsFound = false;
 
-                // Próba załadowania z serwera (tylko w trybie chmury)
                 if (!isLocal && token && userId && API_URL) {
                     try {
                         const response = await fetch(`${API_URL}/preferences/get?user_id=${userId}&token=${token}`);
                         if (response.ok) {
                             const data = await response.json();
-                            // Sprawdzamy czy backend zwrócił faktyczne dane
                             const hasData = data && (
-                                (data.vibes && data.vibes.length > 0) || 
-                                (data.hard_nos && data.hard_nos.length > 0) || 
-                                (data.eras && data.eras.length > 0) || 
+                                (data.vibes && data.vibes.length > 0) ||
+                                (data.hard_nos && data.hard_nos.length > 0) ||
+                                (data.eras && data.eras.length > 0) ||
                                 (data.movies && data.movies.length > 0)
                             );
 
@@ -74,7 +71,6 @@ export default function PreferencesScreen() {
                     }
                 }
 
-                // Fallback lub tryb lokalny
                 if (!prefsFound && lp) {
                     setPreferences({
                         vibes: { liked: lp.vibes || [], disliked: lp.hard_nos || [] },
@@ -173,11 +169,11 @@ export default function PreferencesScreen() {
                     from={{ opacity: 0, translateY: -20 }}
                     animate={{ opacity: 1, translateY: 0 }}
                     transition={{ duration: 600 }}
-                    className="flex-row justify-between items-center px-6 pt-5 pb-5"
+                    className="flex-row justify-between items-center px-6 pt-5 pb-3"
                 >
-                    <Text className="font-outfit-bold text-[24px] text-white">Krótko o sobie</Text>
+                    <Text className="font-outfit-bold text-[24px]">Krótko o sobie</Text>
                     <TouchableOpacity onPress={() => router.push('/parameters')}>
-                        <Text className="font-outfit text-md text-white/70">Pomiń</Text>
+                        <Text className="font-outfit text-[13px] opacity-35 uppercase tracking-[2px]">Pomiń</Text>
                     </TouchableOpacity>
                 </MotiView>
 
@@ -186,7 +182,7 @@ export default function PreferencesScreen() {
                         from={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 200, duration: 600 }}
-                        className="flex flex-col gap-2"
+                        className="flex flex-col gap-3"
                     >
                         <CollapsibleSection
                             title="Mój vibe filmowy"
@@ -215,13 +211,13 @@ export default function PreferencesScreen() {
                                     <TouchableOpacity
                                         key={era}
                                         onPress={() => setPreferences(prev => {
-                                            const newEras = prev.eras.includes(era) 
-                                                ? prev.eras.filter(e => e !== era) 
+                                            const newEras = prev.eras.includes(era)
+                                                ? prev.eras.filter(e => e !== era)
                                                 : [...prev.eras, era];
                                             return { ...prev, eras: newEras };
                                         })}
                                     >
-                                        <Text className={`font-outfit ${FillStyles.pillBase} ${preferences.eras.includes(era) ? FillStyles.pillActive : FillStyles.pillInactive}`}>{era}</Text>
+                                        <Text className={`font-outfit text-[13px] ${FillStyles.pillBase} ${preferences.eras.includes(era) ? FillStyles.pillActive : FillStyles.pillInactive}`}>{era}</Text>
                                     </TouchableOpacity>
                                 ))}
                             </View>
@@ -242,11 +238,11 @@ export default function PreferencesScreen() {
                                         exiting={FadeOut.duration(200)}
                                         layout={LinearTransition}
                                         key={index}
-                                        className="flex-row justify-between items-center bg-black/40 border border-white/10 rounded-xl py-3 px-4"
+                                        className="flex-row justify-between items-center bg-white/[0.04] border border-white/[0.08] rounded-xl py-3 px-4"
                                     >
-                                        <Text className="font-outfit text-white text-[14px] flex-1 mr-3">{movie}</Text>
+                                        <Text className="font-outfit text-[14px] flex-1 mr-3">{movie}</Text>
                                         <TouchableOpacity onPress={() => removeMovie(movie)} className="p-1">
-                                            <X color="#aaa" size={18} />
+                                            <X color="#707080" size={16} />
                                         </TouchableOpacity>
                                     </Animated.View>
                                 ))}
@@ -255,7 +251,7 @@ export default function PreferencesScreen() {
                                     <TextInput
                                         className={FillStyles.inputInline}
                                         placeholder="Np. Matrix (1999)"
-                                        placeholderTextColor="#666"
+                                        placeholderTextColor="#ffffff30"
                                         value={movieInput}
                                         onChangeText={setMovieInput}
                                         onSubmitEditing={addMovie}
@@ -265,7 +261,7 @@ export default function PreferencesScreen() {
                                         className={FillStyles.inputIconBtn}
                                         onPress={addMovie}
                                     >
-                                        <Plus color="#fff" size={20} />
+                                        <Plus color="#000" size={20} />
                                     </TouchableOpacity>
                                 </View>
                             </Animated.View>
@@ -277,10 +273,10 @@ export default function PreferencesScreen() {
                     from={{ opacity: 0, translateY: 30 }}
                     animate={{ opacity: 1, translateY: 0 }}
                     transition={{ delay: 400, type: 'spring' }}
-                    className="absolute bottom-10 right-6"
+                    className="absolute bottom-10 right-5"
                 >
                     <TouchableOpacity
-                        className="flex-row gap-x-2 items-center bg-white py-3.5 px-5 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.3)] elevation-5"
+                        className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary}`}
                         onPress={handleSave}
                         disabled={loading}
                     >
@@ -288,8 +284,8 @@ export default function PreferencesScreen() {
                             <ActivityIndicator color="#000" size="small" />
                         ) : (
                             <>
-                                <Check color="#000" size={20} strokeWidth={2} className="mr-2" />
-                                <Text className="font-outfit-semi text-[16px] text-black">Zapisz preferencje</Text>
+                                <Text className="font-outfit-semi text-[15px] text-black">Zapisz preferencje</Text>
+                                <Check color="#000" size={18} strokeWidth={2.5} />
                             </>
                         )}
                     </TouchableOpacity>

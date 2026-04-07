@@ -3,7 +3,8 @@ import { router } from "expo-router";
 import { ChevronRight, LogIn, LogOut, Settings as SettingsIcon, Smartphone, UserCircle2 } from "lucide-react-native";
 import { MotiView } from "moti";
 import React, { useEffect, useState } from "react";
-import { ScrollView, Text, View, Alert } from "react-native";
+import { ScrollView, View, Alert } from 'react-native';
+import { AppText as Text } from '@/components/AppText';
 import TouchableOpacity from "@/components/TouchableOpacity";
 import { storageService } from "@/services/storageService";
 
@@ -37,8 +38,8 @@ export default function Settings() {
     };
 
     const Arrow = (
-        <View className="w-9 h-9 rounded-full bg-white/30 items-center justify-center border border-white/5">
-            <ChevronRight color="currentColor" size={18} />
+        <View className="w-8 h-8 rounded-full bg-white/[0.06] items-center justify-center border border-white/[0.08]">
+            <ChevronRight color="#707080" size={16} />
         </View>
     );
 
@@ -48,26 +49,26 @@ export default function Settings() {
                 from={{ opacity: 0, translateY: -20 }}
                 animate={{ opacity: 1, translateY: 0 }}
                 transition={{ duration: 600 }}
-                className="px-6 pt-5 pb-5 flex-row justify-between items-center"
+                className="px-6 pt-5 pb-3 flex-row justify-between items-center"
             >
-                <Text className="font-outfit-bold text-[24px] text-white">Ustawienia</Text>
+                <Text className="font-outfit-bold text-[24px]">Ustawienia</Text>
             </MotiView>
 
-            <ScrollView className="px-6" contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
-                <View className="gap-y-1">
+            <ScrollView className="px-5" contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
+                <View className="gap-y-2">
 
                     {!isLoggedIn && (
                         <TouchableOpacity
                             onPress={() => router.push('/login')}
-                            className={`border-0 bg-white/20 rounded-t-3xl rounded-b-xl flex-row items-center justify-between gap-x-2 min-h-20 p-5 border border-white/10`}
+                            className="bg-[#CDFF64]/10 rounded-[24px] flex-row items-center justify-between gap-x-3 min-h-20 p-5 border border-[#CDFF64]/20"
                         >
                             <View className="flex-row items-center gap-x-4">
-                                <View className="bg-white/20 p-2.5 rounded-2xl">
-                                    <LogIn color="white" size={24} />
+                                <View className="bg-[#CDFF64]/15 p-2.5 rounded-xl">
+                                    <LogIn color="#CDFF64" size={22} />
                                 </View>
                                 <View>
-                                    <Text className="font-outfit-bold text-white text-[16px]">Połącz z chmurą</Text>
-                                    <Text className="font-outfit text-white/50 text-[12px]">Zaloguj się i ciesz się pełną funkcjonalnością</Text>
+                                    <Text className="font-outfit-semi text-[15px]">Połącz z chmurą</Text>
+                                    <Text className="font-outfit text-[12px] opacity-35">Zaloguj się i ciesz się pełną funkcjonalnością</Text>
                                 </View>
                             </View>
                         </TouchableOpacity>
@@ -75,33 +76,33 @@ export default function Settings() {
 
                     <TouchableOpacity
                         onPress={() => router.push('/preferences')}
-                        className={`${FillStyles.pillBase} border-0 bg-white/50 ${isLoggedIn ? FillStyles.pillFirst : ''} flex-row items-center justify-between gap-x-2 min-h-16`}
+                        className={`${FillStyles.pillBase} ${FillStyles.pillInactive} ${isLoggedIn ? FillStyles.pillFirst : ''} flex-row items-center justify-between gap-x-2 min-h-14`}
                     >
-                        <View className="flex-row items-center gap-x-3 pl-2">
-                            <UserCircle2 color="white" size={20} opacity={0.7} />
-                            <Text className="font-outfit text-white">Zmień preferencje</Text>
+                        <View className="flex-row items-center gap-x-3 pl-1">
+                            <UserCircle2 color="#707080" size={18} />
+                            <Text className="font-outfit text-[14px]">Zmień preferencje</Text>
                         </View>
                         {Arrow}
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         onPress={() => router.push('/')}
-                        className={`${FillStyles.pillBase} border-0 bg-white/50 flex-row items-center justify-between gap-x-2 min-h-16`}
+                        className={`${FillStyles.pillBase} ${FillStyles.pillInactive} flex-row items-center justify-between gap-x-2 min-h-14`}
                     >
-                        <View className="flex-row items-center gap-x-3 pl-2">
-                            <Smartphone color="white" size={20} opacity={0.7} />
-                            <Text className="font-outfit text-white">Zmień lokalizację zapisu</Text>
+                        <View className="flex-row items-center gap-x-3 pl-1">
+                            <Smartphone color="#707080" size={18} />
+                            <Text className="font-outfit text-[14px]">Zmień lokalizację zapisu</Text>
                         </View>
                         {Arrow}
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         onPress={() => { }}
-                        className={`${FillStyles.pillBase} ${isLoggedIn ? '' : FillStyles.pillLast} border-0 bg-white/50 flex-row items-center justify-between gap-x-2 min-h-16`}
+                        className={`${FillStyles.pillBase} ${FillStyles.pillInactive} ${isLoggedIn ? '' : FillStyles.pillLast} flex-row items-center justify-between gap-x-2 min-h-14`}
                     >
-                        <View className="flex-row items-center gap-x-3 pl-2">
-                            <SettingsIcon color="white" size={20} opacity={0.7} />
-                            <Text className="font-outfit text-white">Inne ustawienia</Text>
+                        <View className="flex-row items-center gap-x-3 pl-1">
+                            <SettingsIcon color="#707080" size={18} />
+                            <Text className="font-outfit text-[14px]">Inne ustawienia</Text>
                         </View>
                         {Arrow}
                     </TouchableOpacity>
@@ -109,17 +110,17 @@ export default function Settings() {
                     {isLoggedIn && (
                         <TouchableOpacity
                             onPress={handleLogout}
-                            className={`${FillStyles.pillBase} border-0 bg-white/50 ${FillStyles.pillLast} flex-row items-center justify-between gap-x-2 min-h-16`}
+                            className={`${FillStyles.pillBase} ${FillStyles.pillLast} bg-red-500/10 border-red-500/20 flex-row items-center justify-between gap-x-2 min-h-14`}
                         >
-                            <View className="flex-row items-center gap-x-3 pl-2">
-                                <LogOut color="#c10007" size={20} />
-                                <Text className="font-outfit-semi text-[#c10007]">Wyloguj się</Text>
+                            <View className="flex-row items-center gap-x-3 pl-1">
+                                <LogOut color="#ef4444" size={18} />
+                                <Text className="font-outfit-semi text-[14px] text-red-400">Wyloguj się</Text>
                             </View>
                             {Arrow}
                         </TouchableOpacity>
                     )}
                 </View>
-            </ScrollView >
-        </View >
+            </ScrollView>
+        </View>
     );
 }

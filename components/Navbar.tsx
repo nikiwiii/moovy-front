@@ -9,7 +9,6 @@ export default function Navbar() {
     const router = useRouter();
     const pathname = usePathname();
 
-    // To match the photo's icon layout exactly we can use Clapperboard, Bell, Cog, User
     const tabs = [
         { path: "/parameters", icon: Clapperboard },
         { path: "/friendboard", icon: UsersRound },
@@ -25,10 +24,10 @@ export default function Navbar() {
                 style={styles.navContainer}
             >
                 <BlurView
-                    intensity={40}
+                    intensity={50}
                     tint="dark"
                     style={styles.blurBackground}
-                    className="flex-row items-center justify-between px-1 py-2 rounded-[36px] border border-white/10 bg-[#12121ab3]"
+                    className="flex-row items-center justify-between px-1.5 py-2 rounded-full border border-white/[0.08] bg-black/60"
                 >
                     {tabs.map((tab, index) => {
                         const isActive = pathname === tab.path || (pathname === '/' && index === 0);
@@ -38,15 +37,14 @@ export default function Navbar() {
                             <TouchableOpacity
                                 key={index}
                                 onPress={() => {
-                                    if (tab.path === '/profile') return; // Not fully implemented
                                     router.push(tab.path as any);
                                 }}
-                                className={`items-center justify-center rounded-full h-[56px] mx-1 ${isActive ? 'w-[72px] bg-white' : 'w-[56px]'}`}
+                                className={`items-center justify-center rounded-full h-[52px] mx-1 ${isActive ? 'w-[68px] bg-[#CDFF64]' : 'w-[52px]'}`}
                             >
                                 <Icon
-                                    color={isActive ? "#000" : "#a1a1aa"}
-                                    size={isActive ? 28 : 24}
-                                    strokeWidth={2}
+                                    color={isActive ? "#000" : "#707080"}
+                                    size={isActive ? 26 : 22}
+                                    strokeWidth={isActive ? 2.5 : 1.8}
                                 />
                             </TouchableOpacity>
                         );
@@ -69,8 +67,8 @@ const styles = StyleSheet.create({
     navContainer: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.5,
-        shadowRadius: 15,
+        shadowOpacity: 0.6,
+        shadowRadius: 20,
     },
     blurBackground: {
         overflow: 'hidden',

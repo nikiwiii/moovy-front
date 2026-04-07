@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import { AppText as Text } from '@/components/AppText';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import { FillStyles } from '../constants/themeStyles';
 import TouchableOpacity from './TouchableOpacity';
@@ -27,26 +28,28 @@ export default function CollapsibleSection({ title, subtitle, value, icon: IconC
                 onPress={() => setOpen(!open)}
             >
                 <View className="flex-row justify-between items-start">
-                    <View className="w-[48px] h-[48px] rounded-full bg-white/30 items-center justify-center border border-white/5">
-                        <IconComponent color="currentColor" size={22} strokeWidth={1.5} />
+                    <View className="w-[48px] h-[48px] rounded-full bg-white/[0.06] items-center justify-center border border-white/[0.08]">
+                        <IconComponent color="#CDFF64" size={22} strokeWidth={1.5} />
                     </View>
                     <View className="flex-row items-center">
                         {rightIcon && (
-                            <TouchableOpacity onPress={onRightIconPress} className="w-9 h-9 bg-white/20 rounded-full justify-center items-center mr-3 border border-white/5">
+                            <TouchableOpacity onPress={onRightIconPress} className="w-9 h-9 bg-white/[0.06] rounded-full justify-center items-center mr-3 border border-white/[0.08]">
                                 {rightIcon}
                             </TouchableOpacity>
                         )}
-                        <View className="w-9 h-9 rounded-full bg-white/30 items-center justify-center border border-white/5">
-                            {open ? <ChevronUp color="currentColor" size={18} /> : <ChevronDown color="currentColor" size={18} />}
+                        <View className={`w-9 h-9 rounded-full items-center justify-center border ${open ? 'bg-[#CDFF64] border-[#CDFF64]' : 'bg-white/[0.06] border-white/[0.08]'}`}>
+                            {open ? <ChevronUp color="#000" size={18} /> : <ChevronDown color="white" size={18} />}
                         </View>
                     </View>
                 </View>
                 <View className="flex-row justify-between items-end mt-6 mb-1.5">
                     <View className="flex-1 mr-4">
-                        <Text className="font-outfit text-[12px] opacity-70 uppercase tracking-widest">{subtitle}</Text>
-                        <Text className="font-outfit-semi text-[18px] leading-tight">{title}</Text>
+                        <Text className="font-outfit text-[11px] opacity-40 uppercase tracking-[3px]">{subtitle}</Text>
+                        <Text className="font-outfit-bold text-[20px] leading-tight mt-0.5">{title}</Text>
                     </View>
-                    <Text className="font-outfit-bold text-[28px] relative top-[8px]">{value}</Text>
+                    {value !== undefined && value !== null && (
+                        <Text className="font-outfit-bold text-[32px] relative top-[8px] text-[#CDFF64]/60">{value}</Text>
+                    )}
                 </View>
             </TouchableOpacity>
             {open && (

@@ -4,14 +4,24 @@
 
 @layer base {
   :root {
-    --color-background: #070314;
-    --color-background-dark: #09050d;
-    --color-accent: #8800ffa8;
-    --color-card: #14141e;
-    --color-card-active: #28323c;
-    --color-text-muted: #888888;
-    --color-text-dim: #aaaaaa;
-    --color-text-secondary: #cccccc;
+    --color-text: #ffffff;
+    --color-background: #050210;
+    --color-background-dark: #030108;
+    --color-accent: #CDFF64;
+    --color-accent-dim: #9dcc3a;
+    --color-card: #0d0b1a;
+    --color-card-active: #1a1830;
+    --color-text-muted: #a0a0b0;
+    --color-text-dim: #d0d0dd;
+    --color-text-secondary: #ffffff;
+  }
+
+  Text {
+    color: var(--color-text);
+  }
+
+  TextInput {
+    color: var(--color-text);
   }
 }
 

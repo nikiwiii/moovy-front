@@ -1,7 +1,8 @@
 import { BlurView } from 'expo-blur';
 import { Film, Plus, X } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Modal, StyleSheet, Text, View } from 'react-native';
+import { Modal, StyleSheet, View } from 'react-native';
+import { AppText as Text } from '@/components/AppText';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import MiniCollapsibleSection from './MiniCollapsibleSection';
 import TouchableOpacity from './TouchableOpacity';
@@ -25,16 +26,16 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
                 title={label1 + ":"}
                 value={liked.length}
                 defaultOpen={false}
-                rightIcon={<Plus size={18} />}
+                rightIcon={<Plus size={14} color="#CDFF64" />}
                 onRightIconPress={() => setModalState('liked')}
-                className="rounded-b-[12px]"
+                className="rounded-b-[10px]"
             >
                 <View className="flex-col gap-2 divide-y divide-text-muted">
                     {liked.map(vibe => (
                         <View className="flex flex-row justify-between items-center py-1" key={vibe}>
-                            <Text className="font-outfit text-[15px]">{vibe}</Text>
+                            <Text className="font-outfit text-[14px]">{vibe}</Text>
                             <TouchableOpacity onPress={() => onToggleVibe(vibe, 'liked')}>
-                                <X size={18} />
+                                <X size={16} color="#707080" />
                             </TouchableOpacity>
                         </View>
                     ))}
@@ -44,16 +45,16 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
                 title={label2 + ":"}
                 value={disliked.length}
                 defaultOpen={false}
-                rightIcon={<Plus size={18} />}
+                rightIcon={<Plus size={14} color="#CDFF64" />}
                 onRightIconPress={() => setModalState('disliked')}
-                className="rounded-t-[12px]"
+                className="rounded-t-[10px]"
             >
                 <View className="flex-col gap-2 divide-y divide-text-muted">
                     {disliked.map(vibe => (
                         <View className="flex flex-row justify-between items-center py-1" key={vibe}>
-                            <Text className="font-outfit text-[15px]">{vibe}</Text>
+                            <Text className="font-outfit text-[14px]">{vibe}</Text>
                             <TouchableOpacity onPress={() => onToggleVibe(vibe, 'disliked')}>
-                                <X size={18} />
+                                <X size={16} color="#707080" />
                             </TouchableOpacity>
                         </View>
                     ))}
@@ -61,10 +62,10 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
             </MiniCollapsibleSection>
 
             <Modal visible={modalState !== ''} animationType="fade" transparent>
-                <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill}>
+                <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill}>
                     <View className="flex-1 justify-center items-center px-6">
-                        <Animated.View entering={FadeIn} className="w-full bg-[#14141e]/90 border border-white/10 rounded-[28px] p-6 overflow-hidden">
-                            <Text className="font-outfit-bold text-xl text-white mb-4">Wybierz vibe</Text>
+                        <Animated.View entering={FadeIn} className="w-full bg-[#0d0b1a]/95 border border-white/[0.08] rounded-[28px] p-6 overflow-hidden">
+                            <Text className="font-outfit-bold text-xl mb-5">Wybierz vibe</Text>
                             <View className="flex-row flex-wrap gap-2 mb-6">
                                 {defaultVibes
                                     .filter(vibe => {
@@ -80,14 +81,14 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
                                                 className="flex-row items-center gap-3"
                                                 onPress={() => modalState && onToggleVibe(vibe, modalState)}
                                             >
-                                                <Text className={`font-outfit ${FillStyles.pillBase} ${isActive ? FillStyles.pillActive : FillStyles.pillInactive}`}>{vibe}</Text>
+                                                <Text className={`font-outfit text-[13px] ${FillStyles.pillBase} ${isActive ? FillStyles.pillActive : FillStyles.pillInactive}`}>{vibe}</Text>
                                             </TouchableOpacity>
                                         );
                                     })}
                             </View>
                             <View className="flex-row justify-end gap-3">
-                                <TouchableOpacity onPress={() => setModalState('')} className="py-2.5 px-4 rounded-xl border border-white/5 justify-center">
-                                    <Text className="font-outfit text-text-dim">Wyjdź</Text>
+                                <TouchableOpacity onPress={() => setModalState('')} className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnSecondary}`}>
+                                    <Text className="font-outfit opacity-60">Wyjdź</Text>
                                 </TouchableOpacity>
                             </View>
                         </Animated.View>

@@ -13,12 +13,16 @@ module.exports = {
                     DEFAULT: "var(--color-background)",
                     dark: "var(--color-background-dark)",
                 },
-                accent: "var(--color-accent)",
+                accent: {
+                    DEFAULT: "var(--color-accent)",
+                    dim: "var(--color-accent-dim)",
+                },
                 card: {
                     DEFAULT: "var(--color-card)",
                     active: "var(--color-card-active)",
                 },
                 text: {
+                    DEFAULT: "var(--color-text)",
                     muted: "var(--color-text-muted)",
                     dim: "var(--color-text-dim)",
                     secondary: "var(--color-text-secondary)",
