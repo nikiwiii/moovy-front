@@ -42,7 +42,7 @@ export default function LoginScreen() {
                   }
                 }
                 
-                router.push('/preferences');
+                router.push({ pathname: '/preferences', params: { storageType: 'cloud' } });
             } else {
                 const result = await authService.register(email, password, confirmPassword);
                 console.log('Zarejestrowano:', result);

@@ -1,11 +1,12 @@
 import { useRouter } from 'expo-router';
 import { Check, Cloud, Smartphone } from 'lucide-react-native';
 import { MotiView } from 'moti';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dimensions, SafeAreaView, Text, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { FillStyles } from '../constants/themeStyles';
+import { storageService } from '../services/storageService';
 
 const { width } = Dimensions.get('window');
 
@@ -14,11 +15,48 @@ export default function WelcomeScreen() {
     const [selected, setSelected] = useState<'cloud' | 'local' | null>('local');
     const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
+    useEffect(() => {
+        const checkExistingPrefs = async () => {
+            const lp = await storageService.getLocalPreferences();
+            const token = await storageService.getToken();
+            const userId = await storageService.getUserId();
+            const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+            // Jeśli są lokalne preferencje - skaczemy dalej
+            if (lp) {
+                router.replace('/parameters');
+                return;
+            }
+
+            // Jeśli jest token, spróbujmy sprawdzić serwer
+            if (token && userId && API_URL) {
+                try {
+                    const response = await fetch(`${API_URL}/preferences/get?user_id=${userId}&token=${token}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        const hasData = data && (
+                            (data.vibes && data.vibes.length > 0) || 
+                            (data.hard_nos && data.hard_nos.length > 0) || 
+                            (data.eras && data.eras.length > 0) || 
+                            (data.movies && data.movies.length > 0)
+                        );
+                        if (hasData) {
+                            router.replace('/parameters');
+                        }
+                    }
+                } catch (e) {
+                    console.log('Skip server redirect on startup');
+                }
+            }
+        };
+        checkExistingPrefs();
+    }, []);
+
     const handleNext = () => {
         if (selected === 'cloud') {
             router.push('/login');
         } else if (selected === 'local') {
-            router.push('/preferences');
+            router.push({ pathname: '/preferences', params: { storageType: 'local' } });
         }
     };
 
@@ -52,10 +90,10 @@ export default function WelcomeScreen() {
                                 onPress={() => setSelected('cloud')}
                             >
                                 <View className={FillStyles.cardIcon}>
-                                    <Cloud color={selected === 'cloud' ? '#8800ffa8' : '#000'} size={28} strokeWidth={selected === 'cloud' ? 2.0 : 1.5} />
+                                    <Cloud color={selected === 'cloud' ? '#25036ea8' : '#000'} size={28} strokeWidth={selected === 'cloud' ? 2.5 : 1.5} />
                                 </View>
                                 <View className="flex-1">
-                                    <Text className="text-[18px] font-outfit-semi opacity-80 uppercase tracking-wider">Chmura</Text>
+                                    <Text className="text-[18px] font-outfit-semi opacity-80 tracking-wider">Chmura</Text>
                                     <Text className="font-outfit text-[14px] leading-[18px]">Preferencje filmowe powiązane z kontem</Text>
                                 </View>
                             </AnimatedTouchableOpacity>
@@ -71,10 +109,10 @@ export default function WelcomeScreen() {
                                 onPress={() => setSelected('local')}
                             >
                                 <View className={FillStyles.cardIcon}>
-                                    <Smartphone color={selected === 'local' ? '#8800ffa8' : '#000'} size={28} strokeWidth={selected === 'local' ? 2.0 : 1.5} />
+                                    <Smartphone color={selected === 'local' ? '#25036ea8' : '#000'} size={28} strokeWidth={selected === 'local' ? 2.5 : 1.5} />
                                 </View>
                                 <View className="flex-1">
-                                    <Text className="text-[18px] font-outfit-semi opacity-80 uppercase tracking-wider">Lokalnie</Text>
+                                    <Text className="text-[18px] font-outfit-semi opacity-80 tracking-wider">Lokalnie</Text>
                                     <Text className="font-outfit text-[14px] leading-[18px]">Preferencje filmowe tylko na urządzeniu</Text>
                                 </View>
                             </AnimatedTouchableOpacity>

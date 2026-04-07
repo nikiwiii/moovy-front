@@ -1,7 +1,7 @@
 import Slider from '@react-native-community/slider';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
-import { Check, Clock, Film, Heart, LucideIcon, Plus, ScanEye, Settings, Sparkle, Users } from 'lucide-react-native';
+import { Check, Clock, Film, Handshake, Heart, LucideIcon, Plus, ScanEye, Settings, Sparkle, Users } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState } from 'react';
 import { Image, Modal, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -100,6 +100,17 @@ export default function ParametersScreen() {
                         transition={{ delay: 200, duration: 600 }}
                         className="flex flex-col gap-2"
                     >
+                        <TouchableOpacity
+                            onPress={() => router.push('/friendboard')}
+                            className="overflow-hidden rounded-[36px]"
+                        >
+                            <BlurView intensity={30} tint="light" className="flex-row gap-x-4 items-center justify-center py-5 px-6 border border-white/20">
+                                <Handshake color="white" size={24} strokeWidth={2.5} />
+                                <Text className="font-outfit-bold text-[18px] text-white uppercase tracking-widest">
+                                    Utwórz pokój
+                                </Text>
+                            </BlurView>
+                        </TouchableOpacity>
                         <CollapsibleSection
                             title="Wybierz grono"
                             subtitle="Dla kogo?"
@@ -138,7 +149,7 @@ export default function ParametersScreen() {
                             <GenreSelection
                                 liked={genres.liked}
                                 disliked={genres.disliked}
-                                onToggleGenre={toggleGenre}
+                                onToggleVibe={toggleGenre}
                                 label1="Uwzględniaj"
                                 label2="Wyklucz"
                             />

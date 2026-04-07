@@ -1,8 +1,8 @@
 import { BlurView } from 'expo-blur';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Calendar, Check, Film, Plus, Star, X } from 'lucide-react-native';
 import { MotiView } from 'moti';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, ScrollView, Text, TextInput, View, ActivityIndicator, Alert } from 'react-native';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import CollapsibleSection from '../components/CollapsibleSection';
@@ -24,6 +24,9 @@ const eras = [
 
 export default function PreferencesScreen() {
     const router = useRouter();
+    const params = useLocalSearchParams();
+    const isLocal = params.storageType === 'local';
+
     const [loading, setLoading] = useState(false);
     const [preferences, setPreferences] = useState({
         vibes: { liked: [] as string[], disliked: [] as string[] },
@@ -31,6 +34,60 @@ export default function PreferencesScreen() {
         movies: [] as string[]
     });
     const [movieInput, setMovieInput] = useState('');
+
+    useEffect(() => {
+        const loadPrefs = async () => {
+            setLoading(true);
+            try {
+                const lp = await storageService.getLocalPreferences();
+                const token = await storageService.getToken();
+                const userId = await storageService.getUserId();
+                const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+                let prefsFound = false;
+
+                // Próba załadowania z serwera (tylko w trybie chmury)
+                if (!isLocal && token && userId && API_URL) {
+                    try {
+                        const response = await fetch(`${API_URL}/preferences/get?user_id=${userId}&token=${token}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            // Sprawdzamy czy backend zwrócił faktyczne dane
+                            const hasData = data && (
+                                (data.vibes && data.vibes.length > 0) || 
+                                (data.hard_nos && data.hard_nos.length > 0) || 
+                                (data.eras && data.eras.length > 0) || 
+                                (data.movies && data.movies.length > 0)
+                            );
+
+                            if (hasData) {
+                                setPreferences({
+                                    vibes: { liked: data.vibes || [], disliked: data.hard_nos || [] },
+                                    eras: data.eras || [],
+                                    movies: data.movies || []
+                                });
+                                prefsFound = true;
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Server sync failed, falling back to local storage', e);
+                    }
+                }
+
+                // Fallback lub tryb lokalny
+                if (!prefsFound && lp) {
+                    setPreferences({
+                        vibes: { liked: lp.vibes || [], disliked: lp.hard_nos || [] },
+                        eras: lp.eras || [],
+                        movies: lp.movies || []
+                    });
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadPrefs();
+    }, [isLocal]);
 
     const addMovie = () => {
         const val = movieInput.trim();
@@ -47,17 +104,6 @@ export default function PreferencesScreen() {
     const handleSave = async () => {
         setLoading(true);
         try {
-            const token = await storageService.getToken();
-            const userId = await storageService.getUserId();
-            const API_URL = process.env.EXPO_PUBLIC_API_URL;
-
-            if (!token || !userId) {
-                Alert.alert("Błąd logowania", "Zaloguj się ponownie, aby zapisać preferencje.");
-                setLoading(false);
-                return;
-            }
-
-            // Dopasowujemy dane do modelu SavedPreferences z backendu
             const payload = {
                 vibes: preferences.vibes.liked,
                 hard_nos: preferences.vibes.disliked,
@@ -65,24 +111,40 @@ export default function PreferencesScreen() {
                 movies: preferences.movies
             };
 
-            const response = await fetch(`${API_URL}/preferences/save?user_id=${userId}&token=${token}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (response.ok) {
-                Alert.alert("Sukces!", "Pomyślnie zapisano preferencje.");
+            if (isLocal) {
+                await storageService.saveLocalPreferences(payload);
+                Alert.alert("Sukces!", "Pomyślnie zapisano preferencje na urządzeniu.");
                 router.push('/parameters');
             } else {
-                const errorData = await response.json();
-                Alert.alert("Błąd zapisu", errorData.detail || "Wystąpił problem podczas komunikacji z serwerem.");
+                const token = await storageService.getToken();
+                const userId = await storageService.getUserId();
+                const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+                if (!token || !userId) {
+                    Alert.alert("Błąd logowania", "Zaloguj się ponownie, aby zapisać preferencje.");
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await fetch(`${API_URL}/preferences/save?user_id=${userId}&token=${token}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                if (response.ok) {
+                    Alert.alert("Sukces!", "Pomyślnie zapisano preferencje w chmurze.");
+                    router.push('/parameters');
+                } else {
+                    const errorData = await response.json();
+                    Alert.alert("Błąd zapisu", errorData.detail || "Wystąpił problem podczas komunikacji z serwerem.");
+                }
             }
         } catch (error) {
             console.error('Save error:', error);
-            Alert.alert("Błąd sieci", "Nie udało się połączyć z serwerem.");
+            Alert.alert("Błąd", isLocal ? "Nie udało się zapisać preferencji lokalnie." : "Nie udało się połączyć z serwerem.");
         } finally {
             setLoading(false);
         }
