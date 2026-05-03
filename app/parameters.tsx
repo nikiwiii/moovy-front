@@ -4,13 +4,14 @@ import { useRouter } from 'expo-router';
 import { Check, Clock, Film, Handshake, Heart, LucideIcon, Plus, ScanEye, Settings, Sparkle, Sparkles, Users } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState } from 'react';
-import { Image, Modal, SafeAreaView, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Image, Modal, SafeAreaView, ScrollView, StyleSheet, TextInput, View, ActivityIndicator } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
 import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 import CollapsibleSection from '../components/CollapsibleSection';
 import GenreSelection from '../components/GenreSelection';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { FillStyles } from '../constants/themeStyles';
+import { storageService } from '../services/storageService';
 
 
 const posters = [
@@ -60,6 +61,98 @@ export default function ParametersScreen() {
             }
             return { ...prev, [type]: newGenres };
         });
+    };
+
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleFindMovie = async () => {
+        setIsLoading(true);
+        try {
+            const payload = {
+                host_id: "00000000-0000-0000-0000-000000000000",
+                invite_code: "12345",
+                meeting_type: selectedGroup === 'randewu' ? 'RANDKA' : 'EKIPA',
+                is_active: true,
+                users: [
+                    {
+                        user_id: "00000000-0000-0000-0000-000000000000",
+                        user_name: 'Gość',
+                        personal_vibe: {
+                            vibes: genres.liked,
+                            hard_nos: genres.disliked,
+                            max_runtime: settings.find(s => s.title === "Długość")?.value || 120,
+                            allow_seen: settings.find(s => s.title === "Filmy które widziałeś")?.value || false,
+                            eras: []
+                        }
+                    }
+                ],
+                final_preferences: {
+                    vibes: genres.liked,
+                    hard_nos: genres.disliked,
+                    max_runtime: settings.find(s => s.title === "Długość")?.value || 120,
+                    allow_seen: settings.find(s => s.title === "Filmy które widziałeś")?.value || false,
+                    eras: []
+                }
+            };
+            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.1:8000'; // Fallback
+            const token = await storageService.getToken();
+            
+            const res = await fetch(`${API_URL}/recommendation/session`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+                console.error("Error fetching recommendation:", res.status);
+                setIsLoading(false);
+                return;
+            }
+            const sessionData = await res.json();
+            const sessionId = sessionData.session_id;
+
+            // KROK 2: Pobranie właściwej rekomendacji AI
+            const recRes = await fetch(`${API_URL}/recommendation/${sessionId}`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!recRes.ok) {
+                console.error("Error fetching actual recommendation:", recRes.status);
+                setIsLoading(false);
+                if (recRes.status === 404) {
+                    const errorData = await recRes.json().catch(() => ({}));
+                    import('react-native').then(({ Alert }) => {
+                        Alert.alert("Brak filmów", errorData.detail || "Nie znaleziono filmów spełniających Twoje kryteria. Spróbuj zwiększyć dozwolony czas trwania (Długość).");
+                    });
+                }
+                return;
+            }
+
+            const finalRecommendation = await recRes.json();
+
+            router.push({
+                pathname: '/idea',
+                params: {
+                    recommendationData: JSON.stringify(finalRecommendation),
+                    criteriaData: JSON.stringify({
+                        preset: groups.find(g => g.id === selectedGroup)?.title || "Tłum",
+                        genres: genres.liked,
+                        duration: `${settings.find(s => s.title === "Długość")?.value} min`,
+                        friendsAdded: 0
+                    })
+                }
+            });
+        } catch (error) {
+            console.error("Failed to find movie", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
 
@@ -209,10 +302,19 @@ export default function ParametersScreen() {
                             />
 
                             <View className="flex-col items-end gap-4 mb-10 z-50">
-                                <TouchableOpacity className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary}`}
-                                    onPress={() => router.push('/idea')}>
-                                    <Text className="font-outfit-semi text-[15px] text-black">Znajdź film</Text>
-                                    <Check color="#000" size={18} strokeWidth={2.5} />
+                                <TouchableOpacity
+                                    className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary}`}
+                                    onPress={handleFindMovie}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? (
+                                        <ActivityIndicator color="#000" size="small" />
+                                    ) : (
+                                        <>
+                                            <Text className="font-outfit-semi text-[15px] text-black">Znajdź film</Text>
+                                            <Check color="#000" size={18} strokeWidth={2.5} />
+                                        </>
+                                    )}
                                 </TouchableOpacity>
                             </View>
                         </Animated.View>

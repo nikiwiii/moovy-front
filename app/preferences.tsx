@@ -47,7 +47,11 @@ export default function PreferencesScreen() {
 
                 if (!isLocal && token && userId && API_URL) {
                     try {
-                        const response = await fetch(`${API_URL}/preferences/get?user_id=${userId}&token=${token}`);
+                        const response = await fetch(`${API_URL}/preferences/get?user_id=${userId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
                         if (response.ok) {
                             const data = await response.json();
                             const hasData = data && (
@@ -122,10 +126,11 @@ export default function PreferencesScreen() {
                     return;
                 }
 
-                const response = await fetch(`${API_URL}/preferences/save?user_id=${userId}&token=${token}`, {
+                const response = await fetch(`${API_URL}/preferences/save?user_id=${userId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(payload),
                 });

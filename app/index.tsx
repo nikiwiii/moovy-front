@@ -30,7 +30,11 @@ export default function WelcomeScreen() {
 
             if (token && userId && API_URL) {
                 try {
-                    const response = await fetch(`${API_URL}/preferences/get?user_id=${userId}&token=${token}`);
+                    const response = await fetch(`${API_URL}/preferences/get?user_id=${userId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
                     if (response.ok) {
                         const data = await response.json();
                         const hasData = data && (
