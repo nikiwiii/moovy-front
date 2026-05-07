@@ -28,7 +28,7 @@ export default function RootLayout() {
         );
     }
 
-    const showNavbar = !['/', '/preferences', '/login'].includes(pathname);
+    const showNavbar = !['/', '/preferences', '/login', '/session-create', '/session-join', '/session-lobby'].includes(pathname);
 
     return (
         <View style={{ flex: 1, backgroundColor: '#030108' }} className="text-white">

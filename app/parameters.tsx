@@ -195,17 +195,27 @@ export default function ParametersScreen() {
                         transition={{ delay: 200, duration: 600 }}
                         className="flex flex-col gap-3"
                     >
-                        <TouchableOpacity
-                            onPress={() => router.push('/friendboard')}
-                            className="overflow-hidden rounded-[28px]"
-                        >
-                            <BlurView intensity={20} tint="light" className="flex-row gap-x-4 items-center justify-center py-5 px-6 border border-white/[0.08] bg-white/[0.04]">
-                                <Handshake color="#CDFF64" size={24} strokeWidth={2} />
-                                <Text className="font-outfit-bold text-[16px] uppercase tracking-[3px]">
-                                    Utwórz pokój
-                                </Text>
-                            </BlurView>
-                        </TouchableOpacity>
+                        <View className="flex-row gap-3">
+                            <TouchableOpacity
+                                onPress={() => router.push('/session-create')}
+                                className="flex-1 overflow-hidden rounded-[28px]"
+                            >
+                                <BlurView intensity={20} tint="light" className="flex-row gap-x-3 items-center justify-center py-5 px-4 border border-white/[0.08] bg-white/[0.04]">
+                                    <Handshake color="#CDFF64" size={22} strokeWidth={2} />
+                                    <Text className="font-outfit-bold text-[14px] uppercase tracking-[2px]">
+                                        Utwórz sesję
+                                    </Text>
+                                </BlurView>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => router.push('/session-join')}
+                                className="overflow-hidden rounded-[28px]"
+                            >
+                                <BlurView intensity={20} tint="light" className="flex-row gap-x-3 items-center justify-center py-5 px-5 border border-[#CDFF64]/20 bg-[#CDFF64]/[0.06]">
+                                    <Plus color="#CDFF64" size={20} strokeWidth={2.5} />
+                                </BlurView>
+                            </TouchableOpacity>
+                        </View>
                         <CollapsibleSection
                             title="Wybierz grono"
                             subtitle="Dla kogo?"
