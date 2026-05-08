@@ -14,6 +14,9 @@ import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { FillStyles } from '../constants/themeStyles';
 import { sessionService } from '../services/sessionService';
+import { Colors } from '@/constants/theme';
+
+const ACCENT = Colors.dark.accent;
 
 const { width } = Dimensions.get('window');
 const CODE_LENGTH = 6;
@@ -112,9 +115,9 @@ function JoinLoadingScreen() {
                     <Svg width={ringSize} height={ringSize}>
                         <Defs>
                             <LinearGradient id="ring1" x1="0" y1="0" x2="1" y2="1">
-                                <Stop offset="0" stopColor="#CDFF64" stopOpacity="0.8" />
-                                <Stop offset="0.5" stopColor="#CDFF64" stopOpacity="0.1" />
-                                <Stop offset="1" stopColor="#CDFF64" stopOpacity="0" />
+                                <Stop offset="0" stopColor={ACCENT} stopOpacity="0.8" />
+                                <Stop offset="0.5" stopColor={ACCENT} stopOpacity="0.1" />
+                                <Stop offset="1" stopColor={ACCENT} stopOpacity="0" />
                             </LinearGradient>
                         </Defs>
                         <Circle
@@ -154,8 +157,8 @@ function JoinLoadingScreen() {
                 <Animated.View
                     style={[pulseStyle, { alignItems: 'center', justifyContent: 'center' }]}
                 >
-                    <View className="w-20 h-20 rounded-full bg-[#CDFF64]/10 border border-[#CDFF64]/20 items-center justify-center">
-                        <Ticket color="#CDFF64" size={32} strokeWidth={1.5} />
+                    <View className="w-20 h-20 rounded-full bg-accent/10 border border-accent/20 items-center justify-center">
+                        <Ticket color={ACCENT} size={32} strokeWidth={1.5} />
                     </View>
                 </Animated.View>
             </View>
@@ -170,9 +173,9 @@ function JoinLoadingScreen() {
                 <Text className="font-outfit-bold text-[22px] mb-2">Dołączanie do sesji</Text>
                 <View className="flex-row items-center gap-1.5 mt-1">
                     <Text className="font-outfit text-[14px] opacity-40">Łączenie</Text>
-                    <Animated.View style={dot1Style} className="w-1.5 h-1.5 rounded-full bg-[#CDFF64]" />
-                    <Animated.View style={dot2Style} className="w-1.5 h-1.5 rounded-full bg-[#CDFF64]" />
-                    <Animated.View style={dot3Style} className="w-1.5 h-1.5 rounded-full bg-[#CDFF64]" />
+                    <Animated.View style={dot1Style} className="w-1.5 h-1.5 rounded-full bg-accent" />
+                    <Animated.View style={dot2Style} className="w-1.5 h-1.5 rounded-full bg-accent" />
+                    <Animated.View style={dot3Style} className="w-1.5 h-1.5 rounded-full bg-accent" />
                 </View>
             </MotiView>
 
@@ -283,7 +286,7 @@ export default function SessionJoinScreen() {
                                 transition={{ type: 'spring', delay: 300, damping: 12 }}
                                 className="w-16 h-16 rounded-full bg-white/[0.06] border border-white/[0.1] items-center justify-center mb-5"
                             >
-                                <Ticket color="#CDFF64" size={28} strokeWidth={1.5} />
+                                <Ticket color={ACCENT} size={28} strokeWidth={1.5} />
                             </MotiView>
                             <Text className="font-outfit-bold text-[28px] text-center">Dołącz do sesji</Text>
                             <Text className="font-outfit text-[14px] opacity-35 mt-2 text-center">Wpisz 6-znakowy kod zaproszenia</Text>
@@ -306,17 +309,17 @@ export default function SessionJoinScreen() {
                                         maxLength={2}
                                         autoCapitalize="characters"
                                         textAlign="center"
-                                        className="font-outfit-bold text-[22px] text-[#CDFF64]"
+                                        className="font-outfit-bold text-[22px]"
                                         style={{
                                             width: (width - 72) / 6,
                                             height: 58,
-                                            backgroundColor: char ? 'rgba(205,255,100,0.08)' : 'rgba(255,255,255,0.04)',
+                                            backgroundColor: char ? `${ACCENT}14` : 'rgba(255,255,255,0.04)',
                                             borderWidth: 1,
-                                            borderColor: char ? 'rgba(205,255,100,0.25)' : 'rgba(255,255,255,0.08)',
+                                            borderColor: char ? `${ACCENT}40` : 'rgba(255,255,255,0.08)',
                                             borderRadius: 14,
-                                            color: '#CDFF64',
+                                            color: ACCENT,
                                         }}
-                                        selectionColor="#CDFF64"
+                                        selectionColor={ACCENT}
                                     />
                                 </MotiView>
                             ))}

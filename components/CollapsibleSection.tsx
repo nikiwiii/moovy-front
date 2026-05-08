@@ -5,6 +5,9 @@ import { AppText as Text } from '@/components/AppText';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import { FillStyles } from '../constants/themeStyles';
 import TouchableOpacity from './TouchableOpacity';
+import { Colors } from '@/constants/theme';
+
+const ACCENT = Colors.dark.accent;
 
 export interface CollapsibleSectionProps {
     title: string;
@@ -29,7 +32,7 @@ export default function CollapsibleSection({ title, subtitle, value, icon: IconC
             >
                 <View className="flex-row justify-between items-start">
                     <View className="w-[48px] h-[48px] rounded-full bg-white/[0.06] items-center justify-center border border-white/[0.08]">
-                        <IconComponent color="#CDFF64" size={22} strokeWidth={1.5} />
+                        <IconComponent color={ACCENT} size={22} strokeWidth={1.5} />
                     </View>
                     <View className="flex-row items-center">
                         {rightIcon && (
@@ -37,7 +40,7 @@ export default function CollapsibleSection({ title, subtitle, value, icon: IconC
                                 {rightIcon}
                             </TouchableOpacity>
                         )}
-                        <View className={`w-9 h-9 rounded-full items-center justify-center border ${open ? 'bg-[#CDFF64] border-[#CDFF64]' : 'bg-white/[0.06] border-white/[0.08]'}`}>
+                        <View className={`w-9 h-9 rounded-full items-center justify-center border ${open ? 'bg-accent border-accent' : 'bg-white/[0.06] border-white/[0.08]'}`}>
                             {open ? <ChevronUp color="#000" size={18} /> : <ChevronDown color="white" size={18} />}
                         </View>
                     </View>
@@ -48,7 +51,7 @@ export default function CollapsibleSection({ title, subtitle, value, icon: IconC
                         <Text className="font-outfit-bold text-[20px] leading-tight mt-0.5">{title}</Text>
                     </View>
                     {value !== undefined && value !== null && (
-                        <Text className="font-outfit-bold text-[32px] relative top-[8px] text-[#CDFF64]/60">{value}</Text>
+                        <Text style={{ color: `${ACCENT}99` }} className="font-outfit-bold text-[32px] relative top-[8px]">{value}</Text>
                     )}
                 </View>
             </TouchableOpacity>

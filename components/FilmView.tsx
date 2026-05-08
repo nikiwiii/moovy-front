@@ -4,7 +4,51 @@ import { MotiView } from "moti";
 import { Image, View } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
 import Animated, { LinearTransition } from "react-native-reanimated";
+import Svg, { Circle } from 'react-native-svg';
+import { Colors } from '@/constants/theme';
 import MiniCollapsibleSection from "./MiniCollapsibleSection";
+
+const ACCENT = Colors.dark.accent;
+
+const RatingRing = ({ rating }: { rating: number }) => {
+    const size = 48;
+    const strokeWidth = 4;
+    const center = size / 2;
+    const radius = center - strokeWidth;
+    const circumference = 2 * Math.PI * radius;
+    const progress = Math.min(Math.max(rating / 10, 0), 1);
+    const strokeDashoffset = circumference - progress * circumference;
+
+    return (
+        <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
+            <Svg width={size} height={size} style={{ position: 'absolute' }}>
+                {/* Background Ring */}
+                <Circle
+                    cx={center}
+                    cy={center}
+                    r={radius}
+                    stroke="rgba(255, 255, 255, 0.1)"
+                    strokeWidth={strokeWidth}
+                    fill="transparent"
+                />
+                {/* Progress Ring */}
+                <Circle
+                    cx={center}
+                    cy={center}
+                    r={radius}
+                    stroke={ACCENT}
+                    strokeWidth={strokeWidth}
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    strokeLinecap="round"
+                    fill="transparent"
+                    transform={`rotate(-90 ${center} ${center})`}
+                />
+            </Svg>
+            <Text className="font-outfit-bold text-white text-[14px]">{rating.toFixed(1)}</Text>
+        </View>
+    );
+};
 
 export interface MovieViewProps {
     title?: string;
@@ -61,17 +105,17 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
     if (finalPosterPath === "null" || finalPosterPath === "N/A" || finalPosterPath === "None") {
         finalPosterPath = "";
     }
-    
-    const url = finalPosterPath 
-        ? (finalPosterPath.startsWith('http') 
-            ? finalPosterPath 
-            : `https://image.tmdb.org/t/p/w500${finalPosterPath.startsWith('/') ? '' : '/'}${finalPosterPath}`) 
+
+    const url = finalPosterPath
+        ? (finalPosterPath.startsWith('http')
+            ? finalPosterPath
+            : `https://image.tmdb.org/t/p/w500${finalPosterPath.startsWith('/') ? '' : '/'}${finalPosterPath}`)
         : defaultUrl;
 
     console.log("[FILM VIEW] Final constructed poster URL:", url);
 
     const displayTitle = data.title || defaultData.title;
-    
+
     let displayYear = data.year;
     if (!displayYear && data.release_date) {
         const d = new Date(data.release_date);
@@ -101,7 +145,11 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
                 </MotiView>
                 <View className="flex-col w-3/5 gap-2.5">
                     <Text className="text-[20px] font-outfit-bold leading-tight">{displayTitle} {displayYear && <Text className="text-[15px] font-outfit opacity-50">({displayYear})</Text>}</Text>
-                    {displayRating ? <View className="flex-row items-center gap-1.5"><Star size={14} fill="#CDFF64" color="#CDFF64" /><Text className="text-[15px] font-outfit text-[#CDFF64]">{displayRating}/10</Text></View> : null}
+                    {displayRating ? (
+                        <View className="flex-row items-center gap-3">
+                            <RatingRing rating={displayRating} />
+                        </View>
+                    ) : null}
                     {displayDuration ? <View className="flex-row items-center gap-1.5"><Clock size={14} color="#707080" /><Text className="text-[14px] font-outfit opacity-60">{displayDuration}</Text></View> : null}
                     {displayDirector ? (
                         <View className="flex-col mt-1">
@@ -120,8 +168,8 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
             <View className="flex-col gap-3">
                 <View className="flex-row flex-wrap gap-2">
                     {displayGenres.map((genre, i) => (
-                        <View key={i} className="bg-[#CDFF64]/10 border border-[#CDFF64]/20 px-4 py-1.5 rounded-full items-center justify-center">
-                            <Text className="text-[11px] font-outfit-bold text-[#CDFF64] uppercase tracking-[1px]">{translateGenre(genre)}</Text>
+                        <View key={i} style={{ backgroundColor: `${ACCENT}1A`, borderColor: `${ACCENT}33` }} className="border px-4 py-1.5 rounded-full items-center justify-center">
+                            <Text style={{ color: ACCENT }} className="text-[11px] font-outfit-bold uppercase tracking-[1px]">{translateGenre(genre)}</Text>
                         </View>
                     ))}
                 </View>

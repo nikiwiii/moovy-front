@@ -13,6 +13,9 @@ import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { FillStyles } from '../constants/themeStyles';
 import { sessionService, MeetingType } from '../services/sessionService';
+import { Colors } from '@/constants/theme';
+
+const ACCENT = Colors.dark.accent;
 
 const meetingTypes: { id: MeetingType; icon: any; title: string; description: string }[] = [
     { id: 'EKIPA', icon: Users, title: 'Ekipa', description: 'Wieczór filmowy z przyjaciółmi' },
@@ -75,8 +78,8 @@ export default function SessionCreateScreen() {
                         <Text className="font-outfit text-[13px] opacity-40 uppercase tracking-[2px]">Wróć</Text>
                     </TouchableOpacity>
                     <View className="flex-row items-center gap-2">
-                        <Crown color="#CDFF64" size={18} strokeWidth={2} />
-                        <Text className="font-outfit-semi text-[13px] text-[#CDFF64]/80 uppercase tracking-[2px]">Host</Text>
+                        <Crown color={ACCENT} size={18} strokeWidth={2} />
+                        <Text style={{ color: `${ACCENT}CC` }} className="font-outfit-semi text-[13px] uppercase tracking-[2px]">Host</Text>
                     </View>
                 </MotiView>
 
@@ -108,9 +111,9 @@ export default function SessionCreateScreen() {
                                                     className={`${FillStyles.pillBase} ${isActive ? FillStyles.pillActive : FillStyles.pillInactive} py-4 px-4 flex-row gap-4 items-center ${i === 0 ? FillStyles.pillFirst : ''} ${i === meetingTypes.length - 1 ? FillStyles.pillLast : ''}`}
                                                     onPress={() => setSelectedType(type.id)}
                                                 >
-                                                    <View className={`w-10 h-10 rounded-full items-center justify-center ${isActive ? 'bg-[#CDFF64]/15' : 'bg-white/[0.06]'}`}>
+                                                    <View className={`w-10 h-10 rounded-full items-center justify-center ${isActive ? 'bg-accent/15' : 'bg-white/[0.06]'}`}>
                                                         <IconComp
-                                                            color={isActive ? '#CDFF64' : '#707080'}
+                                                            color={isActive ? ACCENT : '#707080'}
                                                             size={20}
                                                             strokeWidth={isActive ? 2.5 : 1.5}
                                                         />
@@ -121,7 +124,7 @@ export default function SessionCreateScreen() {
                                                     </View>
                                                     {isActive && (
                                                         <Animated.View entering={FadeIn.duration(200)}>
-                                                            <Check color="#CDFF64" size={18} strokeWidth={2.5} />
+                                                            <Check color={ACCENT} size={18} strokeWidth={2.5} />
                                                         </Animated.View>
                                                     )}
                                                 </TouchableOpacity>
@@ -163,9 +166,9 @@ export default function SessionCreateScreen() {
                                     from={{ scale: 0 }}
                                     animate={{ scale: 1 }}
                                     transition={{ type: 'spring', delay: 200, damping: 10 }}
-                                    className="w-20 h-20 rounded-full bg-[#CDFF64]/15 items-center justify-center mb-5"
+                                    className="w-20 h-20 rounded-full bg-accent/15 items-center justify-center mb-5"
                                 >
-                                    <Check color="#CDFF64" size={36} strokeWidth={2.5} />
+                                    <Check color={ACCENT} size={36} strokeWidth={2.5} />
                                 </MotiView>
                                 <Text className="font-outfit-bold text-[24px]">Sesja utworzona!</Text>
                                 <Text className="font-outfit text-[14px] opacity-35 mt-1 text-center">Udostępnij kod zaproszenia znajomym</Text>
@@ -184,7 +187,7 @@ export default function SessionCreateScreen() {
                                                 transition={{ delay: 400 + i * 100, type: 'spring', damping: 12 }}
                                                 className="w-12 h-14 rounded-xl bg-white/[0.06] border border-white/[0.1] items-center justify-center"
                                             >
-                                                <Text className="font-outfit-bold text-[24px] text-[#CDFF64]">{char}</Text>
+                                                <Text style={{ color: ACCENT }} className="font-outfit-bold text-[24px]">{char}</Text>
                                             </MotiView>
                                         ))}
                                     </View>
@@ -192,8 +195,8 @@ export default function SessionCreateScreen() {
                                         onPress={handleCopyCode}
                                         className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnSecondary}`}
                                     >
-                                        <Copy color={copied ? '#CDFF64' : '#fff'} size={16} strokeWidth={2} />
-                                        <Text className={`font-outfit text-[13px] ${copied ? 'text-[#CDFF64]' : 'opacity-60'}`}>
+                                        <Copy color={copied ? ACCENT : '#fff'} size={16} strokeWidth={2} />
+                                        <Text style={copied ? { color: ACCENT } : {}} className={`font-outfit text-[13px] ${copied ? '' : 'opacity-60'}`}>
                                             {copied ? 'Skopiowano!' : 'Kopiuj kod'}
                                         </Text>
                                     </TouchableOpacity>

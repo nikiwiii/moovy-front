@@ -7,7 +7,10 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import MiniCollapsibleSection from './MiniCollapsibleSection';
 import TouchableOpacity from './TouchableOpacity';
 import { defaultVibes } from '../constants/vibes';
-import { FillStyles } from '../constants/themeStyles';
+import { storageService } from '../services/storageService';
+import { Colors } from '@/constants/theme';
+
+const ACCENT = Colors.dark.accent;
 
 interface GenreSelectionProps {
     liked: string[];
@@ -26,7 +29,7 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
                 title={label1 + ":"}
                 value={liked.length}
                 defaultOpen={false}
-                rightIcon={<Plus size={14} color="#CDFF64" />}
+                rightIcon={<Plus size={14} color={ACCENT} />}
                 onRightIconPress={() => setModalState('liked')}
                 className="rounded-b-[10px]"
             >
@@ -45,7 +48,7 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
                 title={label2 + ":"}
                 value={disliked.length}
                 defaultOpen={false}
-                rightIcon={<Plus size={14} color="#CDFF64" />}
+                rightIcon={<Plus size={14} color={ACCENT} />}
                 onRightIconPress={() => setModalState('disliked')}
                 className="rounded-t-[10px]"
             >

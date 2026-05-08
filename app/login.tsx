@@ -8,6 +8,9 @@ import TouchableOpacity from '../components/TouchableOpacity';
 import { authService } from '../services/authService';
 import { storageService } from '../services/storageService';
 import { FillStyles } from '../constants/themeStyles';
+import { Colors } from '@/constants/theme';
+
+const ACCENT = Colors.dark.accent;
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -66,8 +69,8 @@ export default function LoginScreen() {
                     className="bg-white/[0.04] border border-white/[0.08] rounded-[32px] p-8 pt-10"
                 >
                     <View className="items-center mb-8">
-                        <View className="bg-[#CDFF64]/10 p-4 rounded-2xl mb-4 border border-[#CDFF64]/20">
-                            {isLogin ? <LogIn color="#CDFF64" size={32} /> : <UserPlus color="#CDFF64" size={32} />}
+                        <View className="bg-accent/10 p-4 rounded-2xl mb-4 border border-accent/20">
+                            {isLogin ? <LogIn color={ACCENT} size={32} /> : <UserPlus color={ACCENT} size={32} />}
                         </View>
                         <Text className="font-outfit-bold text-[26px] mb-1">
                             {isLogin ? 'Witaj ponownie!' : 'Nowe konto'}
@@ -136,7 +139,7 @@ export default function LoginScreen() {
                     </View>
 
                     <TouchableOpacity
-                        className="bg-[#CDFF64] py-4 rounded-2xl flex-row justify-center items-center mt-8"
+                        className="bg-accent py-4 rounded-2xl flex-row justify-center items-center mt-8"
                         onPress={handleSubmit}
                         disabled={loading}
                     >
@@ -157,7 +160,7 @@ export default function LoginScreen() {
                             {isLogin ? 'Nie masz konta?' : 'Masz już konto?'}
                         </Text>
                         <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
-                            <Text className="font-outfit-semi text-[#CDFF64] text-[14px]">
+                            <Text style={{ color: ACCENT }} className="font-outfit-semi text-[14px]">
                                 {isLogin ? 'Zarejestruj się' : 'Zaloguj się'}
                             </Text>
                         </TouchableOpacity>

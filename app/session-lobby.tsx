@@ -23,13 +23,16 @@ import {
 import { storageService } from '../services/storageService';
 import Slider from '@react-native-community/slider';
 import FilmView, { MovieViewProps } from '@/components/FilmView';
+import { Colors } from '@/constants/theme';
+
+const ACCENT = Colors.dark.accent;
 
 const { width } = Dimensions.get('window');
 
 /* ─── Status badge component ────────────────────────────────────────── */
 function StatusBadge({ status }: { status: string }) {
     const configs: Record<string, { label: string; color: string; bgClass: string }> = {
-        LOBBY: { label: 'Lobby', color: '#CDFF64', bgClass: 'bg-[#CDFF64]/10' },
+        LOBBY: { label: 'Lobby', color: ACCENT, bgClass: `bg-[${ACCENT}]/10` },
         ALL_READY: { label: 'Wszyscy gotowi', color: '#4ADE80', bgClass: 'bg-[#4ADE80]/10' },
         RECOMMENDING: { label: 'Generowanie...', color: '#F59E0B', bgClass: 'bg-[#F59E0B]/10' },
         COMPLETED: { label: 'Zakończona', color: '#8B5CF6', bgClass: 'bg-[#8B5CF6]/10' },
@@ -57,20 +60,20 @@ function MemberCard({ member, isHost }: { member: SessionMember; isHost: boolean
             layout={LinearTransition}
             className={`${FillStyles.pillBase} ${isReady ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center gap-3 py-3.5 px-4`}
         >
-            <View className={`w-9 h-9 rounded-full items-center justify-center ${isReady ? 'bg-[#CDFF64]/15' : 'bg-white/[0.06]'}`}>
+            <View className={`w-9 h-9 rounded-full items-center justify-center ${isReady ? 'bg-accent/15' : 'bg-white/[0.06]'}`}>
                 {isHost ? (
-                    <Crown color={isReady ? '#CDFF64' : '#707080'} size={16} strokeWidth={2} />
+                    <Crown color={isReady ? ACCENT : '#707080'} size={16} strokeWidth={2} />
                 ) : (
-                    <User color={isReady ? '#CDFF64' : '#707080'} size={16} strokeWidth={2} />
+                    <User color={isReady ? ACCENT : '#707080'} size={16} strokeWidth={2} />
                 )}
             </View>
             <View className="flex-1">
                 <Text className="font-outfit-semi text-[14px]">{member.user_name}</Text>
-                <Text className={`font-outfit text-[11px] mt-0.5 ${isReady ? 'text-[#CDFF64]/60' : 'opacity-30'}`}>
+                <Text style={isReady ? { color: `${ACCENT}99` } : {}} className={`font-outfit text-[11px] mt-0.5 ${!isReady ? 'opacity-30' : ''}`}>
                     {isReady ? 'Gotowy' : 'Oczekiwanie na preferencje...'}
                 </Text>
             </View>
-            <View className={`w-7 h-7 rounded-full items-center justify-center ${isReady ? 'bg-[#CDFF64]' : 'bg-white/[0.06] border border-white/[0.08]'}`}>
+            <View className={`w-7 h-7 rounded-full items-center justify-center ${isReady ? 'bg-accent' : 'bg-white/[0.06] border border-white/[0.08]'}`}>
                 {isReady ? (
                     <Check color="#000" size={14} strokeWidth={3} />
                 ) : (
@@ -101,7 +104,7 @@ function RecommendingOverlay() {
             className="items-center py-8"
         >
             <Animated.View style={[rotateStyle, { marginBottom: 16 }]}>
-                <Sparkles color="#CDFF64" size={32} strokeWidth={1.5} />
+                <Sparkles color={ACCENT} size={32} strokeWidth={1.5} />
             </Animated.View>
             <Text className="font-outfit-semi text-[16px] mb-1">AI myśli nad filmem</Text>
             <Text className="font-outfit text-[13px] opacity-35">To może potrwać chwilę...</Text>
@@ -257,7 +260,7 @@ export default function SessionLobbyScreen() {
     if (loading) {
         return (
             <View className="flex-1 bg-transparent items-center justify-center">
-                <ActivityIndicator color="#CDFF64" size="large" />
+                <ActivityIndicator color={ACCENT} size="large" />
             </View>
         );
     }
@@ -301,7 +304,7 @@ export default function SessionLobbyScreen() {
                         {/* Session info header */}
                         <View className="px-2 mb-2">
                             <View className="flex-row items-center gap-2 mb-2">
-                                <Text className="font-outfit text-[11px] uppercase tracking-[3px] text-[#CDFF64]/60">Sesja filmowa</Text>
+                                <Text style={{ color: `${ACCENT}99` }} className="font-outfit text-[11px] uppercase tracking-[3px]">Sesja filmowa</Text>
                             </View>
                             <Text className="font-outfit-bold text-[26px] leading-tight">
                                 {session.meeting_type === 'RANDKA' ? '💕 Randka' :
@@ -366,9 +369,9 @@ export default function SessionLobbyScreen() {
                                                     step={10}
                                                     value={maxRuntime}
                                                     onValueChange={setMaxRuntime}
-                                                    minimumTrackTintColor="#CDFF64"
+                                                    minimumTrackTintColor={ACCENT}
                                                     maximumTrackTintColor="#ffffff15"
-                                                    thumbTintColor="#CDFF64"
+                                                    thumbTintColor={ACCENT}
                                                 />
                                                 <Text className="font-outfit text-[12px] w-14 text-right opacity-60">{maxRuntime} min</Text>
                                             </View>
@@ -380,10 +383,10 @@ export default function SessionLobbyScreen() {
                                             onPress={() => setAllowSeen(!allowSeen)}
                                         >
                                             <View className="flex-row items-center gap-x-2">
-                                                <Film size={16} fill={allowSeen ? '#CDFF64' : 'transparent'} color={allowSeen ? '#CDFF64' : '#707080'} />
+                                                <Film size={16} fill={allowSeen ? ACCENT : 'transparent'} color={allowSeen ? ACCENT : '#707080'} />
                                                 <Text className="font-outfit text-[13px]">Filmy widziane</Text>
                                             </View>
-                                            <Text className={`font-outfit uppercase tracking-wider text-[11px] ${allowSeen ? 'font-outfit-semi text-[#CDFF64]' : 'opacity-40'}`}>
+                                            <Text style={allowSeen ? { color: ACCENT } : {}} className={`font-outfit uppercase tracking-wider text-[11px] ${allowSeen ? 'font-outfit-semi' : 'opacity-40'}`}>
                                                 {allowSeen ? 'Zezwalaj' : 'Nie zezwalaj'}
                                             </Text>
                                         </TouchableOpacity>
@@ -417,8 +420,8 @@ export default function SessionLobbyScreen() {
                                 animate={{ opacity: 1, translateY: 0 }}
                                 className={`${FillStyles.section} overflow-hidden p-6 items-center`}
                             >
-                                <View className="w-14 h-14 rounded-full bg-[#CDFF64]/10 items-center justify-center mb-4">
-                                    <Check color="#CDFF64" size={24} strokeWidth={2} />
+                                <View className="w-14 h-14 rounded-full bg-accent/10 items-center justify-center mb-4">
+                                    <Check color={ACCENT} size={24} strokeWidth={2} />
                                 </View>
                                 <Text className="font-outfit-semi text-[16px] mb-1">Preferencje zapisane</Text>
                                 <Text className="font-outfit text-[13px] opacity-35 text-center">
@@ -482,8 +485,8 @@ export default function SessionLobbyScreen() {
                                 className="gap-3"
                             >
                                 <View className="flex-row items-center gap-2 px-2 mt-2">
-                                    <Sparkles color="#CDFF64" size={16} strokeWidth={2} />
-                                    <Text className="font-outfit text-[11px] uppercase tracking-[3px] text-[#CDFF64]/60">Rekomendacja AI</Text>
+                                    <Sparkles color={ACCENT} size={16} strokeWidth={2} />
+                                    <Text style={{ color: `${ACCENT}99` }} className="font-outfit text-[11px] uppercase tracking-[3px]">Rekomendacja AI</Text>
                                 </View>
                                 <FilmView movieData={movieData} />
                             </MotiView>

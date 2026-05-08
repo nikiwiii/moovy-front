@@ -8,6 +8,9 @@ import Animated, { LinearTransition } from 'react-native-reanimated';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { FillStyles } from '../constants/themeStyles';
 import { storageService } from '../services/storageService';
+import { Colors } from '@/constants/theme';
+
+const ACCENT = Colors.dark.accent;
 
 const { width } = Dimensions.get('window');
 
@@ -74,8 +77,8 @@ export default function WelcomeScreen() {
                         className="mb-12 px-2"
                     >
                         <View className="flex-row items-center gap-2 mb-4">
-                            <Sparkles color="#CDFF64" size={20} strokeWidth={2} />
-                            <Text className="font-outfit text-[12px] uppercase tracking-[4px] text-[#CDFF64]/80">MovieNight</Text>
+                            <Sparkles color={ACCENT} size={20} strokeWidth={2} />
+                            <Text style={{ color: `${ACCENT}CC` }} className="font-outfit text-[12px] uppercase tracking-[4px]">MovieNight</Text>
                         </View>
                         <Text className="font-outfit-bold text-[34px] leading-[40px] mb-2">Witamy w{'\n'}MovieNight</Text>
                         <Text className="font-outfit text-[15px] opacity-40">Gdzie chcesz zapisywać swoje preferencje?</Text>
@@ -97,7 +100,7 @@ export default function WelcomeScreen() {
                                 onPress={() => setSelected('cloud')}
                             >
                                 <View className={FillStyles.cardIcon}>
-                                    <Cloud color={selected === 'cloud' ? '#CDFF64' : '#707080'} size={26} strokeWidth={selected === 'cloud' ? 2.5 : 1.5} />
+                                    <Cloud color={selected === 'cloud' ? ACCENT : '#707080'} size={26} strokeWidth={selected === 'cloud' ? 2.5 : 1.5} />
                                 </View>
                                 <View className="flex-1">
                                     <Text className="text-[17px] font-outfit-semi tracking-wider">Chmura</Text>
@@ -116,7 +119,7 @@ export default function WelcomeScreen() {
                                 onPress={() => setSelected('local')}
                             >
                                 <View className={FillStyles.cardIcon}>
-                                    <Smartphone color={selected === 'local' ? '#CDFF64' : '#707080'} size={26} strokeWidth={selected === 'local' ? 2.5 : 1.5} />
+                                    <Smartphone color={selected === 'local' ? ACCENT : '#707080'} size={26} strokeWidth={selected === 'local' ? 2.5 : 1.5} />
                                 </View>
                                 <View className="flex-1">
                                     <Text className="text-[17px] font-outfit-semi tracking-wider">Lokalnie</Text>
@@ -133,7 +136,7 @@ export default function WelcomeScreen() {
                         transition={{ type: 'spring' }}
                         className="absolute bottom-10 right-5"
                     >
-                        <TouchableOpacity onPress={handleNext} className="flex-row gap-x-2 items-center bg-[#CDFF64] py-3.5 px-6 rounded-full">
+                        <TouchableOpacity onPress={handleNext} className="flex-row gap-x-2 items-center bg-accent py-3.5 px-6 rounded-full">
                             <Text className="font-outfit-semi text-[15px] text-black">Potwierdź wybór</Text>
                             <ArrowRight color="#000" size={18} strokeWidth={2.5} />
                         </TouchableOpacity>

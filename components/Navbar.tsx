@@ -4,6 +4,9 @@ import { Clapperboard, Cog, UsersRound } from "lucide-react-native";
 import { MotiView } from "moti";
 import { StyleSheet, View } from "react-native";
 import TouchableOpacity from "./TouchableOpacity";
+import { Colors } from "@/constants/theme";
+
+const ACCENT = Colors.dark.accent;
 
 export default function Navbar() {
     const router = useRouter();
@@ -39,7 +42,7 @@ export default function Navbar() {
                                 onPress={() => {
                                     router.push(tab.path as any);
                                 }}
-                                className={`items-center justify-center rounded-full h-[52px] mx-1 ${isActive ? 'w-[68px] bg-[#CDFF64]' : 'w-[52px]'}`}
+                                className={`items-center justify-center rounded-full h-[52px] mx-1 ${isActive ? 'w-[68px] bg-accent' : 'w-[52px]'}`}
                             >
                                 <Icon
                                     color={isActive ? "#000" : "#707080"}

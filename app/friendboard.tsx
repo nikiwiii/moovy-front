@@ -1,5 +1,8 @@
 import MiniCollapsibleSection from "@/components/MiniCollapsibleSection";
 import { FillStyles } from "@/constants/themeStyles";
+import { Colors } from "@/constants/theme";
+
+const ACCENT = Colors.dark.accent;
 import { useRouter } from "expo-router";
 import { Heart, HeartOff, Plus } from "lucide-react-native";
 import { MotiView } from "moti";
@@ -36,7 +39,7 @@ export default function FriendBoard() {
                 className="px-6 pt-5 pb-3 flex-row justify-between items-center"
             >
                 <Text className="font-outfit-bold text-[24px]">Friendboard</Text>
-                <TouchableOpacity className="w-10 h-10 rounded-full bg-[#CDFF64] items-center justify-center">
+                <TouchableOpacity className="w-10 h-10 rounded-full bg-accent items-center justify-center">
                     <Plus color="#000" size={18} strokeWidth={2.5} />
                 </TouchableOpacity>
             </MotiView>
@@ -52,7 +55,7 @@ export default function FriendBoard() {
                             <View className="flex-col gap-2">
                                 <ScrollView horizontal className={`flex-row gap-2 ${FillStyles.pillBase} ${FillStyles.pillInactive} px-2 py-1.5 !rounded-t-[16px]`}>
                                     <View className={`flex flex-row gap-2 items-center py-1 mr-3`}>
-                                        <Heart strokeWidth={1.5} size={14} color="#CDFF64" />
+                                        <Heart strokeWidth={1.5} size={14} color={ACCENT} />
                                         <Text className="font-outfit text-[11px] uppercase tracking-[2px] opacity-60">Lubi</Text>
                                     </View>
                                     <View className="flex-row gap-2 pr-5">

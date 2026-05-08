@@ -12,6 +12,9 @@ import GenreSelection from '../components/GenreSelection';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { FillStyles } from '../constants/themeStyles';
 import { storageService } from '../services/storageService';
+import { Colors } from '@/constants/theme';
+
+const ACCENT = Colors.dark.accent;
 
 
 const posters = [
@@ -201,7 +204,7 @@ export default function ParametersScreen() {
                                 className="flex-1 overflow-hidden rounded-[28px]"
                             >
                                 <BlurView intensity={20} tint="light" className="flex-row gap-x-3 items-center justify-center py-5 px-4 border border-white/[0.08] bg-white/[0.04]">
-                                    <Handshake color="#CDFF64" size={22} strokeWidth={2} />
+                                    <Handshake color={ACCENT} size={22} strokeWidth={2} />
                                     <Text className="font-outfit-bold text-[14px] uppercase tracking-[2px]">
                                         Utwórz sesję
                                     </Text>
@@ -211,8 +214,8 @@ export default function ParametersScreen() {
                                 onPress={() => router.push('/session-join')}
                                 className="overflow-hidden rounded-[28px]"
                             >
-                                <BlurView intensity={20} tint="light" className="flex-row gap-x-3 items-center justify-center py-5 px-5 border border-[#CDFF64]/20 bg-[#CDFF64]/[0.06]">
-                                    <Plus color="#CDFF64" size={20} strokeWidth={2.5} />
+                                <BlurView intensity={20} tint="light" style={{ borderColor: `${ACCENT}33`, backgroundColor: `${ACCENT}10` }} className="flex-row gap-x-3 items-center justify-center py-5 px-5 border">
+                                    <Plus color={ACCENT} size={20} strokeWidth={2.5} />
                                 </BlurView>
                             </TouchableOpacity>
                         </View>
@@ -222,7 +225,7 @@ export default function ParametersScreen() {
                             value={groups.find(g => g.id === selectedGroup)?.title || '-'}
                             icon={Users}
                             defaultOpen={true}
-                            rightIcon={<Plus size={16} color="#CDFF64" />}
+                            rightIcon={<Plus size={16} color={ACCENT} />}
                             onRightIconPress={() => setModalVisible(true)}
                         >
                             <Animated.View layout={LinearTransition} className="gap-2">
@@ -233,7 +236,7 @@ export default function ParametersScreen() {
                                         onPress={() => setSelectedGroup(group.id)}
                                     >
                                         <View className="flex-row items-center gap-2">
-                                            <group.icon color={selectedGroup === group.id ? "#CDFF64" : "#707080"} size={18} strokeWidth={2} fill={selectedGroup === group.id ? "#CDFF64" : "transparent"} />
+                                            <group.icon color={selectedGroup === group.id ? ACCENT : "#707080"} size={18} strokeWidth={2} fill={selectedGroup === group.id ? ACCENT : "transparent"} />
                                         </View>
                                         <View>
                                             <Text className="font-outfit-semi text-[15px]">{group.title}</Text>
@@ -278,11 +281,11 @@ export default function ParametersScreen() {
                                         disabled={typeof setting.value !== 'boolean'}
                                     >
                                         <View className="flex-row items-center gap-x-2">
-                                            <setting.icon size={16} fill={setting.value && typeof setting.value === 'boolean' ? "#CDFF64" : "transparent"} color={setting.value && typeof setting.value === 'boolean' ? "#CDFF64" : "#707080"} />
+                                            <setting.icon size={16} fill={setting.value && typeof setting.value === 'boolean' ? ACCENT : "transparent"} color={setting.value && typeof setting.value === 'boolean' ? ACCENT : "#707080"} />
                                             <Text className={`font-outfit text-[13px]`}>{setting.title}</Text>
                                         </View>
                                         {typeof setting.value === 'boolean' ? (
-                                            <Text className={`font-outfit uppercase tracking-wider text-[11px] ${setting.value ? 'font-outfit-semi text-[#CDFF64]' : 'opacity-40'}`}>{setting.value ? 'Zezwalaj' : 'Nie zezwalaj'}</Text>
+                                            <Text style={setting.value ? { color: ACCENT } : {}} className={`font-outfit uppercase tracking-wider text-[11px] ${setting.value ? 'font-outfit-semi' : 'opacity-40'}`}>{setting.value ? 'Zezwalaj' : 'Nie zezwalaj'}</Text>
                                         ) : (
                                             <View className="flex-row items-center gap-x-2 justify-end flex-1 pl-4">
                                                 <Slider
@@ -292,9 +295,9 @@ export default function ParametersScreen() {
                                                     step={10}
                                                     value={setting.value as number}
                                                     onValueChange={(val) => setSettingValue(setting.title, val)}
-                                                    minimumTrackTintColor="#CDFF64"
+                                                    minimumTrackTintColor={ACCENT}
                                                     maximumTrackTintColor="#ffffff15"
-                                                    thumbTintColor="#CDFF64"
+                                                    thumbTintColor={ACCENT}
                                                 />
                                                 <Text className="font-outfit text-[12px] w-14 text-right opacity-60">{setting.value} min</Text>
                                             </View>

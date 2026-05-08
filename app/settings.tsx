@@ -7,6 +7,9 @@ import { ScrollView, View, Alert } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
 import TouchableOpacity from "@/components/TouchableOpacity";
 import { storageService } from "@/services/storageService";
+import { Colors } from "@/constants/theme";
+
+const ACCENT = Colors.dark.accent;
 
 export default function Settings() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -60,11 +63,11 @@ export default function Settings() {
                     {!isLoggedIn && (
                         <TouchableOpacity
                             onPress={() => router.push('/login')}
-                            className="bg-[#CDFF64]/10 rounded-[24px] flex-row items-center justify-between gap-x-3 min-h-20 p-5 border border-[#CDFF64]/20"
+                            className="bg-accent/10 rounded-[24px] flex-row items-center justify-between gap-x-3 min-h-20 p-5 border border-accent/20"
                         >
                             <View className="flex-row items-center gap-x-4">
-                                <View className="bg-[#CDFF64]/15 p-2.5 rounded-xl">
-                                    <LogIn color="#CDFF64" size={22} />
+                                <View className="bg-accent/15 p-2.5 rounded-xl">
+                                    <LogIn color={ACCENT} size={22} />
                                 </View>
                                 <View>
                                     <Text className="font-outfit-semi text-[15px]">Połącz z chmurą</Text>

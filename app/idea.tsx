@@ -7,6 +7,9 @@ import { AppText as Text } from '@/components/AppText';
 import Animated, { LinearTransition } from "react-native-reanimated";
 import CollapsibleSection from "../components/CollapsibleSection";
 import { FillStyles } from "../constants/themeStyles";
+import { Colors } from "@/constants/theme";
+
+const ACCENT = Colors.dark.accent;
 
 export default function IdeaScreen() {
     const router = useRouter();
@@ -66,10 +69,10 @@ export default function IdeaScreen() {
                         defaultOpen={false}
                     >
                         <Animated.View layout={LinearTransition} className="flex-col gap-3">
-                            <View className="flex-row items-center gap-3"><Users size={16} strokeWidth={2} color="#CDFF64" /><Text className="font-outfit text-[14px]">{parsedCriteria.preset}</Text></View>
-                            <View className="flex-row items-center gap-3"><Film size={16} strokeWidth={2} color="#CDFF64" /><Text className="font-outfit text-[14px]">{parsedCriteria.genres.length > 0 ? parsedCriteria.genres.join(", ") : "Dowolny"}</Text></View>
-                            <View className="flex-row items-center gap-3"><Clock size={16} strokeWidth={2} color="#CDFF64" /><Text className="font-outfit text-[14px]">{parsedCriteria.duration}</Text></View>
-                            <View className="flex-row items-center gap-3"><UserPlus size={16} strokeWidth={2} color="#CDFF64" /><Text className="font-outfit text-[14px]">{parsedCriteria.friendsAdded}</Text></View>
+                            <View className="flex-row items-center gap-3"><Users size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.preset}</Text></View>
+                            <View className="flex-row items-center gap-3"><Film size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.genres.length > 0 ? parsedCriteria.genres.join(", ") : "Dowolny"}</Text></View>
+                            <View className="flex-row items-center gap-3"><Clock size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.duration}</Text></View>
+                            <View className="flex-row items-center gap-3"><UserPlus size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.friendsAdded}</Text></View>
                         </Animated.View>
                     </CollapsibleSection>
 
