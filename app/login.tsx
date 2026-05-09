@@ -93,10 +93,11 @@ export default function LoginScreen() {
                                 onChangeText={setEmail}
                                 keyboardType="email-address"
                                 autoCapitalize="none"
+                                style={{ color: '#fff' }}
                             />
                         </View>
 
-                        <View className="relative">
+                        <View className="relative ">
                             <View className="absolute left-4 top-[15px] z-10">
                                 <Lock color="#707080" size={20} />
                             </View>
@@ -108,6 +109,7 @@ export default function LoginScreen() {
                                 onChangeText={setPassword}
                                 secureTextEntry={!showPassword}
                                 autoCapitalize="none"
+                                style={{ color: '#fff' }}
                             />
                             <TouchableOpacity
                                 className="absolute right-4 top-[15px]"

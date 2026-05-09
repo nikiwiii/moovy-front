@@ -99,10 +99,10 @@ export default function ParametersScreen() {
             };
             const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.1:8000'; // Fallback
             const token = await storageService.getToken();
-            
+
             const res = await fetch(`${API_URL}/recommendation/session`, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
@@ -119,7 +119,7 @@ export default function ParametersScreen() {
             // KROK 2: Pobranie właściwej rekomendacji AI
             const recRes = await fetch(`${API_URL}/recommendation/${sessionId}`, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 }
@@ -316,7 +316,7 @@ export default function ParametersScreen() {
 
                             <View className="flex-col items-end gap-4 mb-10 z-50">
                                 <TouchableOpacity
-                                    className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary}`}
+                                    className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
                                     onPress={handleFindMovie}
                                     disabled={isLoading}
                                 >

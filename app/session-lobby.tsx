@@ -396,7 +396,7 @@ export default function SessionLobbyScreen() {
                                 {/* Submit preferences button */}
                                 <View className="flex-row justify-end mt-1">
                                     <TouchableOpacity
-                                        className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary}`}
+                                        className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
                                         onPress={handleSubmitPreferences}
                                         disabled={submittingPrefs}
                                     >
@@ -443,7 +443,7 @@ export default function SessionLobbyScreen() {
                                 {/* Generate recommendations button */}
                                 {(session.status === 'ALL_READY') && (
                                     <TouchableOpacity
-                                        className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} justify-center`}
+                                        className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} justify-center bg-accent`}
                                         onPress={handleRecommend}
                                         disabled={recommendLoading || !allReady}
                                     >

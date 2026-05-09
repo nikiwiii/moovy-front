@@ -137,7 +137,7 @@ export default function SessionCreateScreen() {
                             {/* Create button */}
                             <View className="flex-row justify-end mt-2">
                                 <TouchableOpacity
-                                    className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary}`}
+                                    className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
                                     onPress={handleCreate}
                                     disabled={isLoading}
                                 >
@@ -206,7 +206,7 @@ export default function SessionCreateScreen() {
                             {/* Go to lobby */}
                             <View className="flex-row justify-end">
                                 <TouchableOpacity
-                                    className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary}`}
+                                    className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
                                     onPress={handleGoToLobby}
                                 >
                                     <Text className="font-outfit-semi text-[15px] text-black">Przejdź do lobby</Text>

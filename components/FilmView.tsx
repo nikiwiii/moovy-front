@@ -12,7 +12,7 @@ const ACCENT = Colors.dark.accent;
 
 const RatingRing = ({ rating }: { rating: number }) => {
     const size = 48;
-    const strokeWidth = 4;
+    const strokeWidth = 3;
     const center = size / 2;
     const radius = center - strokeWidth;
     const circumference = 2 * Math.PI * radius;
@@ -22,16 +22,14 @@ const RatingRing = ({ rating }: { rating: number }) => {
     return (
         <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
             <Svg width={size} height={size} style={{ position: 'absolute' }}>
-                {/* Background Ring */}
                 <Circle
                     cx={center}
                     cy={center}
                     r={radius}
-                    stroke="rgba(255, 255, 255, 0.1)"
+                    stroke="rgba(255, 255, 255, 0.08)"
                     strokeWidth={strokeWidth}
-                    fill="transparent"
+                    fill="rgba(255, 255, 255, 0.02)"
                 />
-                {/* Progress Ring */}
                 <Circle
                     cx={center}
                     cy={center}
@@ -45,7 +43,40 @@ const RatingRing = ({ rating }: { rating: number }) => {
                     transform={`rotate(-90 ${center} ${center})`}
                 />
             </Svg>
-            <Text className="font-outfit-bold text-white text-[14px]">{rating.toFixed(1)}</Text>
+            <View className="items-center">
+                <Text className="font-outfit-bold text-white text-[14px]">{rating.toFixed(1)}</Text>
+                <Text className="text-[7px] font-outfit-bold text-white/30 uppercase tracking-[1px]">Ocena</Text>
+            </View>
+        </View>
+    );
+};
+
+const DurationRing = ({ duration }: { duration: string }) => {
+    const size = 48;
+    const strokeWidth = 3;
+    const center = size / 2;
+    const radius = center - strokeWidth;
+    
+    // Extract only the number from duration (e.g. "201 minut" -> "201")
+    const match = duration.match(/\d+/);
+    const timeValue = match ? match[0] : duration;
+
+    return (
+        <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
+            <Svg width={size} height={size} style={{ position: 'absolute' }}>
+                <Circle
+                    cx={center}
+                    cy={center}
+                    r={radius}
+                    stroke="rgba(255, 255, 255, 0.08)"
+                    strokeWidth={strokeWidth}
+                    fill="rgba(255, 255, 255, 0.02)"
+                />
+            </Svg>
+            <View className="items-center">
+                <Text className="font-outfit-bold text-white text-[13px]">{timeValue}</Text>
+                <Text className="text-[7px] font-outfit-bold text-white/30 uppercase tracking-[1px]">Minut</Text>
+            </View>
         </View>
     );
 };
@@ -145,12 +176,10 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
                 </MotiView>
                 <View className="flex-col w-3/5 gap-2.5">
                     <Text className="text-[20px] font-outfit-bold leading-tight">{displayTitle} {displayYear && <Text className="text-[15px] font-outfit opacity-50">({displayYear})</Text>}</Text>
-                    {displayRating ? (
-                        <View className="flex-row items-center gap-3">
-                            <RatingRing rating={displayRating} />
-                        </View>
-                    ) : null}
-                    {displayDuration ? <View className="flex-row items-center gap-1.5"><Clock size={14} color="#707080" /><Text className="text-[14px] font-outfit opacity-60">{displayDuration}</Text></View> : null}
+                    <View className="flex-row items-center gap-4 my-1">
+                        {displayRating ? <RatingRing rating={displayRating} /> : null}
+                        {displayDuration ? <DurationRing duration={displayDuration} /> : null}
+                    </View>
                     {displayDirector ? (
                         <View className="flex-col mt-1">
                             <Text className="text-[12px] font-outfit opacity-35 uppercase tracking-[2px]">Reżyser</Text>

@@ -9,6 +9,7 @@ import TouchableOpacity from './TouchableOpacity';
 import { defaultVibes } from '../constants/vibes';
 import { storageService } from '../services/storageService';
 import { Colors } from '@/constants/theme';
+import { FillStyles } from '@/constants/themeStyles';
 
 const ACCENT = Colors.dark.accent;
 

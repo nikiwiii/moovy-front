@@ -263,7 +263,7 @@ export default function PreferencesScreen() {
                                         returnKeyType="done"
                                     />
                                     <TouchableOpacity
-                                        className={FillStyles.inputIconBtn}
+                                        className={`${FillStyles.inputIconBtn} bg-accent`}
                                         onPress={addMovie}
                                     >
                                         <Plus color="#000" size={20} />
@@ -281,7 +281,7 @@ export default function PreferencesScreen() {
                     className="absolute bottom-10 right-5"
                 >
                     <TouchableOpacity
-                        className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary}`}
+                        className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
                         onPress={handleSave}
                         disabled={loading}
                     >

@@ -4,16 +4,7 @@
 
 @layer base {
   :root {
-    --color-text: #ffffff;
-    --color-background: #050210;
-    --color-background-dark: #030108;
-    --color-accent: #CDFF64;
-    --color-accent-dim: #9dcc3a;
-    --color-card: #0d0b1a;
-    --color-card-active: #1a1830;
-    --color-text-muted: #a0a0b0;
-    --color-text-dim: #d0d0dd;
-    --color-text-secondary: #ffffff;
+    /* Colors are now managed in constants/colors.js and injected via tailwind.config.js */
   }
 
   Text {
