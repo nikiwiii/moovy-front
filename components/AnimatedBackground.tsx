@@ -123,7 +123,7 @@ interface AnimatedBackgroundProps {
     theme?: BackgroundTheme;
 }
 
-export default function AnimatedBackground({ theme = 'midnight' }: AnimatedBackgroundProps) {
+export default function AnimatedBackground({ theme = 'sunset' }: AnimatedBackgroundProps) {
     const colors = BACKGROUND_THEMES[theme] || BACKGROUND_THEMES.default;
 
     return (

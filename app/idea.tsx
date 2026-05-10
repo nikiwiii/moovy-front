@@ -23,10 +23,10 @@ export default function IdeaScreen() {
     };
 
     const parsedMovies = params.recommendationData ? JSON.parse(params.recommendationData as string) : null;
-    
+
     console.log("[IDEA SCREEN] Parsed Criteria:", parsedCriteria);
     console.log("[IDEA SCREEN] Parsed Movies:", parsedMovies);
-    
+
     // Fallback definition for the view model
     let movieData: MovieViewProps | undefined = undefined;
 
@@ -81,7 +81,7 @@ export default function IdeaScreen() {
                         className="self-end"
                     >
                         <TouchableOpacity
-                            className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} w-[200px]`}
+                            className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent w-[200px]`}
                             onPress={() => router.back()}
                         >
                             <RotateCcw color="#000" size={18} strokeWidth={2.5} />

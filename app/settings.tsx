@@ -88,8 +88,9 @@ export default function Settings() {
                         {Arrow}
                     </TouchableOpacity>
 
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                         onPress={() => router.push('/')}
+                        disabled
                         className={`${FillStyles.pillBase} ${FillStyles.pillInactive} flex-row items-center justify-between gap-x-2 min-h-14`}
                     >
                         <View className="flex-row items-center gap-x-3 pl-1">
@@ -97,7 +98,7 @@ export default function Settings() {
                             <Text className="font-outfit text-[14px]">Zmień lokalizację zapisu</Text>
                         </View>
                         {Arrow}
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
                     <TouchableOpacity
                         onPress={() => { }}

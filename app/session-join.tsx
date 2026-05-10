@@ -337,8 +337,10 @@ export default function SessionJoinScreen() {
                                 onPress={handleJoin}
                                 disabled={fullCode.length !== CODE_LENGTH}
                             >
-                                <LogIn color="#000" size={18} strokeWidth={2.5} />
-                                <Text className="font-outfit-semi text-[15px] text-black">Dołącz do sesji</Text>
+                                <View className="flex-row items-center gap-2">
+                                    <LogIn color="#fff" size={18} strokeWidth={2.5} />
+                                    <Text className="font-outfit-semi text-[15px]">Dołącz do sesji</Text>
+                                </View>
                             </TouchableOpacity>
                         </MotiView>
                     </MotiView>

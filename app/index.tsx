@@ -27,7 +27,7 @@ export default function WelcomeScreen() {
             const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
             if (lp) {
-                router.replace('/parameters');
+                router.replace('/home');
                 return;
             }
 
@@ -47,7 +47,7 @@ export default function WelcomeScreen() {
                             (data.movies && data.movies.length > 0)
                         );
                         if (hasData) {
-                            router.replace('/parameters');
+                            router.replace('/home');
                         }
                     }
                 } catch (e) {

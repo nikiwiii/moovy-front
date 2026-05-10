@@ -1,7 +1,11 @@
 import { useRouter } from 'expo-router';
 import {
     ArrowLeft, Check, Copy, Crown, Heart, Sparkles,
-    Users, Baby, User, ChevronRight
+    Users, Baby, User, ChevronRight,
+    UserRoundCheck,
+    UsersRound,
+    UserRound,
+    LucideIcon
 } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState } from 'react';
@@ -9,7 +13,7 @@ import {
     ActivityIndicator, Alert, Clipboard, SafeAreaView, ScrollView, View
 } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
-import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
+import Animated, { FadeIn, LinearTransition, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { FillStyles } from '../constants/themeStyles';
 import { sessionService, MeetingType } from '../services/sessionService';
@@ -17,16 +21,22 @@ import { Colors } from '@/constants/theme';
 
 const ACCENT = Colors.dark.accent;
 
-const meetingTypes: { id: MeetingType; icon: any; title: string; description: string }[] = [
-    { id: 'EKIPA', icon: Users, title: 'Ekipa', description: 'Wieczór filmowy z przyjaciółmi' },
+const meetingTypes: { id: MeetingType; icon: LucideIcon; title: string; description: string }[] = [
+    { id: 'EKIPA', icon: UsersRound, title: 'Ekipa', description: 'Wieczór filmowy z przyjaciółmi' },
     { id: 'RANDKA', icon: Heart, title: 'Randka', description: 'Romantyczny seans we dwoje' },
     { id: 'RODZINA', icon: Baby, title: 'Rodzina', description: 'Film dla całej rodziny' },
-    { id: 'SOLO', icon: User, title: 'Solo', description: 'Tylko Ty i Twoje preferencje' },
 ];
 
 export default function SessionCreateScreen() {
     const router = useRouter();
     const [selectedType, setSelectedType] = useState<MeetingType>('EKIPA');
+    const scrollX = useSharedValue(0);
+
+    const scrollHandler = useAnimatedScrollHandler({
+        onScroll: (event) => {
+            scrollX.value = event.contentOffset.x;
+        },
+    });
     const [isLoading, setIsLoading] = useState(false);
     const [createdSession, setCreatedSession] = useState<{ session_id: string; invite_code: string } | null>(null);
     const [copied, setCopied] = useState(false);
@@ -101,35 +111,56 @@ export default function SessionCreateScreen() {
                             <View className={`${FillStyles.section} overflow-hidden`}>
                                 <View className="p-5">
                                     <Text className="font-outfit text-[11px] uppercase tracking-[3px] opacity-40 mb-4">Typ spotkania</Text>
-                                    <View className="gap-2">
-                                        {meetingTypes.map((type, i) => {
-                                            const isActive = selectedType === type.id;
-                                            const IconComp = type.icon;
-                                            return (
-                                                <TouchableOpacity
-                                                    key={type.id}
-                                                    className={`${FillStyles.pillBase} ${isActive ? FillStyles.pillActive : FillStyles.pillInactive} py-4 px-4 flex-row gap-4 items-center ${i === 0 ? FillStyles.pillFirst : ''} ${i === meetingTypes.length - 1 ? FillStyles.pillLast : ''}`}
-                                                    onPress={() => setSelectedType(type.id)}
-                                                >
-                                                    <View className={`w-10 h-10 rounded-full items-center justify-center ${isActive ? 'bg-accent/15' : 'bg-white/[0.06]'}`}>
-                                                        <IconComp
-                                                            color={isActive ? ACCENT : '#707080'}
-                                                            size={20}
-                                                            strokeWidth={isActive ? 2.5 : 1.5}
-                                                        />
-                                                    </View>
-                                                    <View className="flex-1">
-                                                        <Text className="font-outfit-semi text-[15px]">{type.title}</Text>
-                                                        <Text className="font-outfit text-[12px] opacity-35 mt-0.5">{type.description}</Text>
-                                                    </View>
-                                                    {isActive && (
-                                                        <Animated.View entering={FadeIn.duration(200)}>
-                                                            <Check color={ACCENT} size={18} strokeWidth={2.5} />
-                                                        </Animated.View>
-                                                    )}
-                                                </TouchableOpacity>
-                                            );
-                                        })}
+                                    <View>
+                                        <Animated.ScrollView
+                                            horizontal
+                                            showsHorizontalScrollIndicator={false}
+                                            contentContainerClassName="gap-3 pb-4"
+                                            onScroll={scrollHandler}
+                                            scrollEventThrottle={16}
+                                        >
+                                            {meetingTypes.map((type, i) => {
+                                                const isActive = selectedType === type.id;
+                                                const IconComp = type.icon;
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={type.id}
+                                                        className={`${FillStyles.cardBase} ${isActive ? FillStyles.cardActive : FillStyles.cardInactive} w-[140px] h-[140px] p-4 justify-between`}
+                                                        onPress={() => setSelectedType(type.id)}
+                                                    >
+                                                        <View className={`w-14 h-14 rounded-full items-center justify-center ${isActive ? 'bg-accent/15' : 'bg-white/[0.06]'}`}>
+                                                            <IconComp
+                                                                color={isActive ? ACCENT : '#707080'}
+                                                                size={20}
+                                                                strokeWidth={isActive ? 2.5 : 1.5}
+                                                            />
+                                                        </View>
+                                                        <View>
+                                                            <Text className="font-outfit-semi text-[15px]">{type.title}</Text>
+                                                            <Text className="font-outfit text-[11px] opacity-35 mt-0.5" numberOfLines={2}>{type.description}</Text>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                );
+                                            })}
+                                        </Animated.ScrollView>
+
+                                        {/* Custom Scroll Indicator */}
+                                        <View className="flex-row justify-center items-center mt-1">
+                                            <View className="w-16 h-[3px] bg-white/10 rounded-full overflow-hidden">
+                                                <Animated.View
+                                                    style={useAnimatedStyle(() => {
+                                                        const translation = (scrollX.value / 150) * 10;
+                                                        return {
+                                                            width: '40%',
+                                                            height: '100%',
+                                                            backgroundColor: ACCENT,
+                                                            borderRadius: 10,
+                                                            transform: [{ translateX: Math.min(Math.max(translation, 0), 30) }]
+                                                        };
+                                                    })}
+                                                />
+                                            </View>
+                                        </View>
                                     </View>
                                 </View>
                             </View>
@@ -145,8 +176,8 @@ export default function SessionCreateScreen() {
                                         <ActivityIndicator color="#000" size="small" />
                                     ) : (
                                         <>
+                                            <UserRoundCheck color="#000" size={18} strokeWidth={2.5} />
                                             <Text className="font-outfit-semi text-[15px] text-black">Utwórz sesję</Text>
-                                            <Sparkles color="#000" size={18} strokeWidth={2.5} />
                                         </>
                                     )}
                                 </TouchableOpacity>
@@ -175,7 +206,7 @@ export default function SessionCreateScreen() {
                             </View>
 
                             {/* Invite code card */}
-                            <View className={`${FillStyles.section} overflow-hidden`}>
+                            <View className={`overflow-hidden`}>
                                 <View className="p-6 items-center">
                                     <Text className="font-outfit text-[11px] uppercase tracking-[4px] opacity-40 mb-4">Kod zaproszenia</Text>
                                     <View className="flex-row items-center gap-3 mb-5">

@@ -1,6 +1,6 @@
 import { BlurView } from "expo-blur";
 import { usePathname, useRouter } from "expo-router";
-import { Clapperboard, Cog, UsersRound } from "lucide-react-native";
+import { Asterisk, Clapperboard, Cog, UsersRound } from "lucide-react-native";
 import { MotiView } from "moti";
 import { StyleSheet, View } from "react-native";
 import TouchableOpacity from "./TouchableOpacity";
@@ -13,6 +13,7 @@ export default function Navbar() {
     const pathname = usePathname();
 
     const tabs = [
+        { path: "/home", icon: Asterisk },
         { path: "/parameters", icon: Clapperboard },
         { path: "/friendboard", icon: UsersRound },
         { path: "/settings", icon: Cog },
