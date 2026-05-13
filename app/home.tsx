@@ -6,6 +6,7 @@ import { Dimensions, SafeAreaView, View, StyleSheet } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { Colors } from '@/constants/theme';
+import { APP_NAME } from '../constants/app';
 
 const { width, height } = Dimensions.get('window');
 const ACCENT = Colors.dark.accent;
@@ -23,7 +24,7 @@ export default function HomeScreen() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 300 }}
                     >
-                        <Text className="font-outfit-bold text-[24px] tracking-tighter">movie.night®</Text>
+                        <Text className="font-outfit-bold text-[24px] tracking-tighter">{APP_NAME}®</Text>
                     </MotiView>
                     <MotiView
                         from={{ opacity: 0, x: 20 }}
@@ -45,8 +46,9 @@ export default function HomeScreen() {
                         className="mb-12"
                     >
                         <Text className="font-outfit text-[42px] leading-[48px] tracking-tight text-white/90">
-                            witamy w{'\n'}movie{'\n'}
-                            <Text style={{ color: ACCENT }}>night (alpha*)</Text>
+                            witamy w{'\n'}{APP_NAME.includes('.') ? APP_NAME.split('.')[0] : APP_NAME}{'\n'}
+                            {APP_NAME.includes('.') && <Text style={{ color: ACCENT }}>{APP_NAME.split('.')[1]} </Text>}
+                            <Text style={{ color: ACCENT }}>(alpha*)</Text>
                         </Text>
 
                         {/* Decorative line */}
@@ -134,7 +136,7 @@ export default function HomeScreen() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 1500 }}
                     >
-                        <Text className="font-outfit text-[10px] uppercase tracking-[2px] opacity-30">movie.night © 2026</Text>
+                        <Text className="font-outfit text-[10px] uppercase tracking-[2px] opacity-30">{APP_NAME} © 2026</Text>
                         <Text className="font-outfit text-[10px] text-white/40 mt-1 max-w-[150px]">
                             znajdziemy dla Ciebie{'\n'}idealny seans
                         </Text>

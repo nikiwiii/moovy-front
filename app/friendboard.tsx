@@ -1,14 +1,16 @@
 import MiniCollapsibleSection from "@/components/MiniCollapsibleSection";
 import { FillStyles } from "@/constants/themeStyles";
 import { Colors } from "@/constants/theme";
+import StatusBadge from "@/components/StatusBadge";
 
 const ACCENT = Colors.dark.accent;
 import { useRouter } from "expo-router";
 import { Heart, HeartOff, Plus } from "lucide-react-native";
 import { MotiView } from "moti";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ScrollView, TouchableOpacity, View } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
+import { sessionService, SessionResponse } from "@/services/sessionService";
 
 interface FriendProps {
     id: number;
@@ -30,6 +32,24 @@ export default function FriendBoard() {
         { id: 7, img: "https://images.unsplash.com/photo-1511485977113-f34c92461ad9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80", name: "Jan", genre_likes: ["Sci-fi", "Akcja", "Dramat"], genre_dislikes: ["Horror", "Thriller", "Kryminał"] },
         { id: 8, img: "https://images.unsplash.com/photo-1511485977113-f34c92461ad9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80", name: "Krzysztof", genre_likes: ["Sci-fi", "Akcja", "Dramat"], genre_dislikes: ["Horror", "Thriller", "Kryminał"] },
     ]);
+
+    const [mySessions, setMySessions] = useState<SessionResponse[]>([]);
+    const [isLoadingSessions, setIsLoadingSessions] = useState(true);
+
+    useEffect(() => {
+        loadSessions();
+    }, []);
+
+    const loadSessions = async () => {
+        try {
+            const sessions = await sessionService.getMySessions();
+            setMySessions(sessions);
+        } catch (error) {
+            console.error("Failed to load sessions", error);
+        } finally {
+            setIsLoadingSessions(false);
+        }
+    };
     return (
         <View className="flex-1 bg-transparent pt-10">
             <MotiView
@@ -44,44 +64,80 @@ export default function FriendBoard() {
                 </TouchableOpacity>
             </MotiView>
             <ScrollView className="px-4" contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
-                <View className="flex flex-col gap-2">
-                    {friends.map((friend) => (
-                        <MiniCollapsibleSection
-                            key={friend.id}
-                            title={friend.name}
-                            defaultOpen={false}
-                            img={friend.img}
-                        >
-                            <View className="flex-col gap-2">
-                                <ScrollView horizontal className={`flex-row gap-2 ${FillStyles.pillBase} ${FillStyles.pillInactive} px-2 py-1.5 !rounded-t-[16px]`}>
-                                    <View className={`flex flex-row gap-2 items-center py-1 mr-3`}>
-                                        <Heart strokeWidth={1.5} size={14} color={ACCENT} />
-                                        <Text className="font-outfit text-[11px] uppercase tracking-[2px] opacity-60">Lubi</Text>
-                                    </View>
-                                    <View className="flex-row gap-2 pr-5">
-                                        {friend.genre_likes.map(genre => (
-                                            <View className={`flex flex-row justify-between items-center ${FillStyles.pillBase} ${FillStyles.pillActive} px-2 rounded-lg`} key={genre}>
-                                                <Text className="font-outfit text-[12px]">{genre}</Text>
+                <View className="flex flex-col gap-6">
+                    {/* Twoje Sesje */}
+                    <View className="flex flex-col gap-3">
+                        <Text className="font-outfit-semi text-[16px] ml-2 opacity-80">Otwarte Sesje</Text>
+                        {isLoadingSessions ? (
+                            <Text className="font-outfit text-white/50 ml-2 text-[14px]">Ładowanie...</Text>
+                        ) : mySessions.length === 0 ? (
+                            <Text className="font-outfit text-white/50 ml-2 text-[14px]">Brak otwartych sesji</Text>
+                        ) : (
+                            mySessions.map(session => {
+                                const hostMember = session.members?.find(m => m.user_id === session.host_id);
+                                const hostName = hostMember ? hostMember.user_name : "Nieznany";
+
+                                return (
+                                    <TouchableOpacity
+                                        key={session.session_id}
+                                        className={`${FillStyles.cardBase} bg-white/10 p-4`}
+                                        onPress={() => router.push({ pathname: '/session-lobby', params: { sessionId: session.session_id } })}
+                                    >
+                                        <View className="flex-row justify-between items-center">
+                                            <View>
+                                                <Text className="font-outfit-bold text-[16px]">{session.meeting_type}</Text>
+                                                <Text className="font-outfit text-[13px] opacity-60 mt-1">Host: <Text className='font-outfit-bold text-white'>{hostName}</Text></Text>
+                                                <Text className="font-outfit text-[13px] opacity-60 mt-1">Kod: <Text className='font-outfit-semi text-white'>{session.invite_code}</Text></Text>
                                             </View>
-                                        ))}
-                                    </View>
-                                </ScrollView>
-                                <ScrollView horizontal className={`flex-row gap-2 ${FillStyles.pillBase} ${FillStyles.pillInactive} px-2 py-1.5 !rounded-b-[16px]`}>
-                                    <View className={`flex flex-row gap-2 items-center py-1 mr-3`}>
-                                        <HeartOff strokeWidth={1.5} size={14} color="#707080" />
-                                        <Text className="font-outfit text-[11px] uppercase tracking-[2px] opacity-40">Nie lubi</Text>
-                                    </View>
-                                    <View className="flex-row gap-2 pr-5">
-                                        {friend.genre_dislikes.map(genre => (
-                                            <View className={`flex flex-row justify-between items-center ${FillStyles.pillBase} ${FillStyles.pillInactive} px-2 rounded-lg`} key={genre}>
-                                                <Text className="font-outfit text-[12px] opacity-60">{genre}</Text>
-                                            </View>
-                                        ))}
-                                    </View>
-                                </ScrollView>
-                            </View>
-                        </MiniCollapsibleSection>
-                    ))}
+                                            <StatusBadge accent={ACCENT} status={session.status} />
+                                        </View>
+                                    </TouchableOpacity>
+                                );
+                            })
+                        )}
+                    </View>
+
+                    {/* Znajomi */}
+                    <View className="flex flex-col gap-3">
+                        <Text className="font-outfit-semi text-[16px] ml-2 opacity-80">Znajomi</Text>
+                        {friends.map((friend) => (
+                            <MiniCollapsibleSection
+                                key={friend.id}
+                                title={friend.name}
+                                defaultOpen={false}
+                                img={friend.img}
+                            >
+                                <View className="flex-col gap-2">
+                                    <ScrollView horizontal className={`flex-row gap-2 ${FillStyles.pillBase} ${FillStyles.pillInactive} px-2 py-1.5 !rounded-t-[16px]`}>
+                                        <View className={`flex flex-row gap-2 items-center py-1 mr-3`}>
+                                            <Heart strokeWidth={1.5} size={14} color={ACCENT} />
+                                            <Text className="font-outfit text-[11px] uppercase tracking-[2px] opacity-60">Lubi</Text>
+                                        </View>
+                                        <View className="flex-row gap-2 pr-5">
+                                            {friend.genre_likes.map(genre => (
+                                                <View className={`flex flex-row justify-between items-center ${FillStyles.pillBase} ${FillStyles.pillActive} px-2 rounded-lg`} key={genre}>
+                                                    <Text className="font-outfit text-[12px]">{genre}</Text>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    </ScrollView>
+                                    <ScrollView horizontal className={`flex-row gap-2 ${FillStyles.pillBase} ${FillStyles.pillInactive} px-2 py-1.5 !rounded-b-[16px]`}>
+                                        <View className={`flex flex-row gap-2 items-center py-1 mr-3`}>
+                                            <HeartOff strokeWidth={1.5} size={14} color="#707080" />
+                                            <Text className="font-outfit text-[11px] uppercase tracking-[2px] opacity-40">Nie lubi</Text>
+                                        </View>
+                                        <View className="flex-row gap-2 pr-5">
+                                            {friend.genre_dislikes.map(genre => (
+                                                <View className={`flex flex-row justify-between items-center ${FillStyles.pillBase} ${FillStyles.pillInactive} px-2 rounded-lg`} key={genre}>
+                                                    <Text className="font-outfit text-[12px] opacity-60">{genre}</Text>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    </ScrollView>
+                                </View>
+                            </MiniCollapsibleSection>
+                        ))}
+                    </View>
                 </View>
             </ScrollView>
         </View>

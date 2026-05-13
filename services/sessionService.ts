@@ -138,6 +138,23 @@ export const sessionService = {
     },
 
     /**
+     * 4.5. GET /session/my — Pobierz otwarte sesje użytkownika
+     */
+    async getMySessions(): Promise<SessionResponse[]> {
+        const headers = await getHeaders();
+        const response = await fetch(`${API_URL}/session/my`, {
+            method: 'GET',
+            headers,
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.detail || 'Błąd pobierania moich sesji');
+        }
+        return data;
+    },
+
+    /**
      * 5. POST /session/{session_id}/recommend — Wywołaj rekomendacje (host only)
      */
     async triggerRecommendations(sessionId: string): Promise<RecommendResponse> {

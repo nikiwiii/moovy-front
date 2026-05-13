@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
-    ArrowLeft, Check, CheckCheck, ChevronRight, Clock, Crown,
-    Film, Loader2, RefreshCw, Sparkles, Trash2, User, Users, X, Zap,
+    ArrowLeft, Check, CheckCheck, ChevronRight, Clock, Cog, Crown,
+    Film, Heart, Home, Loader2, RefreshCw, Smile, Sparkles, Trash2, UserRound, UsersRound, X, Zap,
 } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -24,32 +24,11 @@ import { storageService } from '../services/storageService';
 import Slider from '@react-native-community/slider';
 import FilmView, { MovieViewProps } from '@/components/FilmView';
 import { Colors } from '@/constants/theme';
+import StatusBadge from '@/components/StatusBadge';
 
 const ACCENT = Colors.dark.accent;
 
 const { width } = Dimensions.get('window');
-
-/* ─── Status badge component ────────────────────────────────────────── */
-function StatusBadge({ status }: { status: string }) {
-    const configs: Record<string, { label: string; color: string; bgClass: string }> = {
-        LOBBY: { label: 'Lobby', color: ACCENT, bgClass: `bg-[${ACCENT}]/10` },
-        ALL_READY: { label: 'Wszyscy gotowi', color: '#4ADE80', bgClass: 'bg-[#4ADE80]/10' },
-        RECOMMENDING: { label: 'Generowanie...', color: '#F59E0B', bgClass: 'bg-[#F59E0B]/10' },
-        COMPLETED: { label: 'Zakończona', color: '#8B5CF6', bgClass: 'bg-[#8B5CF6]/10' },
-    };
-    const config = configs[status] || configs.LOBBY;
-
-    return (
-        <View className={`flex-row items-center gap-1.5 px-3 py-1.5 rounded-full ${config.bgClass}`}>
-            {status === 'RECOMMENDING' && (
-                <ActivityIndicator size={10} color={config.color} />
-            )}
-            <Text style={{ color: config.color }} className="font-outfit-semi text-[11px] uppercase tracking-[2px]">
-                {config.label}
-            </Text>
-        </View>
-    );
-}
 
 /* ─── Member card ───────────────────────────────────────────────────── */
 function MemberCard({ member, isHost }: { member: SessionMember; isHost: boolean }) {
@@ -130,7 +109,7 @@ export default function SessionLobbyScreen() {
     // Preferences state for the current user
     const [prefsSubmitted, setPrefsSubmitted] = useState(false);
     const [genres, setGenres] = useState({ liked: [] as string[], disliked: [] as string[] });
-    const [maxRuntime, setMaxRuntime] = useState(120);
+    const [maxRuntime, setMaxRuntime] = useState(240);
     const [allowSeen, setAllowSeen] = useState(false);
     const [submittingPrefs, setSubmittingPrefs] = useState(false);
 
@@ -242,11 +221,12 @@ export default function SessionLobbyScreen() {
     const memberCount = session?.members.length ?? 0;
     const readyCount = session?.members.filter(m => m.status === 'ready').length ?? 0;
 
-    // Build movie data from recommendations
-    const movieData: MovieViewProps | undefined = (() => {
-        if (!session?.recommendations?.length) return undefined;
+    // Build array of movies from recommendations
+    const moviesData: MovieViewProps[] = (() => {
+        if (!session?.recommendations?.length) return [];
         const rec = session.recommendations[0];
-        return {
+
+        const data: MovieViewProps[] = [{
             title: rec.movie_title,
             description: rec.reasoning_pl,
             genres: rec.genres,
@@ -254,7 +234,22 @@ export default function SessionLobbyScreen() {
             release_date: rec.release_date,
             rating: rec.rating,
             duration: rec.runtime ? `${rec.runtime} min` : undefined,
-        };
+        }];
+
+        if (rec.extra_movies && Array.isArray(rec.extra_movies)) {
+            rec.extra_movies.forEach((extra: any) => {
+                data.push({
+                    title: extra.movie_title,
+                    description: "Alternatywna propozycja od naszego systemu, dobrana pod Wasz gust.",
+                    genres: extra.genres,
+                    poster_path: extra.poster_path,
+                    release_date: extra.release_date,
+                    rating: extra.rating,
+                    duration: extra.runtime ? `${extra.runtime} min` : undefined,
+                });
+            });
+        }
+        return data;
     })();
 
     if (loading) {
@@ -291,7 +286,7 @@ export default function SessionLobbyScreen() {
                         <ArrowLeft color="#fff" size={20} strokeWidth={2} />
                         <Text className="font-outfit text-[13px] opacity-40 uppercase tracking-[2px]">Wróć</Text>
                     </TouchableOpacity>
-                    <StatusBadge status={session.status} />
+                    <StatusBadge accent={ACCENT} status={session.status} />
                 </MotiView>
 
                 <ScrollView contentContainerClassName="px-4 pb-[120px]" showsVerticalScrollIndicator={false}>
@@ -306,11 +301,17 @@ export default function SessionLobbyScreen() {
                             <View className="flex-row items-center gap-2 mb-2">
                                 <Text style={{ color: `${ACCENT}99` }} className="font-outfit text-[11px] uppercase tracking-[3px]">Sesja filmowa</Text>
                             </View>
-                            <Text className="font-outfit-bold text-[26px] leading-tight">
-                                {session.meeting_type === 'RANDKA' ? '💕 Randka' :
-                                    session.meeting_type === 'EKIPA' ? '🎬 Ekipa' :
-                                        session.meeting_type === 'RODZINA' ? '👨‍👩‍👧‍👦 Rodzina' : '🎭 Solo'}
-                            </Text>
+                            <View className="flex-row items-center gap-3">
+                                {session.meeting_type === 'RANDKA' ? <Heart color={ACCENT} size={24} fill={`${ACCENT}33`} strokeWidth={2.5} /> :
+                                    session.meeting_type === 'EKIPA' ? <UsersRound color={ACCENT} size={24} strokeWidth={2.5} /> :
+                                        session.meeting_type === 'RODZINA' ? <Home color={ACCENT} size={24} strokeWidth={2.5} /> :
+                                            <UserRound color={ACCENT} size={24} strokeWidth={2.5} />}
+                                <Text className="font-outfit-bold text-[28px] leading-tight">
+                                    {session.meeting_type === 'RANDKA' ? 'Randka' :
+                                        session.meeting_type === 'EKIPA' ? 'Ekipa' :
+                                            session.meeting_type === 'RODZINA' ? 'Rodzina' : 'Solo'}
+                                </Text>
+                            </View>
                             <Text className="font-outfit text-[13px] opacity-30 mt-1">
                                 Kod: {session.invite_code} • {memberCount} {memberCount === 1 ? 'osoba' : memberCount < 5 ? 'osoby' : 'osób'}
                             </Text>
@@ -321,7 +322,7 @@ export default function SessionLobbyScreen() {
                             title="Członkowie"
                             subtitle="Kto jest w sesji?"
                             value={`${readyCount}/${memberCount}`}
-                            icon={Users}
+                            icon={UsersRound}
                             defaultOpen={true}
                         >
                             <Animated.View layout={LinearTransition} className="gap-2">
@@ -353,7 +354,7 @@ export default function SessionLobbyScreen() {
                                     />
                                 </CollapsibleSection>
 
-                                <View className={`${FillStyles.section} overflow-hidden p-5`}>
+                                <CollapsibleSection title="Ustawienia" subtitle="Ostatnie szlify" icon={Cog}>
                                     <View className="gap-4">
                                         {/* Runtime slider */}
                                         <View className={`${FillStyles.pillBase} ${FillStyles.pillInactive} flex-row items-center justify-between gap-x-2 min-h-14 ${FillStyles.pillFirst}`}>
@@ -391,10 +392,10 @@ export default function SessionLobbyScreen() {
                                             </Text>
                                         </TouchableOpacity>
                                     </View>
-                                </View>
+                                </CollapsibleSection>
 
                                 {/* Submit preferences button */}
-                                <View className="flex-row justify-end mt-1">
+                                <Animated.View layout={LinearTransition} className="flex-row justify-end mt-1">
                                     <TouchableOpacity
                                         className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
                                         onPress={handleSubmitPreferences}
@@ -409,7 +410,7 @@ export default function SessionLobbyScreen() {
                                             </>
                                         )}
                                     </TouchableOpacity>
-                                </View>
+                                </Animated.View>
                             </>
                         )}
 
@@ -477,7 +478,7 @@ export default function SessionLobbyScreen() {
                         )}
 
                         {/* Recommendations result */}
-                        {session.status === 'COMPLETED' && movieData && (
+                        {session.status === 'COMPLETED' && moviesData.length > 0 && (
                             <MotiView
                                 from={{ opacity: 0, translateY: 20 }}
                                 animate={{ opacity: 1, translateY: 0 }}
@@ -486,14 +487,18 @@ export default function SessionLobbyScreen() {
                             >
                                 <View className="flex-row items-center gap-2 px-2 mt-2">
                                     <Sparkles color={ACCENT} size={16} strokeWidth={2} />
-                                    <Text style={{ color: `${ACCENT}99` }} className="font-outfit text-[11px] uppercase tracking-[3px]">Rekomendacja AI</Text>
+                                    <Text style={{ color: `${ACCENT}99` }} className="font-outfit text-[11px] uppercase tracking-[3px]">Rekomendacje AI</Text>
                                 </View>
-                                <FilmView movieData={movieData} />
+                                <View className="gap-3">
+                                    {moviesData.map((movie, index) => (
+                                        <FilmView key={index} movieData={movie} />
+                                    ))}
+                                </View>
                             </MotiView>
                         )}
 
                         {/* Refresh button */}
-                        <View className="items-center mt-4">
+                        <Animated.View layout={LinearTransition} className="items-center mt-4">
                             <TouchableOpacity
                                 onPress={fetchSession}
                                 className="flex-row items-center gap-2 py-2 px-4"
@@ -501,7 +506,7 @@ export default function SessionLobbyScreen() {
                                 <RefreshCw color="#707080" size={14} strokeWidth={2} />
                                 <Text className="font-outfit text-[12px] opacity-30">Odśwież</Text>
                             </TouchableOpacity>
-                        </View>
+                        </Animated.View>
                     </MotiView>
                 </ScrollView>
             </SafeAreaView>

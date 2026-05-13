@@ -4,7 +4,7 @@ const ACCENT = Colors.dark.accent;
 
 export const FillStyles = {
     // Sekcje i duże panele — glassmorphism
-    section: "bg-white/[0.05] border border-white/[0.08] rounded-[32px] w-full",
+    section: "bg-white/[0.03] border border-white/[0.08] rounded-[32px] w-full",
     subsection: "bg-white/[0.03] border border-white/[0.08] rounded-[20px]",
     miniSection: "bg-white/[0.03] border border-white/[0.08] rounded-[16px]",
 

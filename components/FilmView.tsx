@@ -9,12 +9,12 @@ import { Colors } from '@/constants/theme';
 import MiniCollapsibleSection from "./MiniCollapsibleSection";
 
 const ACCENT = Colors.dark.accent;
+const size = 56;
+const strokeWidth = 3;
+const center = size / 2;
+const radius = center - strokeWidth;
 
 const RatingRing = ({ rating }: { rating: number }) => {
-    const size = 48;
-    const strokeWidth = 3;
-    const center = size / 2;
-    const radius = center - strokeWidth;
     const circumference = 2 * Math.PI * radius;
     const progress = Math.min(Math.max(rating / 10, 0), 1);
     const strokeDashoffset = circumference - progress * circumference;
@@ -52,11 +52,7 @@ const RatingRing = ({ rating }: { rating: number }) => {
 };
 
 const DurationRing = ({ duration }: { duration: string }) => {
-    const size = 48;
-    const strokeWidth = 3;
-    const center = size / 2;
-    const radius = center - strokeWidth;
-    
+
     // Extract only the number from duration (e.g. "201 minut" -> "201")
     const match = duration.match(/\d+/);
     const timeValue = match ? match[0] : duration;

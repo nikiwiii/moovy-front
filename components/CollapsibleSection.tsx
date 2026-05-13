@@ -27,7 +27,7 @@ export default function CollapsibleSection({ title, subtitle, value, icon: IconC
     return (
         <Animated.View layout={LinearTransition} className={`${FillStyles.section} overflow-hidden ${className}`}>
             <TouchableOpacity
-                className="p-5 flex-col justify-between min-h-[140px]"
+                className="p-4 flex-col justify-between min-h-[140px]"
                 onPress={() => setOpen(!open)}
             >
                 <View className="flex-row justify-between items-start">

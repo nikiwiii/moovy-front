@@ -27,11 +27,11 @@ export default function IdeaScreen() {
     console.log("[IDEA SCREEN] Parsed Criteria:", parsedCriteria);
     console.log("[IDEA SCREEN] Parsed Movies:", parsedMovies);
 
-    // Fallback definition for the view model
-    let movieData: MovieViewProps | undefined = undefined;
+    // Build array of movies
+    let moviesData: MovieViewProps[] = [];
 
     if (parsedMovies) {
-        movieData = {
+        moviesData.push({
             title: parsedMovies.movie_title,
             description: parsedMovies.reasoning_pl,
             genres: parsedMovies.genres,
@@ -39,9 +39,23 @@ export default function IdeaScreen() {
             release_date: parsedMovies.release_date,
             rating: parsedMovies.rating,
             duration: parsedMovies.runtime ? `${parsedMovies.runtime} min` : undefined,
+        });
+
+        if (parsedMovies.extra_movies && Array.isArray(parsedMovies.extra_movies)) {
+            parsedMovies.extra_movies.forEach((extra: any) => {
+                moviesData.push({
+                    title: extra.movie_title,
+                    description: "Alternatywna propozycja od naszego systemu, dobrana pod Wasz gust.",
+                    genres: extra.genres,
+                    poster_path: extra.poster_path,
+                    release_date: extra.release_date,
+                    rating: extra.rating,
+                    duration: extra.runtime ? `${extra.runtime} min` : undefined,
+                });
+            });
         }
     }
-    console.log("[IDEA SCREEN] Constructed movieData for FilmView:", movieData);
+    console.log("[IDEA SCREEN] Constructed moviesData for FilmView:", moviesData);
 
     return (
         <View className="flex-1 bg-transparent pt-10">
@@ -52,7 +66,7 @@ export default function IdeaScreen() {
                     transition={{ duration: 600 }}
                     className="px-4 pt-5 pb-3 flex-row justify-between items-center"
                 >
-                    <Text className="font-outfit-bold text-[24px]">Pomysł</Text>
+                    <Text className="font-outfit-bold text-[24px]">Pomysły</Text>
                     <TouchableOpacity
                         onPress={() => router.back()}
                         className="flex-row items-center gap-2"
@@ -61,7 +75,15 @@ export default function IdeaScreen() {
                     </TouchableOpacity>
                 </MotiView>
                 <View className="flex-1 px-2 flex-col gap-y-3">
-                    <FilmView movieData={movieData} />
+                    <View className="flex-col gap-4">
+                        {moviesData.length > 0 ? (
+                            moviesData.map((movie, index) => (
+                                <FilmView key={index} movieData={movie} />
+                            ))
+                        ) : (
+                            <FilmView /> // Default fallback
+                        )}
+                    </View>
                     <CollapsibleSection
                         title="Twoje kryteria"
                         subtitle="Skąd ten pomysł?"

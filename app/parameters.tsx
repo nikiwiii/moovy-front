@@ -1,7 +1,7 @@
 import Slider from '@react-native-community/slider';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
-import { Check, Clock, Film, Handshake, Heart, LucideIcon, Plus, ScanEye, Settings, Sparkle, Sparkles, UserRound, Users, UsersRound } from 'lucide-react-native';
+import { Check, Clock, Film, Handshake, Heart, LucideIcon, Plus, ScanEye, Cog, Sparkle, Sparkles, UserRound, UsersRound } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState } from 'react';
 import { Image, Modal, SafeAreaView, ScrollView, StyleSheet, TextInput, View, ActivityIndicator } from 'react-native';
@@ -9,10 +9,12 @@ import { AppText as Text } from '@/components/AppText';
 import Animated, { FadeIn, LinearTransition, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import CollapsibleSection from '../components/CollapsibleSection';
 import GenreSelection from '../components/GenreSelection';
+import GroupSelector from '../components/GroupSelector';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { FillStyles } from '../constants/themeStyles';
 import { storageService } from '../services/storageService';
 import { Colors } from '@/constants/theme';
+import { APP_NAME } from '../constants/app';
 
 const ACCENT = Colors.dark.accent;
 
@@ -33,34 +35,17 @@ interface Group {
 
 export default function ParametersScreen() {
     const router = useRouter();
-    const [selectedGroup, setSelectedGroup] = useState<string | null>('tlum');
-    const scrollX = useSharedValue(0);
+    const [selectedGroup, setSelectedGroup] = useState<string | null>('solo');
 
-    const scrollHandler = useAnimatedScrollHandler({
-        onScroll: (event) => {
-            scrollX.value = event.contentOffset.x;
-        },
-    });
-
-    const indicatorStyle = useAnimatedStyle(() => {
-        // Track width is roughly 64px (w-16)
-        // Thumb width is 20px
-        // We need content width to do this perfectly, but we can estimate or use a fixed range
-        // Alternatively, we can just use the translateX with a simple interpolation if we know the content width
-        // But since content width is dynamic, let's just use a simple progress-based approach
-        return {
-            transform: [{ translateX: 0 }]
-        };
-    });
     const [groups, setGroups] = useState<Group[]>([
         { id: 'solo', icon: UserRound, title: 'Solo', description: 'filmy dla Ciebie' },
         { id: 'tlum', icon: UsersRound, title: 'Tłum', description: 'nienudne filmy, skuteczne przy wielu gustach' },
         { id: 'randewu', icon: Heart, title: 'Randewu', description: 'angażujące, wzruszające kino' }
     ]);
     const [settings, setSettings] = useState([
-        { icon: ScanEye, title: "Filmy które widziałeś", value: false },
-        { icon: Clock, title: "Długość", value: 120 },
         { icon: Heart, title: "Używaj preferencji profilu", value: false },
+        { icon: ScanEye, title: "Filmy które widziałeś", value: false },
+        { icon: Clock, title: "Maks. czas", value: 240 },
     ])
 
     const setSettingValue = (title: string, value: boolean | number) => {
@@ -204,7 +189,7 @@ export default function ParametersScreen() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 300 }}
                     >
-                        <Text className="font-outfit-bold text-[24px] tracking-tighter">movie.night®</Text>
+                        <Text className="font-outfit-bold text-[24px] tracking-tighter">{APP_NAME}®</Text>
                     </MotiView>
                 </View>
 
@@ -240,54 +225,16 @@ export default function ParametersScreen() {
                             title="Wybierz grono"
                             subtitle="Dla kogo?"
                             value={groups.find(g => g.id === selectedGroup)?.title || '-'}
-                            icon={Users}
+                            icon={UsersRound}
                             defaultOpen={true}
                             rightIcon={<Plus size={16} color={ACCENT} />}
                             onRightIconPress={() => setModalVisible(true)}
                         >
-                            <View>
-                                <Animated.ScrollView
-                                    horizontal
-                                    showsHorizontalScrollIndicator={false}
-                                    contentContainerClassName="gap-3 pb-4"
-                                    onScroll={scrollHandler}
-                                    scrollEventThrottle={16}
-                                >
-                                    {groups.map((group, i) => (
-                                        <TouchableOpacity
-                                            key={group.id}
-                                            className={`${FillStyles.cardBase} ${selectedGroup === group.id ? FillStyles.cardActive : FillStyles.cardInactive} w-[140px] h-[140px] p-4 justify-between`}
-                                            onPress={() => setSelectedGroup(group.id)}
-                                        >
-                                            <View className={`w-14 h-14 rounded-full items-center justify-center ${selectedGroup === group.id ? 'bg-accent/15' : 'bg-white/[0.06]'}`}>
-                                                <group.icon color={selectedGroup === group.id ? ACCENT : "#707080"} size={20} strokeWidth={selectedGroup === group.id ? 2.5 : 1.5} />
-                                            </View>
-                                            <View>
-                                                <Text className="font-outfit-semi text-[15px]">{group.title}</Text>
-                                                <Text className="font-outfit text-[11px] opacity-40" numberOfLines={2}>{group.description}</Text>
-                                            </View>
-                                        </TouchableOpacity>
-                                    ))}
-                                </Animated.ScrollView>
-
-                                {/* Custom Scroll Indicator */}
-                                <View className="flex-row justify-center items-center mt-1 mb-2">
-                                    <View className="w-16 h-[3px] bg-white/10 rounded-full overflow-hidden">
-                                        <Animated.View
-                                            style={useAnimatedStyle(() => {
-                                                const translation = (scrollX.value / 150) * 10; // Rough estimation
-                                                return {
-                                                    width: '40%',
-                                                    height: '100%',
-                                                    backgroundColor: ACCENT,
-                                                    borderRadius: 10,
-                                                    transform: [{ translateX: Math.min(Math.max(translation, 0), 30) }]
-                                                };
-                                            })}
-                                        />
-                                    </View>
-                                </View>
-                            </View>
+                            <GroupSelector
+                                items={groups}
+                                selectedId={selectedGroup}
+                                onSelect={setSelectedGroup}
+                            />
                         </CollapsibleSection>
 
                         <CollapsibleSection
@@ -307,9 +254,9 @@ export default function ParametersScreen() {
                         </CollapsibleSection>
                         <CollapsibleSection
                             title="Ustawienia"
-                            subtitle="Dostosuj preferencje"
-                            icon={Settings}
-                            defaultOpen={false}
+                            subtitle="ostatnie szlify"
+                            icon={Cog}
+                            defaultOpen={true}
                         >
                             <View className="flex-col gap-2">
                                 {settings.map((setting, i) =>
@@ -351,12 +298,6 @@ export default function ParametersScreen() {
                         </CollapsibleSection>
 
                         <Animated.View layout={LinearTransition}>
-                            <TextInput
-                                className={`${FillStyles.inputLarge} mb-4`}
-                                placeholder="Specjalne wymagania..."
-                                placeholderTextColor="#ffffff30"
-                            />
-
                             <View className="flex-col items-end gap-4 mb-10 z-50">
                                 <TouchableOpacity
                                     className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}

@@ -9,6 +9,7 @@ import { authService } from '../services/authService';
 import { storageService } from '../services/storageService';
 import { FillStyles } from '../constants/themeStyles';
 import { Colors } from '@/constants/theme';
+import { APP_NAME } from '../constants/app';
 
 const ACCENT = Colors.dark.accent;
 
@@ -76,7 +77,7 @@ export default function LoginScreen() {
                             {isLogin ? 'Witaj ponownie!' : 'Nowe konto'}
                         </Text>
                         <Text className="font-outfit text-[14px] opacity-35">
-                            {isLogin ? 'Zaloguj się, aby kontynuować' : 'Zarejestruj się w MovieNight'}
+                            {isLogin ? 'Zaloguj się, aby kontynuować' : `Zarejestruj się w ${APP_NAME}`}
                         </Text>
                     </View>
 
