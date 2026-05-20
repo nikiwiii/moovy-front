@@ -225,7 +225,7 @@ export default function ParametersScreen() {
                                 className="flex-1 rounded-full bg-white/[0.1] flex-row gap-x-2 items-center justify-center py-5 px-4"
                             >
                                 <Plus color={ACCENT} size={22} strokeWidth={2.5} />
-                                <Text className="font-outfit-bold text-[14px] uppercase tracking-[2px] mt-1 mr-3">
+                                <Text className="font-outfit-bold text-[14px] uppercase tracking-[2px] mt-0.5 mr-3">
                                     Utwórz sesję
                                 </Text>
                             </TouchableOpacity>
