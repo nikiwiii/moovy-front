@@ -5,10 +5,10 @@ import StatusBadge from "@/components/StatusBadge";
 
 const ACCENT = Colors.dark.accent;
 import { useRouter } from "expo-router";
-import { Heart, HeartOff, Plus } from "lucide-react-native";
+import { Heart, HeartOff, Plus, RotateCw } from "lucide-react-native";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
-import { ScrollView, TouchableOpacity, View } from 'react-native';
+import { ScrollView, TouchableOpacity, View, ActivityIndicator, RefreshControl } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
 import { sessionService, SessionResponse } from "@/services/sessionService";
 
@@ -41,11 +41,13 @@ export default function FriendBoard() {
     }, []);
 
     const loadSessions = async () => {
+        setIsLoadingSessions(true);
         try {
             const sessions = await sessionService.getMySessions();
             setMySessions(sessions);
         } catch (error) {
-            console.error("Failed to load sessions", error);
+            const msg = error instanceof Error ? error.message : String(error);
+            console.error("Failed to load sessions:", msg);
         } finally {
             setIsLoadingSessions(false);
         }
@@ -59,11 +61,36 @@ export default function FriendBoard() {
                 className="px-6 pt-5 pb-3 flex-row justify-between items-center"
             >
                 <Text className="font-outfit-bold text-[24px]">Friendboard</Text>
-                <TouchableOpacity className="w-10 h-10 rounded-full bg-accent items-center justify-center">
-                    <Plus color="#000" size={18} strokeWidth={2.5} />
-                </TouchableOpacity>
+                <View className="flex-row gap-2">
+                    <TouchableOpacity
+                        onPress={loadSessions}
+                        disabled={isLoadingSessions}
+                        className="w-10 h-10 rounded-full bg-white/[0.06] border border-white/[0.08] items-center justify-center"
+                    >
+                        {isLoadingSessions ? (
+                            <ActivityIndicator size="small" color={ACCENT} />
+                        ) : (
+                            <RotateCw color={ACCENT} size={18} strokeWidth={2} />
+                        )}
+                    </TouchableOpacity>
+                    <TouchableOpacity className="w-10 h-10 rounded-full bg-accent items-center justify-center">
+                        <Plus color="#000" size={18} strokeWidth={2.5} />
+                    </TouchableOpacity>
+                </View>
             </MotiView>
-            <ScrollView className="px-4" contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
+            <ScrollView
+                className="px-4"
+                contentContainerStyle={{ paddingBottom: 120 }}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isLoadingSessions}
+                        onRefresh={loadSessions}
+                        tintColor={ACCENT}
+                        colors={[ACCENT]}
+                    />
+                }
+            >
                 <View className="flex flex-col gap-6">
                     {/* Twoje Sesje */}
                     <View className="flex flex-col gap-3">
@@ -98,7 +125,7 @@ export default function FriendBoard() {
                     </View>
 
                     {/* Znajomi */}
-                    <View className="flex flex-col gap-3">
+                    {/* <View className="flex flex-col gap-3">
                         <Text className="font-outfit-semi text-[16px] ml-2 opacity-80">Znajomi</Text>
                         {friends.map((friend) => (
                             <MiniCollapsibleSection
@@ -137,7 +164,8 @@ export default function FriendBoard() {
                                 </View>
                             </MiniCollapsibleSection>
                         ))}
-                    </View>
+                    </View> */}
+                    <Text className="font-outfit-bold text-[18px] text-white/60 text-center uppercase tracking-[3px]">Znajomi wkrótce w apce</Text>
                 </View>
             </ScrollView>
         </View>

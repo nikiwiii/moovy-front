@@ -83,11 +83,11 @@ export default function SessionCreateScreen() {
                     </TouchableOpacity>
                     <View className="flex-row items-center gap-2">
                         <Crown color={ACCENT} size={18} strokeWidth={2} />
-                        <Text style={{ color: `${ACCENT}CC` }} className="font-outfit-semi text-[13px] uppercase tracking-[2px]">Host</Text>
+                        <Text className="font-outfit-semi text-accent text-[13px] uppercase tracking-[2px]">Host</Text>
                     </View>
                 </MotiView>
 
-                <ScrollView contentContainerClassName="px-4 pb-[120px]" showsVerticalScrollIndicator={false}>
+                <ScrollView contentContainerClassName="px-8" showsVerticalScrollIndicator={false}>
                     {!createdSession ? (
                         <MotiView
                             from={{ opacity: 0, scale: 0.95 }}
@@ -96,25 +96,20 @@ export default function SessionCreateScreen() {
                             className="flex flex-col gap-4"
                         >
                             {/* Title */}
-                            <View className="px-2 mb-4">
+                            <View className="px-2 mt-16">
                                 <Text className="font-outfit-bold text-[28px] leading-tight">Utwórz sesję{'\n'}filmową</Text>
                                 <Text className="font-outfit text-[14px] opacity-35 mt-2">Wybierz typ spotkania i zaproś znajomych</Text>
                             </View>
 
                             {/* Meeting type selection */}
-                            <View className={`${FillStyles.section} overflow-hidden`}>
-                                <View className="p-5">
-                                    <Text className="font-outfit text-[11px] uppercase tracking-[3px] opacity-40 mb-4">Typ spotkania</Text>
-                                    <GroupSelector
-                                        items={meetingTypes}
-                                        selectedId={selectedType}
-                                        onSelect={(id) => setSelectedType(id as MeetingType)}
-                                    />
-                                </View>
-                            </View>
+                            <GroupSelector
+                                items={meetingTypes}
+                                selectedId={selectedType}
+                                onSelect={(id) => setSelectedType(id as MeetingType)}
+                            />
 
                             {/* Create button */}
-                            <View className="flex-row justify-end mt-2">
+                            <View className="flex-row justify-end mt-4">
                                 <TouchableOpacity
                                     className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
                                     onPress={handleCreate}
@@ -196,6 +191,6 @@ export default function SessionCreateScreen() {
                     )}
                 </ScrollView>
             </SafeAreaView>
-        </View>
+        </View >
     );
 }

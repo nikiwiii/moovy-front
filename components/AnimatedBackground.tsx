@@ -106,7 +106,7 @@ export const BACKGROUND_THEMES: Record<BackgroundTheme, string[]> = {
     // Cyberpunk — magenta / fiolet / cyan
     cyberpunk: ['#A21CAF', '#6D28D9', '#0E7490', '#1E1B4B', '#4C1D95'],
     // Zachód słońca — amber / rose
-    sunset: ['#B91C1C', '#C2410C', '#78350F', '#4C1D95', '#7C2D12'],
+    sunset: ['#B91C1C', '#C2410C', '#4f0c0aff', '#000000ff', '#7C2D12'],
     // Aurora — szmaragd i indygo, bardziej wyraziste kolory
     aurora: ['#065F46', '#0F766E', '#1E3A5F', '#1A1A40', '#134E4A'],
     // Monochrome — elegancki szary

@@ -1,6 +1,6 @@
 import { BlurView } from 'expo-blur';
 import { Film, Plus, X } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, StyleSheet, View } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -8,6 +8,7 @@ import MiniCollapsibleSection from './MiniCollapsibleSection';
 import TouchableOpacity from './TouchableOpacity';
 import { defaultVibes } from '../constants/vibes';
 import { storageService } from '../services/storageService';
+import { metadataService } from '../services/metadataService';
 import { Colors } from '@/constants/theme';
 import { FillStyles } from '@/constants/themeStyles';
 
@@ -19,10 +20,31 @@ interface GenreSelectionProps {
     onToggleVibe: (vibe: string, type: 'liked' | 'disliked') => void;
     label1: string;
     label2: string;
+    options?: string[];
 }
 
-export default function VibeSelection({ liked, disliked, onToggleVibe, label1, label2 }: GenreSelectionProps) {
+export default function VibeSelection({ liked, disliked, onToggleVibe, label1, label2, options }: GenreSelectionProps) {
     const [modalState, setModalState] = useState<'liked' | 'disliked' | ''>('');
+    const [internalVibes, setInternalVibes] = useState<string[]>(defaultVibes);
+
+    useEffect(() => {
+        if (options && options.length > 0) return;
+
+        const fetchVibes = async () => {
+            try {
+                const data = await metadataService.getPreferencesOptions();
+                if (data && Array.isArray(data.vibes) && data.vibes.length > 0) {
+                    setInternalVibes(data.vibes);
+                }
+            } catch (error) {
+                console.warn('Failed to fetch vibes from backend, using local fallbacks:', error);
+            }
+        };
+        fetchVibes();
+    }, [options]);
+
+    const vibesToUse = options && options.length > 0 ? options : internalVibes;
+
 
     return (
         <View className="flex-col gap-2">
@@ -71,7 +93,7 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
                         <Animated.View entering={FadeIn} className="w-full bg-[#0d0b1a]/95 border border-white/[0.08] rounded-[28px] p-6 overflow-hidden">
                             <Text className="font-outfit-bold text-xl mb-5">Wybierz vibe</Text>
                             <View className="flex-row flex-wrap gap-2 mb-6">
-                                {defaultVibes
+                                {vibesToUse
                                     .filter(vibe => {
                                         const oppositeArray = modalState === 'liked' ? disliked : liked;
                                         return !oppositeArray.includes(vibe);

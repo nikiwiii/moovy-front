@@ -1,7 +1,7 @@
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Eye, EyeOff, Lock, Mail, ArrowRight, UserPlus, LogIn, RotateCw } from 'lucide-react-native';
 import { MotiView } from 'moti';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, TextInput, View, Alert, ActivityIndicator } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
 import TouchableOpacity from '../components/TouchableOpacity';
@@ -15,7 +15,16 @@ const ACCENT = Colors.dark.accent;
 
 export default function LoginScreen() {
     const router = useRouter();
-    const [isLogin, setIsLogin] = useState(true);
+    const params = useLocalSearchParams();
+    const [isLogin, setIsLogin] = useState(params.mode !== 'register');
+
+    useEffect(() => {
+        if (params.mode === 'register') {
+            setIsLogin(false);
+        } else {
+            setIsLogin(true);
+        }
+    }, [params.mode]);
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -46,7 +55,41 @@ export default function LoginScreen() {
                     }
                 }
 
-                router.push({ pathname: '/preferences', params: { storageType: 'cloud' } });
+                // Sprawdź, czy użytkownik ma już zapisane preferencje w chmurze
+                const token = result.access_token;
+                const userId = result.user_id;
+                const API_URL = process.env.EXPO_PUBLIC_API_URL;
+                let hasPrefs = false;
+
+                if (token && userId && API_URL) {
+                    try {
+                        const response = await fetch(`${API_URL}/preferences/get?user_id=${userId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            const hasData = data && (
+                                (data.vibes && data.vibes.length > 0) ||
+                                (data.hard_nos && data.hard_nos.length > 0) ||
+                                (data.eras && data.eras.length > 0) ||
+                                (data.movies && data.movies.length > 0)
+                            );
+                            if (hasData) {
+                                hasPrefs = true;
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error checking preferences during login:', e);
+                    }
+                }
+
+                if (hasPrefs) {
+                    router.replace('/home');
+                } else {
+                    router.push({ pathname: '/preferences', params: { storageType: 'cloud' } });
+                }
             } else {
                 const result = await authService.register(email, password, confirmPassword);
                 console.log('Zarejestrowano:', result);
@@ -67,10 +110,10 @@ export default function LoginScreen() {
                     from={{ opacity: 0, translateY: 20 }}
                     animate={{ opacity: 1, translateY: 0 }}
                     transition={{ type: 'timing', duration: 800 }}
-                    className="bg-white/[0.04] border border-white/[0.08] rounded-[32px] p-8 pt-10"
+                    className="p-8 pt-10"
                 >
                     <View className="items-center mb-8">
-                        <View className="bg-accent/10 p-4 rounded-2xl mb-4 border border-accent/20">
+                        <View className="bg-accent/10 p-4 rounded-full mb-4 border border-accent/20">
                             {isLogin ? <LogIn color={ACCENT} size={32} /> : <UserPlus color={ACCENT} size={32} />}
                         </View>
                         <Text className="font-outfit-bold text-[26px] mb-1">
@@ -131,6 +174,7 @@ export default function LoginScreen() {
                                 onChangeText={setConfirmPassword}
                                 secureTextEntry={!showPassword}
                                 autoCapitalize="none"
+                                style={{ color: '#fff' }}
                             />
                             <TouchableOpacity
                                 className="absolute right-4 top-[15px]"
@@ -142,7 +186,7 @@ export default function LoginScreen() {
                     </View>
 
                     <TouchableOpacity
-                        className="bg-accent py-4 rounded-2xl flex-row justify-center items-center mt-8"
+                        className="bg-accent py-4 rounded-2xl flex-row justify-center items-center mt-4"
                         onPress={handleSubmit}
                         disabled={loading}
                     >

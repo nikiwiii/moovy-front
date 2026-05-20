@@ -160,8 +160,8 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
     const displayDuration = data.duration;
 
     return (
-        <Animated.View layout={LinearTransition} className="bg-white/[0.04] border border-white/[0.08] rounded-[32px] p-6 gap-y-6">
-            <View className="flex-row gap-5">
+        <Animated.View layout={LinearTransition} className="bg-white/[0.04] border border-white/[0.08] rounded-[32px] p-4 gap-y-4">
+            <View className="flex-row gap-4">
                 <MotiView
                     from={{ opacity: 0, translateX: 50 }}
                     animate={{ opacity: 1, translateX: 0 }}
@@ -175,6 +175,13 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
                     <View className="flex-row items-center gap-4 my-1">
                         {displayRating ? <RatingRing rating={displayRating} /> : null}
                         {displayDuration ? <DurationRing duration={displayDuration} /> : null}
+                    </View>
+                    <View className="flex-row flex-wrap gap-2 pr-4">
+                        {displayGenres.map((genre, i) => (
+                            <View key={i} style={{ backgroundColor: `${ACCENT}1A`, borderColor: `${ACCENT}33` }} className="border px-3 py-1.5 rounded-full items-center justify-center">
+                                <Text style={{ color: ACCENT }} className="text-[10px] font-outfit-semi uppercase tracking-tight">{translateGenre(genre)}</Text>
+                            </View>
+                        ))}
                     </View>
                     {displayDirector ? (
                         <View className="flex-col mt-1">
@@ -191,13 +198,6 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
                 </View>
             </View>
             <View className="flex-col gap-3">
-                <View className="flex-row flex-wrap gap-2">
-                    {displayGenres.map((genre, i) => (
-                        <View key={i} style={{ backgroundColor: `${ACCENT}1A`, borderColor: `${ACCENT}33` }} className="border px-4 py-1.5 rounded-full items-center justify-center">
-                            <Text style={{ color: ACCENT }} className="text-[11px] font-outfit-bold uppercase tracking-[1px]">{translateGenre(genre)}</Text>
-                        </View>
-                    ))}
-                </View>
                 <MiniCollapsibleSection
                     title="Opis / Dlaczego?"
                     defaultOpen={false}

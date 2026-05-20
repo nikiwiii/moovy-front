@@ -38,12 +38,12 @@ export default function ParametersScreen() {
     const [selectedGroup, setSelectedGroup] = useState<string | null>('solo');
 
     const [groups, setGroups] = useState<Group[]>([
-        { id: 'solo', icon: UserRound, title: 'Solo', description: 'filmy dla Ciebie' },
+        { id: 'solo', icon: UserRound, title: 'Solo', description: 'filmy dla Ciebie, tylko Ty i Twoje preferencje' },
         { id: 'tlum', icon: UsersRound, title: 'Tłum', description: 'nienudne filmy, skuteczne przy wielu gustach' },
         { id: 'randewu', icon: Heart, title: 'Randewu', description: 'angażujące, wzruszające kino' }
     ]);
     const [settings, setSettings] = useState([
-        { icon: Heart, title: "Używaj preferencji profilu", value: false },
+        { icon: Heart, title: "Używaj preferencji profilu", value: true },
         { icon: ScanEye, title: "Filmy które widziałeś", value: false },
         { icon: Clock, title: "Maks. czas", value: 240 },
     ])
@@ -134,8 +134,27 @@ export default function ParametersScreen() {
                 setIsLoading(false);
                 if (recRes.status === 404) {
                     const errorData = await recRes.json().catch(() => ({}));
+                    let errMsg = "Nie znaleziono filmów spełniających Twoje kryteria. Spróbuj zwiększyć dozwolony czas trwania (Długość).";
+                    if (errorData) {
+                        const detail = errorData.detail;
+                        if (typeof detail === 'string') {
+                            errMsg = detail;
+                        } else if (Array.isArray(detail)) {
+                            errMsg = detail.map((e: any) => {
+                                if (e && typeof e === 'object') {
+                                    const field = e.loc ? `${e.loc.slice(1).join('.')}: ` : '';
+                                    return `${field}${e.msg || JSON.stringify(e)}`;
+                                }
+                                return String(e);
+                            }).join('\n');
+                        } else if (detail) {
+                            errMsg = JSON.stringify(detail);
+                        } else if (errorData.message) {
+                            errMsg = String(errorData.message);
+                        }
+                    }
                     import('react-native').then(({ Alert }) => {
-                        Alert.alert("Brak filmów", errorData.detail || "Nie znaleziono filmów spełniających Twoje kryteria. Spróbuj zwiększyć dozwolony czas trwania (Długość).");
+                        Alert.alert("Brak filmów", errMsg);
                     });
                 }
                 return;
@@ -203,22 +222,18 @@ export default function ParametersScreen() {
                         <View className="flex-row gap-2">
                             <TouchableOpacity
                                 onPress={() => router.push('/session-create')}
-                                className="flex-1 overflow-hidden rounded-[28px]"
+                                className="flex-1 rounded-full bg-white/[0.1] flex-row gap-x-2 items-center justify-center py-5 px-4"
                             >
-                                <View className="flex-row gap-x-3 items-center justify-center py-5 px-4 border border-white/[0.08] bg-white/[0.2]">
-                                    <Handshake color={ACCENT} size={22} strokeWidth={2} />
-                                    <Text className="font-outfit-bold text-[14px] uppercase tracking-[2px]">
-                                        Utwórz sesję
-                                    </Text>
-                                </View>
+                                <Plus color={ACCENT} size={22} strokeWidth={2.5} />
+                                <Text className="font-outfit-bold text-[14px] uppercase tracking-[2px] mt-1 mr-3">
+                                    Utwórz sesję
+                                </Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={() => router.push('/session-join')}
-                                className="overflow-hidden rounded-[28px]"
+                                className="flex-2 rounded-full bg-white/[0.1] aspect-square flex-row items-center justify-center"
                             >
-                                <View className="border-none flex-row gap-x-3 items-center justify-center py-5 px-5 border bg-white/[0.2] rounded-full">
-                                    <Plus color={ACCENT} size={22} strokeWidth={2.5} />
-                                </View>
+                                <Handshake color={ACCENT} size={22} strokeWidth={2} />
                             </TouchableOpacity>
                         </View>
                         <CollapsibleSection
@@ -316,7 +331,7 @@ export default function ParametersScreen() {
                             </View>
                         </Animated.View>
 
-                        <Animated.View layout={LinearTransition}>
+                        {/* <Animated.View layout={LinearTransition}>
                             <View className="mt-2">
                                 <Text className="font-outfit text-[11px] uppercase tracking-[3px] opacity-40 mb-4">Poprzednie pomysły</Text>
                                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-3 pr-6" decelerationRate="fast" snapToInterval={126}>
@@ -332,7 +347,7 @@ export default function ParametersScreen() {
                                     ))}
                                 </ScrollView>
                             </View>
-                        </Animated.View>
+                        </Animated.View> */}
 
                     </MotiView>
                 </ScrollView>

@@ -12,8 +12,9 @@ import TouchableOpacity from '../components/TouchableOpacity';
 import { defaultVibes } from '../constants/vibes';
 import { FillStyles } from '../constants/themeStyles';
 import { storageService } from '../services/storageService';
+import { metadataService } from '../services/metadataService';
 
-const eras = [
+const DEFAULT_ERAS = [
     'Złota Era Hollywood',
     'Lata 80.',
     'Lata 90.',
@@ -33,11 +34,27 @@ export default function PreferencesScreen() {
         movies: [] as string[]
     });
     const [movieInput, setMovieInput] = useState('');
+    const [availableVibes, setAvailableVibes] = useState<string[]>(defaultVibes);
+    const [availableEras, setAvailableEras] = useState<string[]>(DEFAULT_ERAS);
 
     useEffect(() => {
         const loadPrefs = async () => {
             setLoading(true);
             try {
+                try {
+                    const data = await metadataService.getPreferencesOptions();
+                    if (data) {
+                        if (data.vibes && data.vibes.length > 0) {
+                            setAvailableVibes(data.vibes);
+                        }
+                        if (data.eras && data.eras.length > 0) {
+                            setAvailableEras(data.eras);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to load preferences options from server, using local fallbacks:', e);
+                }
+
                 const lp = await storageService.getLocalPreferences();
                 const token = await storageService.getToken();
                 const userId = await storageService.getUserId();
@@ -110,6 +127,7 @@ export default function PreferencesScreen() {
                 eras: preferences.eras,
                 movies: preferences.movies
             };
+            console.log(payload)
 
             if (isLocal) {
                 await storageService.saveLocalPreferences(payload);
@@ -140,7 +158,28 @@ export default function PreferencesScreen() {
                     router.push('/parameters');
                 } else {
                     const errorData = await response.json();
-                    Alert.alert("Błąd zapisu", errorData.detail || "Wystąpił problem podczas komunikacji z serwerem.");
+                    let errMsg = "Wystąpił problem podczas komunikacji z serwerem.";
+                    if (errorData) {
+                        const detail = errorData.detail;
+                        if (typeof detail === 'string') {
+                            errMsg = detail;
+                        } else if (Array.isArray(detail)) {
+                            errMsg = detail.map((e: any) => {
+                                if (e && typeof e === 'object') {
+                                    const field = e.loc ? `${e.loc.slice(1).join('.')}: ` : '';
+                                    return `${field}${e.msg || JSON.stringify(e)}`;
+                                }
+                                return String(e);
+                            }).join('\n');
+                        } else if (detail) {
+                            errMsg = JSON.stringify(detail);
+                        } else if (errorData.message) {
+                            errMsg = String(errorData.message);
+                        } else {
+                            errMsg = JSON.stringify(errorData);
+                        }
+                    }
+                    Alert.alert("Błąd zapisu", errMsg);
                 }
             }
         } catch (error) {
@@ -154,12 +193,15 @@ export default function PreferencesScreen() {
     const toggleVibe = (vibe: string, type: 'liked' | 'disliked' | '') => {
         if (!type) return;
         setPreferences(prev => {
+            const isCurrentlyLiked = prev.vibes.liked.includes(vibe);
+            const isCurrentlyDisliked = prev.vibes.disliked.includes(vibe);
+            
             const newLiked = prev.vibes.liked.filter(v => v !== vibe);
             const newDisliked = prev.vibes.disliked.filter(v => v !== vibe);
 
-            if (type === 'liked') {
+            if (type === 'liked' && !isCurrentlyLiked) {
                 newLiked.push(vibe);
-            } else if (type === 'disliked') {
+            } else if (type === 'disliked' && !isCurrentlyDisliked) {
                 newDisliked.push(vibe);
             }
 
@@ -201,6 +243,7 @@ export default function PreferencesScreen() {
                                 onToggleVibe={(vibe, type) => toggleVibe(vibe, type)}
                                 label1="Uwielbiam"
                                 label2="Unikam"
+                                options={availableVibes}
                             />
                         </CollapsibleSection>
 
@@ -212,7 +255,7 @@ export default function PreferencesScreen() {
                             defaultOpen={false}
                         >
                             <View className="flex flex-wrap flex-row gap-2">
-                                {eras.map(era => (
+                                {availableEras.map(era => (
                                     <TouchableOpacity
                                         key={era}
                                         onPress={() => setPreferences(prev => {

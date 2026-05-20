@@ -2,7 +2,7 @@ module.exports = {
     text: '#ffffff',
     background: '#050210',
     backgroundDark: '#030108',
-    accent: '#ffb34a',
+    accent: '#ef7e45',
     accentDim: '#0279b5',
     card: '#0d0b1a',
     cardActive: '#1a1830',

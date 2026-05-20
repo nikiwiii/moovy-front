@@ -18,7 +18,7 @@ export default function IdeaScreen() {
     const parsedCriteria = params.criteriaData ? JSON.parse(params.criteriaData as string) : {
         preset: "Tłum",
         genres: ["Przygodowy", "Akcji"],
-        duration: "Dłuższy",
+        duration: 240,
         friendsAdded: 0
     };
 

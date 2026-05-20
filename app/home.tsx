@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { ArrowUpRight, Plus, Search, Users, Menu, ArrowRight, UsersRound } from 'lucide-react-native';
+import { ArrowUpRight, Plus, Search, Users, Menu, ArrowRight, UsersRound, Handshake } from 'lucide-react-native';
 import { MotiView, MotiText } from 'moti';
 import React from 'react';
 import { Dimensions, SafeAreaView, View, StyleSheet } from 'react-native';
@@ -18,22 +18,13 @@ export default function HomeScreen() {
         <View className="flex-1 bg-transparent pt-10">
             <SafeAreaView className="flex-1">
                 {/* Header */}
-                <View className="px-8 pt-4 flex-row justify-between items-center">
+                <View className="px-8 pt-4">
                     <MotiView
                         from={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 300 }}
                     >
                         <Text className="font-outfit-bold text-[24px] tracking-tighter">{APP_NAME}®</Text>
-                    </MotiView>
-                    <MotiView
-                        from={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 300 }}
-                        className="flex-row items-center gap-2"
-                    >
-                        <View className="h-[1px] w-8 bg-white/20" />
-                        <Text className="font-outfit text-[10px] uppercase tracking-[3px] opacity-60">Hello</Text>
                     </MotiView>
                 </View>
 
@@ -65,24 +56,14 @@ export default function HomeScreen() {
                         >
                             <TouchableOpacity
                                 onPress={() => router.push('/parameters')}
-                                className="w-[140px] h-[140px] rounded-full border border-white/10 bg-white/5 items-center justify-center overflow-hidden"
+                                className="h-[140px] items-center justify-center overflow-hidden"
                             >
                                 <View className="items-center">
                                     <Search color={ACCENT} size={32} strokeWidth={1.5} />
-                                    <Text className="font-outfit-semi text-[12px] uppercase tracking-[2px] mt-3 text-center px-4">
+                                    <Text className="font-outfit-bold border-b text-white/90 border-white/50 text-[18px] uppercase mt-3 text-center">
                                         Znajdź film
                                     </Text>
                                 </View>
-                                {/* Subtle inner glow */}
-                                <View
-                                    style={{
-                                        position: 'absolute',
-                                        width: '100%',
-                                        height: '100%',
-                                        backgroundColor: ACCENT,
-                                        opacity: 0.03
-                                    }}
-                                />
                             </TouchableOpacity>
                         </MotiView>
 
@@ -92,23 +73,19 @@ export default function HomeScreen() {
                                 from={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 1000 }}
-                                className="items-end"
+                                className="items-end mb-10"
                             >
                                 <TouchableOpacity
                                     onPress={() => router.push('/session-join')}
                                     className="flex-col items-center"
                                 >
-                                    <Text className="font-outfit text-[18px] text-white/70 tracking-tight mb-2">dołącz do sesji</Text>
                                     <View className="opacity-70">
-                                        <UsersRound color={ACCENT} size={20} />
+                                        <Handshake color={ACCENT} size={20} />
                                     </View>
+                                    <Text className="font-outfit-bold text-[18px] text-white/80 tracking-tight mb-2 border-b border-white/30">dołącz do sesji</Text>
+
                                 </TouchableOpacity>
                             </MotiView>
-                            <MotiView
-                                from={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 1000 }}
-                                className="h-20 w-[1px] bg-white/40" />
 
                             <MotiView
                                 from={{ opacity: 0, y: 20 }}
@@ -122,7 +99,7 @@ export default function HomeScreen() {
                                     <View className="opacity-70">
                                         <Plus color={ACCENT} size={20} />
                                     </View>
-                                    <Text className="font-outfit text-[18px] text-white/70 tracking-tight mb-2">utwórz sesję</Text>
+                                    <Text className="font-outfit-bold text-[18px] text-white/80 tracking-tight mb-2 border-b border-white/30">utwórz sesję</Text>
                                 </TouchableOpacity>
                             </MotiView>
                         </View>

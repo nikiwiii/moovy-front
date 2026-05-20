@@ -65,6 +65,24 @@ async function getHeaders(): Promise<Record<string, string>> {
     };
 }
 
+function extractErrorMsg(data: any, defaultMsg: string): string {
+    if (!data) return defaultMsg;
+    const detail = data.detail;
+    if (typeof detail === 'string') return detail;
+    if (Array.isArray(detail)) {
+        return detail.map((e: any) => {
+            if (e && typeof e === 'object') {
+                const field = e.loc ? `${e.loc.slice(1).join('.')}: ` : '';
+                return `${field}${e.msg || JSON.stringify(e)}`;
+            }
+            return String(e);
+        }).join('\n');
+    }
+    if (detail && typeof detail === 'object') return JSON.stringify(detail);
+    if (data.message) return String(data.message);
+    return defaultMsg;
+}
+
 export const sessionService = {
     /**
      * 1. POST /session/create — Host tworzy sesję
@@ -79,7 +97,7 @@ export const sessionService = {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.detail || 'Błąd tworzenia sesji');
+            throw new Error(extractErrorMsg(data, 'Błąd tworzenia sesji'));
         }
         return data;
     },
@@ -97,7 +115,7 @@ export const sessionService = {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.detail || 'Błąd dołączania do sesji');
+            throw new Error(extractErrorMsg(data, 'Błąd dołączania do sesji'));
         }
         return data;
     },
@@ -115,7 +133,7 @@ export const sessionService = {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.detail || 'Błąd zapisywania preferencji');
+            throw new Error(extractErrorMsg(data, 'Błąd zapisywania preferencji'));
         }
         return data;
     },
@@ -132,7 +150,7 @@ export const sessionService = {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.detail || 'Błąd pobierania sesji');
+            throw new Error(extractErrorMsg(data, 'Błąd pobierania sesji'));
         }
         return data;
     },
@@ -142,14 +160,14 @@ export const sessionService = {
      */
     async getMySessions(): Promise<SessionResponse[]> {
         const headers = await getHeaders();
-        const response = await fetch(`${API_URL}/session/my`, {
+        const response = await fetch(`${API_URL}/session/user/sessions`, {
             method: 'GET',
             headers,
         });
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.detail || 'Błąd pobierania moich sesji');
+            throw new Error(extractErrorMsg(data, 'Błąd pobierania moich sesji'));
         }
         return data;
     },
@@ -166,7 +184,7 @@ export const sessionService = {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.detail || 'Błąd generowania rekomendacji');
+            throw new Error(extractErrorMsg(data, 'Błąd generowania rekomendacji'));
         }
         return data;
     },
@@ -183,7 +201,7 @@ export const sessionService = {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.detail || 'Błąd zamykania sesji');
+            throw new Error(extractErrorMsg(data, 'Błąd zamykania sesji'));
         }
         return data;
     },

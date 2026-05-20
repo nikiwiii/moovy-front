@@ -63,22 +63,13 @@ export default function WelcomeScreen() {
         <View className="flex-1 bg-transparent pt-10">
             <SafeAreaView className="flex-1">
                 {/* Header */}
-                <View className="px-8 pt-4 flex-row justify-between items-center">
+                <View className="px-8 pt-4">
                     <MotiView
                         from={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 300 }}
                     >
                         <Text className="font-outfit-bold text-[24px] tracking-tighter">{APP_NAME}®</Text>
-                    </MotiView>
-                    <MotiView
-                        from={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 300 }}
-                        className="flex-row items-center gap-2"
-                    >
-                        <View className="h-[1px] w-8 bg-white/20" />
-                        <Text className="font-outfit text-[10px] uppercase tracking-[3px] opacity-60">Hello</Text>
                     </MotiView>
                 </View>
 
@@ -110,24 +101,14 @@ export default function WelcomeScreen() {
                         >
                             <TouchableOpacity
                                 onPress={() => router.push('/login')}
-                                className="w-[140px] h-[140px] mt-10 rounded-full border border-white/10 bg-white/5 items-center justify-center overflow-hidden"
+                                className="h-[140px] mt-10 items-center justify-center overflow-hidden"
                             >
                                 <View className="items-center">
                                     <UserRound color={ACCENT} size={32} strokeWidth={1.5} />
-                                    <Text className="font-outfit-semi text-[12px] uppercase tracking-[2px] mt-3 text-center px-4">
+                                    <Text className="font-outfit-bold text-white/90 border-b border-white/50 text-[18px] uppercase mt-3 text-center">
                                         Zaloguj się
                                     </Text>
                                 </View>
-                                {/* Subtle inner glow */}
-                                <View
-                                    style={{
-                                        position: 'absolute',
-                                        width: '100%',
-                                        height: '100%',
-                                        backgroundColor: ACCENT,
-                                        opacity: 0.03
-                                    }}
-                                />
                             </TouchableOpacity>
                         </MotiView>
                         <MotiView
@@ -136,25 +117,15 @@ export default function WelcomeScreen() {
                             transition={{ type: 'spring', delay: 800 }}
                         >
                             <TouchableOpacity
-                                onPress={() => router.push('/login')}
-                                className="w-[140px] h-[140px] rounded-full border border-white/10 bg-white/5 items-center justify-center overflow-hidden"
+                                onPress={() => router.push({ pathname: '/login', params: { mode: 'register' } })}
+                                className="h-[140px] items-center justify-center overflow-hidden"
                             >
                                 <View className="items-center">
                                     <Plus color={ACCENT} size={32} strokeWidth={1.5} />
-                                    <Text className="font-outfit-semi text-[12px] uppercase tracking-[2px] mt-3 text-center px-4">
+                                    <Text className="font-outfit-bold text-white/90 border-b border-white/50 text-[18px] uppercase mt-3 text-center">
                                         Zarejestruj się
                                     </Text>
                                 </View>
-                                {/* Subtle inner glow */}
-                                <View
-                                    style={{
-                                        position: 'absolute',
-                                        width: '100%',
-                                        height: '100%',
-                                        backgroundColor: ACCENT,
-                                        opacity: 0.03
-                                    }}
-                                />
                             </TouchableOpacity>
                         </MotiView>
                     </View>

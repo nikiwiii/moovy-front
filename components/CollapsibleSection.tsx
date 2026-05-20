@@ -27,7 +27,7 @@ export default function CollapsibleSection({ title, subtitle, value, icon: IconC
     return (
         <Animated.View layout={LinearTransition} className={`${FillStyles.section} overflow-hidden ${className}`}>
             <TouchableOpacity
-                className="p-4 flex-col justify-between min-h-[140px]"
+                className="p-4 flex-col justify-between"
                 onPress={() => setOpen(!open)}
             >
                 <View className="flex-row justify-between items-start">
@@ -45,18 +45,18 @@ export default function CollapsibleSection({ title, subtitle, value, icon: IconC
                         </View>
                     </View>
                 </View>
-                <View className="flex-row justify-between items-end mt-6 mb-1.5">
-                    <View className="flex-1 mr-4">
+                <View className="flex-row justify-between items-end">
+                    <View className="flex-1 mr-4 mt-4">
                         <Text className="font-outfit text-[11px] opacity-40 uppercase tracking-[3px]">{subtitle}</Text>
                         <Text className="font-outfit-bold text-[20px] leading-tight mt-0.5">{title}</Text>
                     </View>
                     {value !== undefined && value !== null && (
-                        <Text style={{ color: `${ACCENT}99` }} className="font-outfit-bold text-[32px] relative top-[8px]">{value}</Text>
+                        <Text style={{ color: ACCENT }} className="font-outfit-bold text-[32px] relative top-[8px] opacity-40">{value}</Text>
                     )}
                 </View>
             </TouchableOpacity>
             {open && (
-                <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} className="px-5 pb-6 pt-2">
+                <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} className="px-4 pb-4">
                     {children}
                 </Animated.View>
             )}

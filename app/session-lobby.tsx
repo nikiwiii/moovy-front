@@ -37,13 +37,13 @@ function MemberCard({ member, isHost }: { member: SessionMember; isHost: boolean
         <Animated.View
             entering={FadeIn.duration(400)}
             layout={LinearTransition}
-            className={`${FillStyles.pillBase} ${isReady ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center gap-3 py-3.5 px-4`}
+            className={`${FillStyles.pillBase} ${isReady ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center gap-3 py-3.5 px-4 rounded-[24px]`}
         >
             <View className={`w-9 h-9 rounded-full items-center justify-center ${isReady ? 'bg-accent/15' : 'bg-white/[0.06]'}`}>
                 {isHost ? (
                     <Crown color={isReady ? ACCENT : '#707080'} size={16} strokeWidth={2} />
                 ) : (
-                    <User color={isReady ? ACCENT : '#707080'} size={16} strokeWidth={2} />
+                    <UserRound color={isReady ? ACCENT : '#707080'} size={16} strokeWidth={2} />
                 )}
             </View>
             <View className="flex-1">
@@ -355,7 +355,7 @@ export default function SessionLobbyScreen() {
                                 </CollapsibleSection>
 
                                 <CollapsibleSection title="Ustawienia" subtitle="Ostatnie szlify" icon={Cog}>
-                                    <View className="gap-4">
+                                    <View className="gap-2">
                                         {/* Runtime slider */}
                                         <View className={`${FillStyles.pillBase} ${FillStyles.pillInactive} flex-row items-center justify-between gap-x-2 min-h-14 ${FillStyles.pillFirst}`}>
                                             <View className="flex-row items-center gap-x-2">

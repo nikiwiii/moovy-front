@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "movienight",
-    "slug": "movienight",
+    "name": "moovy",
+    "slug": "moovy",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/mnlogo2.png",
-    "scheme": "movienight",
+    "scheme": "moovy",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true
@@ -19,7 +19,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "usesCleartextTraffic": true,
-      "package": "com.dygacz.movienight"
+      "package": "com.dygacz.moovy"
     },
     "web": {
       "output": "static",
