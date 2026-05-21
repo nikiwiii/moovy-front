@@ -6,7 +6,10 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://35.254.103.33:8010"
+      }
     },
     "preview": {
       "android": {
@@ -14,9 +17,16 @@
       },
       "ios": {
         "simulator": true
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://35.254.103.33:8010"
       }
     },
-    "production": {}
+    "production": {
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://35.254.103.33:8010"
+      }
+    }
   },
   "submit": {
     "production": {}

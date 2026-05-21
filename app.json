@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "moovy",
-    "slug": "moovy",
+    "slug": "movienight",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/mnlogo2.png",
