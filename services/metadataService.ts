@@ -1,6 +1,7 @@
 import { storageService } from './storageService';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://35.254.103.33:8010';
+console.log('[metadataService] API_URL:', API_URL);
 
 export interface PreferencesOptions {
     vibes: string[];

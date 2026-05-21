@@ -1,6 +1,7 @@
 import { storageService } from './storageService';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://35.254.103.33:8010';
+console.log('[sessionService] API_URL:', API_URL);
 
 export type MeetingType = 'RANDKA' | 'EKIPA' | 'RODZINA' | 'SOLO';
 export type MemberStatus = 'pending' | 'ready';
