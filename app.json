@@ -40,7 +40,8 @@
         }
       ],
       "expo-font",
-      "expo-secure-store"
+      "expo-secure-store",
+      "./plugins/withNetworkSecurityConfig"
     ],
     "experiments": {
       "typedRoutes": true,
