@@ -1,10 +1,10 @@
 import Slider from '@react-native-community/slider';
-import { BlurView } from 'expo-blur';
+import { BlurView } from '@react-native-community/blur';
 import { useRouter } from 'expo-router';
 import { Check, Clock, Film, Handshake, Heart, LucideIcon, Plus, ScanEye, Cog, Sparkle, Sparkles, UserRound, UsersRound } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState } from 'react';
-import { Image, Modal, SafeAreaView, ScrollView, StyleSheet, TextInput, View, ActivityIndicator } from 'react-native';
+import { Image, Modal, SafeAreaView, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
 import Animated, { FadeIn, LinearTransition, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import CollapsibleSection from '../components/CollapsibleSection';
@@ -12,7 +12,6 @@ import GenreSelection from '../components/GenreSelection';
 import GroupSelector from '../components/GroupSelector';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { FillStyles } from '../constants/themeStyles';
-import { storageService } from '../services/storageService';
 import { Colors } from '@/constants/theme';
 import { APP_NAME } from '../constants/app';
 
@@ -70,115 +69,48 @@ export default function ParametersScreen() {
         });
     };
 
-    const [isLoading, setIsLoading] = useState(false);
-
-    const handleFindMovie = async () => {
-        setIsLoading(true);
-        try {
-            const payload = {
-                host_id: "00000000-0000-0000-0000-000000000000",
-                invite_code: "12345",
-                meeting_type: selectedGroup === 'randewu' ? 'RANDKA' : 'EKIPA',
-                is_active: true,
-                users: [
-                    {
-                        user_id: "00000000-0000-0000-0000-000000000000",
-                        user_name: 'Gość',
-                        personal_vibe: {
-                            vibes: genres.liked,
-                            hard_nos: genres.disliked,
-                            max_runtime: settings.find(s => s.title === "Długość")?.value || 120,
-                            allow_seen: settings.find(s => s.title === "Filmy które widziałeś")?.value || false,
-                            eras: []
-                        }
+    const handleFindMovie = () => {
+        const payload = {
+            host_id: "00000000-0000-0000-0000-000000000000",
+            invite_code: "12345",
+            meeting_type: selectedGroup === 'randewu' ? 'RANDKA' : 'EKIPA',
+            is_active: true,
+            users: [
+                {
+                    user_id: "00000000-0000-0000-0000-000000000000",
+                    user_name: 'Gość',
+                    personal_vibe: {
+                        vibes: genres.liked,
+                        hard_nos: genres.disliked,
+                        max_runtime: settings.find(s => s.title === "Długość")?.value || 120,
+                        allow_seen: settings.find(s => s.title === "Filmy które widziałeś")?.value || false,
+                        eras: []
                     }
-                ],
-                final_preferences: {
-                    vibes: genres.liked,
-                    hard_nos: genres.disliked,
-                    max_runtime: settings.find(s => s.title === "Długość")?.value || 120,
-                    allow_seen: settings.find(s => s.title === "Filmy które widziałeś")?.value || false,
-                    eras: []
                 }
-            };
-            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.1:8000'; // Fallback
-            const token = await storageService.getToken();
-
-            const res = await fetch(`${API_URL}/recommendation/session`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
-            if (!res.ok) {
-                console.error("Error fetching recommendation:", res.status);
-                setIsLoading(false);
-                return;
+            ],
+            final_preferences: {
+                vibes: genres.liked,
+                hard_nos: genres.disliked,
+                max_runtime: settings.find(s => s.title === "Długość")?.value || 120,
+                allow_seen: settings.find(s => s.title === "Filmy które widziałeś")?.value || false,
+                eras: []
             }
-            const sessionData = await res.json();
-            const sessionId = sessionData.session_id;
+        };
 
-            // KROK 2: Pobranie właściwej rekomendacji AI
-            const recRes = await fetch(`${API_URL}/recommendation/${sessionId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+        const criteriaData = {
+            preset: groups.find(g => g.id === selectedGroup)?.title || "Tłum",
+            genres: genres.liked,
+            duration: `${settings.find(s => s.title === "Maks. czas")?.value} min`,
+            friendsAdded: 0,
+        };
 
-            if (!recRes.ok) {
-                console.error("Error fetching actual recommendation:", recRes.status);
-                setIsLoading(false);
-                if (recRes.status === 404) {
-                    const errorData = await recRes.json().catch(() => ({}));
-                    let errMsg = "Nie znaleziono filmów spełniających Twoje kryteria. Spróbuj zwiększyć dozwolony czas trwania (Długość).";
-                    if (errorData) {
-                        const detail = errorData.detail;
-                        if (typeof detail === 'string') {
-                            errMsg = detail;
-                        } else if (Array.isArray(detail)) {
-                            errMsg = detail.map((e: any) => {
-                                if (e && typeof e === 'object') {
-                                    const field = e.loc ? `${e.loc.slice(1).join('.')}: ` : '';
-                                    return `${field}${e.msg || JSON.stringify(e)}`;
-                                }
-                                return String(e);
-                            }).join('\n');
-                        } else if (detail) {
-                            errMsg = JSON.stringify(detail);
-                        } else if (errorData.message) {
-                            errMsg = String(errorData.message);
-                        }
-                    }
-                    import('react-native').then(({ Alert }) => {
-                        Alert.alert("Brak filmów", errMsg);
-                    });
-                }
-                return;
-            }
-
-            const finalRecommendation = await recRes.json();
-
-            router.push({
-                pathname: '/idea',
-                params: {
-                    recommendationData: JSON.stringify(finalRecommendation),
-                    criteriaData: JSON.stringify({
-                        preset: groups.find(g => g.id === selectedGroup)?.title || "Tłum",
-                        genres: genres.liked,
-                        duration: `${settings.find(s => s.title === "Długość")?.value} min`,
-                        friendsAdded: 0
-                    })
-                }
-            });
-        } catch (error) {
-            console.error("Failed to find movie", error);
-        } finally {
-            setIsLoading(false);
-        }
+        router.push({
+            pathname: '/loading',
+            params: {
+                payload: JSON.stringify(payload),
+                groups: JSON.stringify(criteriaData),
+            },
+        });
     };
 
 
@@ -317,16 +249,9 @@ export default function ParametersScreen() {
                                 <TouchableOpacity
                                     className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
                                     onPress={handleFindMovie}
-                                    disabled={isLoading}
                                 >
-                                    {isLoading ? (
-                                        <ActivityIndicator color="#000" size="small" />
-                                    ) : (
-                                        <>
-                                            <Text className="font-outfit-semi text-[15px] text-black">Znajdź film</Text>
-                                            <Check color="#000" size={18} strokeWidth={2.5} />
-                                        </>
-                                    )}
+                                    <Text className="font-outfit-semi text-[15px] text-black">Znajdź film</Text>
+                                    <Check color="#000" size={18} strokeWidth={2.5} />
                                 </TouchableOpacity>
                             </View>
                         </Animated.View>
@@ -354,7 +279,7 @@ export default function ParametersScreen() {
             </SafeAreaView>
 
             <Modal visible={modalVisible} transparent animationType="fade">
-                <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill}>
+                <BlurView blurType="dark" blurAmount={14} reducedTransparencyFallbackColor="rgba(3,1,8,0.92)" style={StyleSheet.absoluteFill}>
                     <View className="flex-1 justify-center items-center px-6">
                         <Animated.View entering={FadeIn} className="w-full bg-[#0d0b1a]/95 border border-white/[0.08] rounded-[28px] p-6 overflow-hidden">
                             <Text className="font-outfit-bold text-xl mb-5">Dodaj nowe grono</Text>

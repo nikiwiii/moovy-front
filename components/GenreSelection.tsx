@@ -1,4 +1,4 @@
-import { BlurView } from 'expo-blur';
+import { BlurView } from '@react-native-community/blur';
 import { Film, Plus, X } from 'lucide-react-native';
 import React, { useState, useEffect } from 'react';
 import { Modal, StyleSheet, View } from 'react-native';
@@ -88,7 +88,7 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
             </MiniCollapsibleSection>
 
             <Modal visible={modalState !== ''} animationType="fade" transparent>
-                <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill}>
+                <BlurView blurType="dark" blurAmount={14} reducedTransparencyFallbackColor="rgba(3,1,8,0.92)" style={StyleSheet.absoluteFill}>
                     <View className="flex-1 justify-center items-center px-6">
                         <Animated.View entering={FadeIn} className="w-full bg-[#0d0b1a]/95 border border-white/[0.08] rounded-[28px] p-6 overflow-hidden">
                             <Text className="font-outfit-bold text-xl mb-5">Wybierz vibe</Text>

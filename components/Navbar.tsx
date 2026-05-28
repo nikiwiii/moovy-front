@@ -1,4 +1,4 @@
-import { BlurView } from "expo-blur";
+import { BlurView } from '@react-native-community/blur';
 import { usePathname, useRouter } from "expo-router";
 import { Asterisk, Clapperboard, Cog, UsersRound } from "lucide-react-native";
 import { MotiView } from "moti";
@@ -28,8 +28,9 @@ export default function Navbar() {
                 style={styles.navContainer}
             >
                 <BlurView
-                    intensity={50}
-                    tint="dark"
+                    blurType="dark"
+                    blurAmount={20}
+                    reducedTransparencyFallbackColor="rgba(3,1,8,0.85)"
                     style={styles.blurBackground}
                     className="flex-row items-center justify-between px-1.5 py-2 rounded-full border border-white/[0.08] bg-black/60"
                 >

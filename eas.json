@@ -11,6 +11,20 @@
         "EXPO_PUBLIC_API_URL": "http://35.254.103.33:8010"
       }
     },
+    "dev-fast": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleDebug"
+      },
+      "cache": {
+        "key": "dev-fast-v1"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://35.254.103.33:8010"
+      }
+    },
     "preview": {
       "android": {
         "buildType": "apk"
