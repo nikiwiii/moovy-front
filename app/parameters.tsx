@@ -1,5 +1,5 @@
 import Slider from '@react-native-community/slider';
-import { BlurView } from '@react-native-community/blur';
+import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { Check, Clock, Film, Handshake, Heart, LucideIcon, Plus, ScanEye, Cog, Sparkle, Sparkles, UserRound, UsersRound } from 'lucide-react-native';
 import { MotiView } from 'moti';
@@ -279,7 +279,7 @@ export default function ParametersScreen() {
             </SafeAreaView>
 
             <Modal visible={modalVisible} transparent animationType="fade">
-                <BlurView blurType="dark" blurAmount={14} reducedTransparencyFallbackColor="rgba(3,1,8,0.92)" style={StyleSheet.absoluteFill}>
+                <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill}>
                     <View className="flex-1 justify-center items-center px-6">
                         <Animated.View entering={FadeIn} className="w-full bg-[#0d0b1a]/95 border border-white/[0.08] rounded-[28px] p-6 overflow-hidden">
                             <Text className="font-outfit-bold text-xl mb-5">Dodaj nowe grono</Text>

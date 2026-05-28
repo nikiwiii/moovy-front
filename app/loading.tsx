@@ -1,4 +1,4 @@
-import { BlurView } from '@react-native-community/blur';
+import { BlurView } from 'expo-blur';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Sparkles } from 'lucide-react-native';
 import { MotiView } from 'moti';
@@ -203,7 +203,7 @@ export default function LoadingScreen() {
     return (
         <View style={StyleSheet.absoluteFill} className="flex-1 items-center justify-center">
             {/* Background blur overlay */}
-            <BlurView blurType="dark" blurAmount={10} style={StyleSheet.absoluteFill} reducedTransparencyFallbackColor="rgba(3,1,8,0.92)" />
+            <BlurView intensity={18} tint="dark" style={StyleSheet.absoluteFill} />
 
             {/* Glow behind spinner */}
             <MotiView
