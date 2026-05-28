@@ -23,6 +23,7 @@ export const FillStyles = {
     pillBase: "py-2 px-3.5 rounded-[14px] border border-white/[0.08]",
     pillInactive: "bg-white/[0.03]",
     pillActive: `bg-accent/10 border-accent/25`,
+    pillActiver: "bg-accent/30 border-accent/25",
     pillFirst: "rounded-t-[24px]",
     pillLast: "rounded-b-[24px]",
     pillMiddle: "",

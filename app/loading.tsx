@@ -207,8 +207,8 @@ export default function LoadingScreen() {
 
             {/* Glow behind spinner */}
             <MotiView
-                from={{ opacity: 0.2, scale: 0.8 }}
-                animate={{ opacity: 0.55, scale: 1.1 }}
+                from={{ opacity: 0.00, scale: 0.8 }}
+                animate={{ opacity: 0.02, scale: 1.1 }}
                 transition={{ loop: true, type: 'timing', duration: 1800 }}
                 style={{
                     position: 'absolute',

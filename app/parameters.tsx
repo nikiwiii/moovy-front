@@ -279,38 +279,36 @@ export default function ParametersScreen() {
             </SafeAreaView>
 
             <Modal visible={modalVisible} transparent animationType="fade">
-                <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill}>
+                <View className='bg-black/80' style={StyleSheet.absoluteFill}>
                     <View className="flex-1 justify-center items-center px-6">
-                        <Animated.View entering={FadeIn} className="w-full bg-[#0d0b1a]/95 border border-white/[0.08] rounded-[28px] p-6 overflow-hidden">
-                            <Text className="font-outfit-bold text-xl mb-5">Dodaj nowe grono</Text>
+                        <Text className="font-outfit-bold text-xl mb-5">Dodaj nowe grono</Text>
 
-                            <TextInput
-                                className={`${FillStyles.inputLarge} mb-3`}
-                                placeholder="Tytuł (np. Znajomi z pracy)"
-                                placeholderTextColor="#ffffff30"
-                                value={newTitle}
-                                onChangeText={setNewTitle}
-                            />
+                        <TextInput
+                            className={`${FillStyles.inputLarge} mb-3 w-2/3`}
+                            placeholder="Tytuł (np. Znajomi z pracy)"
+                            placeholderTextColor="#ffffff30"
+                            value={newTitle}
+                            onChangeText={setNewTitle}
+                        />
 
-                            <TextInput
-                                className={`${FillStyles.inputLarge} mb-6`}
-                                placeholder="Krótki opis"
-                                placeholderTextColor="#ffffff30"
-                                value={newDesc}
-                                onChangeText={setNewDesc}
-                            />
+                        <TextInput
+                            className={`${FillStyles.inputLarge} mb-6 w-2/3`}
+                            placeholder="Krótki opis"
+                            placeholderTextColor="#ffffff30"
+                            value={newDesc}
+                            onChangeText={setNewDesc}
+                        />
 
-                            <View className="flex-row justify-end gap-3">
-                                <TouchableOpacity onPress={handleCancelGroup} className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnSecondary}`}>
-                                    <Text className="font-outfit opacity-60">Anuluj</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={handleAddGroup} className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary}`}>
-                                    <Text className="font-outfit-semi text-black">Dodaj grono</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </Animated.View>
+                        <View className="flex-row justify-end gap-3">
+                            <TouchableOpacity onPress={handleCancelGroup} className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnSecondary}`}>
+                                <Text className="font-outfit opacity-60">Anuluj</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={handleAddGroup} className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary}`}>
+                                <Text className="font-outfit-semi text-black">Dodaj grono</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </BlurView>
+                </View>
             </Modal>
         </View>
     );

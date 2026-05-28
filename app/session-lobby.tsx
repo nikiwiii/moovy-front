@@ -433,9 +433,7 @@ export default function SessionLobbyScreen() {
 
                         {/* Recommending state */}
                         {session.status === 'RECOMMENDING' && (
-                            <View className={`${FillStyles.section} overflow-hidden`}>
-                                <RecommendingOverlay />
-                            </View>
+                            <RecommendingOverlay />
                         )}
 
                         {/* Host actions */}

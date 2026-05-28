@@ -88,38 +88,36 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
             </MiniCollapsibleSection>
 
             <Modal visible={modalState !== ''} animationType="fade" transparent>
-                <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill}>
+                <View className="bg-black/80" style={StyleSheet.absoluteFill}>
                     <View className="flex-1 justify-center items-center px-6">
-                        <Animated.View entering={FadeIn} className="w-full bg-[#0d0b1a]/95 border border-white/[0.08] rounded-[28px] p-6 overflow-hidden">
-                            <Text className="font-outfit-bold text-xl mb-5">Wybierz vibe</Text>
-                            <View className="flex-row flex-wrap gap-2 mb-6">
-                                {vibesToUse
-                                    .filter(vibe => {
-                                        const oppositeArray = modalState === 'liked' ? disliked : liked;
-                                        return !oppositeArray.includes(vibe);
-                                    })
-                                    .map(vibe => {
-                                        const currentArray = modalState === 'liked' ? liked : disliked;
-                                        const isActive = currentArray.includes(vibe);
-                                        return (
-                                            <TouchableOpacity
-                                                key={vibe}
-                                                className="flex-row items-center gap-3"
-                                                onPress={() => modalState && onToggleVibe(vibe, modalState)}
-                                            >
-                                                <Text className={`font-outfit text-[13px] ${FillStyles.pillBase} ${isActive ? FillStyles.pillActive : FillStyles.pillInactive}`}>{vibe}</Text>
-                                            </TouchableOpacity>
-                                        );
-                                    })}
-                            </View>
-                            <View className="flex-row justify-end gap-3">
-                                <TouchableOpacity onPress={() => setModalState('')} className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnSecondary}`}>
-                                    <Text className="font-outfit opacity-60">Wyjdź</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </Animated.View>
+                        <Text className="font-outfit-bold text-2xl mb-5 self-center">Wybierz vibe</Text>
+                        <View className="flex-row flex-wrap items-center justify-center gap-2 mb-6">
+                            {vibesToUse
+                                .filter(vibe => {
+                                    const oppositeArray = modalState === 'liked' ? disliked : liked;
+                                    return !oppositeArray.includes(vibe);
+                                })
+                                .map(vibe => {
+                                    const currentArray = modalState === 'liked' ? liked : disliked;
+                                    const isActive = currentArray.includes(vibe);
+                                    return (
+                                        <TouchableOpacity
+                                            key={vibe}
+                                            className="flex-row items-center gap-3"
+                                            onPress={() => modalState && onToggleVibe(vibe, modalState)}
+                                        >
+                                            <Text className={`font-outfit text-[13px] ${FillStyles.pillBase} ${isActive ? FillStyles.pillActiver : FillStyles.pillInactive}`}>{vibe.replace("_", " ")}</Text>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                        </View>
+                        <View className="flex-row justify-end gap-3">
+                            <TouchableOpacity onPress={() => setModalState('')} className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary}`}>
+                                <Text className="font-outfit-semi text-[15px] text-black">Zapisz</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </BlurView>
+                </View>
             </Modal>
         </View>
     );

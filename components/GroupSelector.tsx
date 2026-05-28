@@ -85,14 +85,14 @@ function GroupItemCard({
     return (
         <AnimatedTouchableOpacity
             layout={LinearTransition.springify().damping(200).stiffness(1200)}
-            className={`${FillStyles.cardBase} ${isActive ? FillStyles.cardActive : FillStyles.cardInactive} p-3 pb-5 justify-between rounded-[25px]`}
+            className={`${FillStyles.cardBase} ${isActive ? FillStyles.cardActive : FillStyles.cardInactive} p-3 justify-center items-center rounded-[25px]`}
             style={animatedWidthStyle}
             onPress={onPress}
             onLongPress={onLongPress}
             delayLongPress={350}
         >
             <View
-                className={`p-3 rounded-full flex-row items-center gap-2 ${isActive ? 'bg-accent/15' : 'bg-white/[0.06]'
+                className={`p-3 w-full rounded-full flex-row items-center gap-2 ${isActive ? 'bg-accent/15' : 'bg-white/[0.06]'
                     }`}
             >
                 <IconComp
