@@ -8,7 +8,7 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://35.254.103.33:8010"
+        "EXPO_PUBLIC_API_URL": "http://35.253.185.77:8010"
       }
     },
     "dev-fast": {
@@ -22,7 +22,7 @@
         "key": "dev-fast-v1"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://35.254.103.33:8010"
+        "EXPO_PUBLIC_API_URL": "http://35.253.185.77:8010"
       }
     },
     "preview": {
@@ -33,12 +33,12 @@
         "simulator": true
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://35.254.103.33:8010"
+        "EXPO_PUBLIC_API_URL": "http://35.253.185.77:8010"
       }
     },
     "production": {
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://35.254.103.33:8010"
+        "EXPO_PUBLIC_API_URL": "http://35.253.185.77:8010"
       }
     }
   },
