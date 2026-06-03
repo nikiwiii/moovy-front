@@ -47,7 +47,7 @@ export default function FriendBoard() {
             setMySessions(sessions);
         } catch (error) {
             const msg = error instanceof Error ? error.message : String(error);
-            console.error("Failed to load sessions:", msg);
+            console.error("Full error:", JSON.stringify(error));
         } finally {
             setIsLoadingSessions(false);
         }

@@ -281,7 +281,7 @@ export default function ParametersScreen() {
             <Modal visible={modalVisible} transparent animationType="fade">
                 <View className='bg-black/80' style={StyleSheet.absoluteFill}>
                     <View className="flex-1 justify-center items-center px-6">
-                        <Text className="font-outfit-bold text-xl mb-5">Dodaj nowe grono</Text>
+                        <Text className="font-outfit-bold text-2xl mb-5">Dodaj nowe grono</Text>
 
                         <TextInput
                             className={`${FillStyles.inputLarge} mb-3 w-2/3`}

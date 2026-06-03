@@ -103,7 +103,7 @@ export default function IdeaScreen() {
                         className="self-end"
                     >
                         <TouchableOpacity
-                            className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent w-[200px]`}
+                            className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
                             onPress={() => router.back()}
                         >
                             <RotateCcw color="#000" size={18} strokeWidth={2.5} />

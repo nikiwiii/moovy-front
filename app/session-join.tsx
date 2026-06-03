@@ -272,18 +272,18 @@ export default function SessionJoinScreen() {
                     </TouchableOpacity>
                 </MotiView>
 
-                <View className="flex-1 px-5 justify-center">
+                <View className="flex-1 px-5 mt-24">
                     <MotiView
                         from={{ opacity: 0, translateY: 30 }}
                         animate={{ opacity: 1, translateY: 0 }}
                         transition={{ delay: 200, type: 'timing', duration: 800 }}
                     >
                         {/* Title */}
-                        <View className="items-center mb-10">
+                        <View className="items-center mb-6">
                             <MotiView
                                 from={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                transition={{ type: 'spring', delay: 300, damping: 12 }}
+                                transition={{ type: 'spring', delay: 300, damping: 30 }}
                                 className="w-16 h-16 rounded-full bg-white/[0.06] border border-white/[0.1] items-center justify-center mb-5"
                             >
                                 <Ticket color={ACCENT} size={28} strokeWidth={1.5} />

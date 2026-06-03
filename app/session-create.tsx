@@ -5,7 +5,8 @@ import {
     UserRoundCheck,
     UsersRound,
     UserRound,
-    LucideIcon
+    LucideIcon,
+    Hand
 } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState } from 'react';
@@ -87,7 +88,7 @@ export default function SessionCreateScreen() {
                     </View>
                 </MotiView>
 
-                <ScrollView contentContainerClassName="px-8" showsVerticalScrollIndicator={false}>
+                <View className="flex-1 px-8 mt-24">
                     {!createdSession ? (
                         <MotiView
                             from={{ opacity: 0, scale: 0.95 }}
@@ -96,9 +97,17 @@ export default function SessionCreateScreen() {
                             className="flex flex-col gap-4"
                         >
                             {/* Title */}
-                            <View className="px-2 mt-16">
-                                <Text className="font-outfit-bold text-[28px] leading-tight">Utwórz sesję{'\n'}filmową</Text>
-                                <Text className="font-outfit text-[14px] opacity-35 mt-2">Wybierz typ spotkania i zaproś znajomych</Text>
+                            <View className="items-center mb-4">
+                                <MotiView
+                                    from={{ scale: 0, rotate: '-180deg' }}
+                                    animate={{ scale: 1, rotate: '0deg' }}
+                                    transition={{ type: 'spring', delay: 300, damping: 30 }}
+                                    className="w-16 h-16 rounded-full bg-white/[0.06] border border-white/[0.1] items-center justify-center mb-5"
+                                >
+                                    <Hand color={ACCENT} size={28} strokeWidth={1.5} />
+                                </MotiView>
+                                <Text className="font-outfit-bold text-[28px] text-center">Utwórz sesję</Text>
+                                <Text className="font-outfit text-[14px] opacity-35 mt-2 text-center">Wybierz typ spotkania i zaproś znajomych</Text>
                             </View>
 
                             {/* Meeting type selection */}
@@ -109,7 +118,7 @@ export default function SessionCreateScreen() {
                             />
 
                             {/* Create button */}
-                            <View className="flex-row justify-end mt-4">
+                            <View className="flex-row justify-end mt-8">
                                 <TouchableOpacity
                                     className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
                                     onPress={handleCreate}
@@ -189,7 +198,7 @@ export default function SessionCreateScreen() {
                             </View>
                         </MotiView>
                     )}
-                </ScrollView>
+                </View>
             </SafeAreaView>
         </View >
     );
