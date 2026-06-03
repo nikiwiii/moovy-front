@@ -1,15 +1,19 @@
 import { BlurView } from "expo-blur";
 import { usePathname, useRouter } from "expo-router";
-import { Clapperboard, Cog, UsersRound } from "lucide-react-native";
+import { Asterisk, Clapperboard, Cog, UsersRound } from "lucide-react-native";
 import { MotiView } from "moti";
 import { StyleSheet, View } from "react-native";
 import TouchableOpacity from "./TouchableOpacity";
+import { Colors } from "@/constants/theme";
+
+const ACCENT = Colors.dark.accent;
 
 export default function Navbar() {
     const router = useRouter();
     const pathname = usePathname();
 
     const tabs = [
+        { path: "/home", icon: Asterisk },
         { path: "/parameters", icon: Clapperboard },
         { path: "/friendboard", icon: UsersRound },
         { path: "/settings", icon: Cog },
@@ -39,7 +43,7 @@ export default function Navbar() {
                                 onPress={() => {
                                     router.push(tab.path as any);
                                 }}
-                                className={`items-center justify-center rounded-full h-[52px] mx-1 ${isActive ? 'w-[68px] bg-[#CDFF64]' : 'w-[52px]'}`}
+                                className={`items-center justify-center rounded-full h-[52px] mx-1 ${isActive ? 'w-[68px] bg-accent' : 'w-[52px]'}`}
                             >
                                 <Icon
                                     color={isActive ? "#000" : "#707080"}

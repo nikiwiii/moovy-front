@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "movienight",
+    "name": "moovy",
     "slug": "movienight",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "movienight",
+    "icon": "./assets/images/mnlogo2.png",
+    "scheme": "moovy",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true
@@ -13,12 +13,13 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "foregroundImage": "./assets/images/mnlogo2.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "usesCleartextTraffic": true
+      "usesCleartextTraffic": true,
+      "package": "com.dygacz.moovy"
     },
     "web": {
       "output": "static",
@@ -39,11 +40,18 @@
         }
       ],
       "expo-font",
-      "expo-secure-store"
+      "expo-secure-store",
+      "./plugins/withNetworkSecurityConfig"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "fde8206e-bdf6-4caf-b795-9488ac27c324"
+      }
     }
   }
 }

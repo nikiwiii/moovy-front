@@ -96,27 +96,38 @@ const AnimatedOrb = ({ color, size, startPos, animDuration, translateRange, opac
     );
 };
 
-export type BackgroundTheme = 'default' | 'ocean' | 'cyberpunk' | 'sunset' | 'aurora' | 'monochrome' | 'nebula';
+export type BackgroundTheme = 'default' | 'ocean' | 'cyberpunk' | 'sunset' | 'aurora' | 'monochrome' | 'nebula' | 'midnight' | 'emerald';
 
 export const BACKGROUND_THEMES: Record<BackgroundTheme, string[]> = {
-    default: ['#2d0a5e', '#0f0a3e', '#4a1068', '#0a0628', '#1a0842'],
-    ocean: ['#0284c7', '#0369a1', '#1e3a8a', '#172554', '#1e40af'],
-    cyberpunk: ['#be185d', '#86198f', '#4c1d95', '#0e7490', '#3730a3'],
-    sunset: ['#9f1239', '#ea580c', '#c2410c', '#6b21a8', '#4c1d95'],
-    aurora: ['#047857', '#0f766e', '#1e3a8a', '#312e81', '#115e59'],
-    monochrome: ['#334155', '#1e293b', '#0f172a', '#020617', '#1e293b'],
-    nebula: ['#ea580c', '#7c3aed', '#2563eb', '#9333ea', '#c2410c']
+    // Nowy domyślny — ciepły indygo z akcentem lime
+    default: ['#1E1B4B', '#0F172A', '#312E81', '#0C0A1D', '#1E1B4B'],
+    // Głęboki ocean — teal i slate blue
+    ocean: ['#0E4D64', '#0B3142', '#164E63', '#0C1E2D', '#155E75'],
+    // Cyberpunk — magenta / fiolet / cyan
+    cyberpunk: ['#A21CAF', '#6D28D9', '#0E7490', '#1E1B4B', '#4C1D95'],
+    // Zachód słońca — amber / rose
+    sunset: ['#B91C1C', '#C2410C', '#4f0c0aff', '#000000ff', '#7C2D12'],
+    // Aurora — szmaragd i indygo, bardziej wyraziste kolory
+    aurora: ['#065F46', '#0F766E', '#1E3A5F', '#1A1A40', '#134E4A'],
+    // Monochrome — elegancki szary
+    monochrome: ['#1E293B', '#0F172A', '#0F172A', '#020617', '#1E293B'],
+    // Mgławica — ognisty + fioletowy
+    nebula: ['#DC2626', '#7C3AED', '#2563EB', '#9333EA', '#B91C1C'],
+    // Midnight — głęboka czerń z delikatnym fioletem
+    midnight: ['#1A103C', '#0D0B24', '#2D1B69', '#060412', '#1A0F3C'],
+    // Szmaragd — zielony z ciemnym tłem
+    emerald: ['#064E3B', '#065F46', '#0F3B2F', '#0A1A14', '#047857'],
 };
 
 interface AnimatedBackgroundProps {
     theme?: BackgroundTheme;
 }
 
-export default function AnimatedBackground({ theme = 'aurora' }: AnimatedBackgroundProps) {
+export default function AnimatedBackground({ theme = 'sunset' }: AnimatedBackgroundProps) {
     const colors = BACKGROUND_THEMES[theme] || BACKGROUND_THEMES.default;
 
     return (
-        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#030108', overflow: 'hidden' }}>
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#040210', overflow: 'hidden' }}>
             {/* Deep purple top-left */}
             <AnimatedOrb
                 color={colors[0]}

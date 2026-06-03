@@ -4,7 +4,78 @@ import { MotiView } from "moti";
 import { Image, View } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
 import Animated, { LinearTransition } from "react-native-reanimated";
+import Svg, { Circle } from 'react-native-svg';
+import { Colors } from '@/constants/theme';
 import MiniCollapsibleSection from "./MiniCollapsibleSection";
+
+const ACCENT = Colors.dark.accent;
+const size = 56;
+const strokeWidth = 3;
+const center = size / 2;
+const radius = center - strokeWidth;
+
+const RatingRing = ({ rating }: { rating: number }) => {
+    const circumference = 2 * Math.PI * radius;
+    const progress = Math.min(Math.max(rating / 10, 0), 1);
+    const strokeDashoffset = circumference - progress * circumference;
+
+    return (
+        <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
+            <Svg width={size} height={size} style={{ position: 'absolute' }}>
+                <Circle
+                    cx={center}
+                    cy={center}
+                    r={radius}
+                    stroke="rgba(255, 255, 255, 0.08)"
+                    strokeWidth={strokeWidth}
+                    fill="rgba(255, 255, 255, 0.02)"
+                />
+                <Circle
+                    cx={center}
+                    cy={center}
+                    r={radius}
+                    stroke={ACCENT}
+                    strokeWidth={strokeWidth}
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    strokeLinecap="round"
+                    fill="transparent"
+                    transform={`rotate(-90 ${center} ${center})`}
+                />
+            </Svg>
+            <View className="items-center">
+                <Text className="font-outfit-bold text-white text-[14px]">{rating.toFixed(1)}</Text>
+                <Text className="text-[7px] font-outfit-bold text-white/30 uppercase tracking-[1px]">Rating</Text>
+            </View>
+        </View>
+    );
+};
+
+const DurationRing = ({ duration }: { duration: string }) => {
+
+    // Extract only the number from duration (e.g. "201 minut" -> "201")
+    const match = duration.match(/\d+/);
+    const timeValue = match ? match[0] : duration;
+
+    return (
+        <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
+            <Svg width={size} height={size} style={{ position: 'absolute' }}>
+                <Circle
+                    cx={center}
+                    cy={center}
+                    r={radius}
+                    stroke="rgba(255, 255, 255, 0.08)"
+                    strokeWidth={strokeWidth}
+                    fill="rgba(255, 255, 255, 0.02)"
+                />
+            </Svg>
+            <View className="items-center">
+                <Text className="font-outfit-bold text-white text-[13px]">{timeValue}</Text>
+                <Text className="text-[7px] font-outfit-bold text-white/30 uppercase tracking-[1px]">Minutes</Text>
+            </View>
+        </View>
+    );
+};
 
 export interface MovieViewProps {
     title?: string;
@@ -20,24 +91,24 @@ export interface MovieViewProps {
 }
 
 const GENRE_TRANSLATIONS: Record<string, string> = {
-    "Action": "Akcja",
-    "Adventure": "Przygodowy",
-    "Animation": "Animacja",
-    "Comedy": "Komedia",
-    "Crime": "Kryminał",
-    "Documentary": "Dokumentalny",
-    "Drama": "Dramat",
-    "Family": "Familijny",
+    "Action": "Action",
+    "Adventure": "Adventure",
+    "Animation": "Animation",
+    "Comedy": "Comedy",
+    "Crime": "Crime",
+    "Documentary": "Documentary",
+    "Drama": "Drama",
+    "Family": "Family",
     "Fantasy": "Fantasy",
-    "History": "Historyczny",
+    "History": "History",
     "Horror": "Horror",
-    "Music": "Muzyczny",
-    "Mystery": "Tajemnica",
-    "Romance": "Romans",
+    "Music": "Music",
+    "Mystery": "Mystery",
+    "Romance": "Romance",
     "Science Fiction": "Sci-Fi",
-    "TV Movie": "Film TV",
+    "TV Movie": "TV Movie",
     "Thriller": "Thriller",
-    "War": "Wojenny",
+    "War": "War",
     "Western": "Western"
 };
 
@@ -46,14 +117,14 @@ const translateGenre = (genre: string) => GENRE_TRANSLATIONS[genre] || genre;
 export default function FilmView({ movieData }: { movieData?: MovieViewProps }) {
     const defaultUrl = "https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg";
     const defaultData = {
-        title: "Władca Pierścieni: Powrót króla",
+        title: "The Lord of the Rings: The Return of the King",
         year: 2003,
         rating: 8.9,
         director: "Peter Jackson",
         actors: ["Elijah Wood", "Ian McKellen", "Viggo Mortensen"],
-        description: "Władca Pierścieni: Powrót króla to epickie fantasy z 2003 roku w reżyserii Petera Jacksona. Film jest trzecią częścią trylogii Władca Pierścieni i opowiada historię Froda Bagginsa, który musi zniszczyć Pierścień Władzy, aby uratować Śródziemie przed Sauronem.",
-        genres: ["Fantasy", "Przygodowy", "Akcja"],
-        duration: "201 minut"
+        description: "The Lord of the Rings: The Return of the King is a 2003 epic fantasy adventure film directed by Peter Jackson. The film is the third installment in the Lord of the Rings trilogy and follows Frodo Baggins as he and Samwise Gamgee begin the final stage of their quest to destroy the One Ring.",
+        genres: ["Fantasy", "Adventure", "Action"],
+        duration: "201 minutes"
     };
 
     const data = movieData || defaultData;
@@ -61,17 +132,17 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
     if (finalPosterPath === "null" || finalPosterPath === "N/A" || finalPosterPath === "None") {
         finalPosterPath = "";
     }
-    
-    const url = finalPosterPath 
-        ? (finalPosterPath.startsWith('http') 
-            ? finalPosterPath 
-            : `https://image.tmdb.org/t/p/w500${finalPosterPath.startsWith('/') ? '' : '/'}${finalPosterPath}`) 
+
+    const url = finalPosterPath
+        ? (finalPosterPath.startsWith('http')
+            ? finalPosterPath
+            : `https://image.tmdb.org/t/p/w500${finalPosterPath.startsWith('/') ? '' : '/'}${finalPosterPath}`)
         : defaultUrl;
 
     console.log("[FILM VIEW] Final constructed poster URL:", url);
 
     const displayTitle = data.title || defaultData.title;
-    
+
     let displayYear = data.year;
     if (!displayYear && data.release_date) {
         const d = new Date(data.release_date);
@@ -89,8 +160,8 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
     const displayDuration = data.duration;
 
     return (
-        <Animated.View layout={LinearTransition} className="bg-white/[0.04] border border-white/[0.08] rounded-[32px] p-6 gap-y-6">
-            <View className="flex-row gap-5">
+        <Animated.View layout={LinearTransition} className="bg-white/[0.04] border border-white/[0.08] rounded-[32px] p-4 gap-y-4">
+            <View className="flex-row gap-4">
                 <MotiView
                     from={{ opacity: 0, translateX: 50 }}
                     animate={{ opacity: 1, translateX: 0 }}
@@ -101,32 +172,34 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
                 </MotiView>
                 <View className="flex-col w-3/5 gap-2.5">
                     <Text className="text-[20px] font-outfit-bold leading-tight">{displayTitle} {displayYear && <Text className="text-[15px] font-outfit opacity-50">({displayYear})</Text>}</Text>
-                    {displayRating ? <View className="flex-row items-center gap-1.5"><Star size={14} fill="#CDFF64" color="#CDFF64" /><Text className="text-[15px] font-outfit text-[#CDFF64]">{displayRating}/10</Text></View> : null}
-                    {displayDuration ? <View className="flex-row items-center gap-1.5"><Clock size={14} color="#707080" /><Text className="text-[14px] font-outfit opacity-60">{displayDuration}</Text></View> : null}
+                    <View className="flex-row items-center gap-4 my-1">
+                        {displayRating ? <RatingRing rating={displayRating} /> : null}
+                        {displayDuration ? <DurationRing duration={displayDuration} /> : null}
+                    </View>
+                    <View className="flex-row flex-wrap gap-2 pr-4">
+                        {displayGenres.map((genre, i) => (
+                            <View key={i} style={{ backgroundColor: `${ACCENT}1A`, borderColor: `${ACCENT}33` }} className="border px-3 py-1.5 rounded-full items-center justify-center">
+                                <Text style={{ color: ACCENT }} className="text-[10px] font-outfit-semi uppercase tracking-tight">{translateGenre(genre)}</Text>
+                            </View>
+                        ))}
+                    </View>
                     {displayDirector ? (
                         <View className="flex-col mt-1">
-                            <Text className="text-[12px] font-outfit opacity-35 uppercase tracking-[2px]">Reżyser</Text>
+                            <Text className="text-[12px] font-outfit opacity-35 uppercase tracking-[2px]">Director</Text>
                             <Text className="text-[14px] font-outfit-semi">{displayDirector}</Text>
                         </View>
                     ) : null}
                     {displayActors && displayActors.length > 0 ? (
                         <View className="flex-col">
-                            <Text className="text-[12px] font-outfit opacity-35 uppercase tracking-[2px]">Główne role</Text>
+                            <Text className="text-[12px] font-outfit opacity-35 uppercase tracking-[2px]">Starring</Text>
                             <Text className="text-[14px] font-outfit-semi">{displayActors.join(", ")}</Text>
                         </View>
                     ) : null}
                 </View>
             </View>
             <View className="flex-col gap-3">
-                <View className="flex-row flex-wrap gap-2">
-                    {displayGenres.map((genre, i) => (
-                        <View key={i} className="bg-[#CDFF64]/10 border border-[#CDFF64]/20 px-4 py-1.5 rounded-full items-center justify-center">
-                            <Text className="text-[11px] font-outfit-bold text-[#CDFF64] uppercase tracking-[1px]">{translateGenre(genre)}</Text>
-                        </View>
-                    ))}
-                </View>
                 <MiniCollapsibleSection
-                    title="Opis / Dlaczego?"
+                    title="Description / Why?"
                     defaultOpen={false}
                 >
                     <Text className="text-[14px] font-outfit opacity-70 leading-[22px]">{displayDescription}</Text>

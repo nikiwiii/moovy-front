@@ -7,6 +7,9 @@ import { AppText as Text } from '@/components/AppText';
 import Animated, { LinearTransition } from "react-native-reanimated";
 import CollapsibleSection from "../components/CollapsibleSection";
 import { FillStyles } from "../constants/themeStyles";
+import { Colors } from "@/constants/theme";
+
+const ACCENT = Colors.dark.accent;
 
 export default function IdeaScreen() {
     const router = useRouter();
@@ -15,20 +18,20 @@ export default function IdeaScreen() {
     const parsedCriteria = params.criteriaData ? JSON.parse(params.criteriaData as string) : {
         preset: "Tłum",
         genres: ["Przygodowy", "Akcji"],
-        duration: "Dłuższy",
+        duration: 240,
         friendsAdded: 0
     };
 
     const parsedMovies = params.recommendationData ? JSON.parse(params.recommendationData as string) : null;
-    
+
     console.log("[IDEA SCREEN] Parsed Criteria:", parsedCriteria);
     console.log("[IDEA SCREEN] Parsed Movies:", parsedMovies);
-    
-    // Fallback definition for the view model
-    let movieData: MovieViewProps | undefined = undefined;
+
+    // Build array of movies
+    let moviesData: MovieViewProps[] = [];
 
     if (parsedMovies) {
-        movieData = {
+        moviesData.push({
             title: parsedMovies.movie_title,
             description: parsedMovies.reasoning_pl,
             genres: parsedMovies.genres,
@@ -36,9 +39,23 @@ export default function IdeaScreen() {
             release_date: parsedMovies.release_date,
             rating: parsedMovies.rating,
             duration: parsedMovies.runtime ? `${parsedMovies.runtime} min` : undefined,
+        });
+
+        if (parsedMovies.extra_movies && Array.isArray(parsedMovies.extra_movies)) {
+            parsedMovies.extra_movies.forEach((extra: any) => {
+                moviesData.push({
+                    title: extra.movie_title,
+                    description: "An alternative suggestion from our system, tailored to your taste.",
+                    genres: extra.genres,
+                    poster_path: extra.poster_path,
+                    release_date: extra.release_date,
+                    rating: extra.rating,
+                    duration: extra.runtime ? `${extra.runtime} min` : undefined,
+                });
+            });
         }
     }
-    console.log("[IDEA SCREEN] Constructed movieData for FilmView:", movieData);
+    console.log("[IDEA SCREEN] Constructed moviesData for FilmView:", moviesData);
 
     return (
         <View className="flex-1 bg-transparent pt-10">
@@ -49,27 +66,35 @@ export default function IdeaScreen() {
                     transition={{ duration: 600 }}
                     className="px-4 pt-5 pb-3 flex-row justify-between items-center"
                 >
-                    <Text className="font-outfit-bold text-[24px]">Pomysł</Text>
+                    <Text className="font-outfit-bold text-[24px]">Ideas</Text>
                     <TouchableOpacity
                         onPress={() => router.back()}
                         className="flex-row items-center gap-2"
                     >
-                        <Text className="font-outfit text-[13px] opacity-35 uppercase tracking-[2px]">Wróć</Text>
+                        <Text className="font-outfit text-[13px] opacity-35 uppercase tracking-[2px]">Back</Text>
                     </TouchableOpacity>
                 </MotiView>
                 <View className="flex-1 px-2 flex-col gap-y-3">
-                    <FilmView movieData={movieData} />
+                    <View className="flex-col gap-4">
+                        {moviesData.length > 0 ? (
+                            moviesData.map((movie, index) => (
+                                <FilmView key={index} movieData={movie} />
+                            ))
+                        ) : (
+                            <FilmView /> // Default fallback
+                        )}
+                    </View>
                     <CollapsibleSection
-                        title="Twoje kryteria"
-                        subtitle="Skąd ten pomysł?"
+                        title="Your criteria"
+                        subtitle="Why this suggestion?"
                         icon={Users}
                         defaultOpen={false}
                     >
                         <Animated.View layout={LinearTransition} className="flex-col gap-3">
-                            <View className="flex-row items-center gap-3"><Users size={16} strokeWidth={2} color="#CDFF64" /><Text className="font-outfit text-[14px]">{parsedCriteria.preset}</Text></View>
-                            <View className="flex-row items-center gap-3"><Film size={16} strokeWidth={2} color="#CDFF64" /><Text className="font-outfit text-[14px]">{parsedCriteria.genres.length > 0 ? parsedCriteria.genres.join(", ") : "Dowolny"}</Text></View>
-                            <View className="flex-row items-center gap-3"><Clock size={16} strokeWidth={2} color="#CDFF64" /><Text className="font-outfit text-[14px]">{parsedCriteria.duration}</Text></View>
-                            <View className="flex-row items-center gap-3"><UserPlus size={16} strokeWidth={2} color="#CDFF64" /><Text className="font-outfit text-[14px]">{parsedCriteria.friendsAdded}</Text></View>
+                            <View className="flex-row items-center gap-3"><Users size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.preset}</Text></View>
+                            <View className="flex-row items-center gap-3"><Film size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.genres.length > 0 ? parsedCriteria.genres.join(", ") : "Any"}</Text></View>
+                            <View className="flex-row items-center gap-3"><Clock size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.duration}</Text></View>
+                            <View className="flex-row items-center gap-3"><UserPlus size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.friendsAdded}</Text></View>
                         </Animated.View>
                     </CollapsibleSection>
 
@@ -78,11 +103,11 @@ export default function IdeaScreen() {
                         className="self-end"
                     >
                         <TouchableOpacity
-                            className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} w-[200px]`}
+                            className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
                             onPress={() => router.back()}
                         >
                             <RotateCcw color="#000" size={18} strokeWidth={2.5} />
-                            <Text className="font-outfit-semi text-[15px] text-black">Spróbuj ponownie</Text>
+                            <Text className="font-outfit-semi text-[15px] text-black">Try again</Text>
                         </TouchableOpacity>
                     </Animated.View>
 

@@ -11,6 +11,9 @@ cssInterop(MotiScrollView, { className: 'style', contentContainerClassName: 'con
 
 import AnimatedBackground from '../components/AnimatedBackground';
 import Navbar from '../components/Navbar';
+import { Colors } from '@/constants/theme';
+
+const ACCENT = Colors.dark.accent;
 
 export default function RootLayout() {
     const pathname = usePathname();
@@ -23,12 +26,12 @@ export default function RootLayout() {
     if (!fontsLoaded) {
         return (
             <View style={{ flex: 1, backgroundColor: '#030108', justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator color="#CDFF64" />
+                <ActivityIndicator color={ACCENT} />
             </View>
         );
     }
 
-    const showNavbar = !['/', '/preferences', '/login'].includes(pathname);
+    const showNavbar = !['/', '/home', '/preferences', '/login', '/session-create', '/session-join', '/session-lobby'].includes(pathname);
 
     return (
         <View style={{ flex: 1, backgroundColor: '#030108' }} className="text-white">

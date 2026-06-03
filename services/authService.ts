@@ -1,4 +1,5 @@
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://35.253.185.77:8010';
+console.log('[authService] API_URL:', API_URL);
 
 export const authService = {
   async login(email: string, password: string) {
@@ -14,12 +15,13 @@ export const authService = {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || 'Błąd logowania');
+        throw new Error(data.detail || 'Login error');
       }
 
       return data;
     } catch (error: any) {
-      throw new Error(error.message || 'Błąd połączenia z serwerem');
+      console.error('[authService] login error:', error, 'URL was:', `${API_URL}/auth/login`);
+      throw new Error(error.message || 'Server connection error');
     }
   },
 
@@ -36,12 +38,13 @@ export const authService = {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || 'Błąd rejestracji');
+        throw new Error(data.detail || 'Registration error');
       }
 
       return data;
     } catch (error: any) {
-      throw new Error(error.message || 'Błąd połączenia z serwerem');
+      console.error('[authService] register error:', error, 'URL was:', `${API_URL}/auth/register`);
+      throw new Error(error.message || 'Server connection error');
     }
   },
 };

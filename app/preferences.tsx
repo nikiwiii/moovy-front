@@ -1,4 +1,3 @@
-import { BlurView } from 'expo-blur';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Calendar, Check, Film, Plus, Star, X } from 'lucide-react-native';
 import { MotiView } from 'moti';
@@ -12,13 +11,14 @@ import TouchableOpacity from '../components/TouchableOpacity';
 import { defaultVibes } from '../constants/vibes';
 import { FillStyles } from '../constants/themeStyles';
 import { storageService } from '../services/storageService';
+import { metadataService } from '../services/metadataService';
 
-const eras = [
-    'Złota Era Hollywood',
-    'Lata 80.',
-    'Lata 90.',
-    'Kino współczesne',
-    'Nowości (Lata 20.)'
+const DEFAULT_ERAS = [
+    'Golden Age of Hollywood',
+    '80s',
+    '90s',
+    'Modern Cinema',
+    'New Releases (2020s)'
 ];
 
 export default function PreferencesScreen() {
@@ -33,11 +33,27 @@ export default function PreferencesScreen() {
         movies: [] as string[]
     });
     const [movieInput, setMovieInput] = useState('');
+    const [availableVibes, setAvailableVibes] = useState<string[]>(defaultVibes);
+    const [availableEras, setAvailableEras] = useState<string[]>(DEFAULT_ERAS);
 
     useEffect(() => {
         const loadPrefs = async () => {
             setLoading(true);
             try {
+                try {
+                    const data = await metadataService.getPreferencesOptions();
+                    if (data) {
+                        if (data.vibes && data.vibes.length > 0) {
+                            setAvailableVibes(data.vibes);
+                        }
+                        if (data.eras && data.eras.length > 0) {
+                            setAvailableEras(data.eras);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to load preferences options from server, using local fallbacks:', e);
+                }
+
                 const lp = await storageService.getLocalPreferences();
                 const token = await storageService.getToken();
                 const userId = await storageService.getUserId();
@@ -110,10 +126,11 @@ export default function PreferencesScreen() {
                 eras: preferences.eras,
                 movies: preferences.movies
             };
+            console.log(payload)
 
             if (isLocal) {
                 await storageService.saveLocalPreferences(payload);
-                Alert.alert("Sukces!", "Pomyślnie zapisano preferencje na urządzeniu.");
+                Alert.alert("Success!", "Preferences saved successfully on your device.");
                 router.push('/parameters');
             } else {
                 const token = await storageService.getToken();
@@ -121,7 +138,7 @@ export default function PreferencesScreen() {
                 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
                 if (!token || !userId) {
-                    Alert.alert("Błąd logowania", "Zaloguj się ponownie, aby zapisać preferencje.");
+                    Alert.alert("Login error", "Please log in again to save preferences.");
                     setLoading(false);
                     return;
                 }
@@ -136,16 +153,37 @@ export default function PreferencesScreen() {
                 });
 
                 if (response.ok) {
-                    Alert.alert("Sukces!", "Pomyślnie zapisano preferencje w chmurze.");
+                    Alert.alert("Success!", "Preferences saved successfully in the cloud.");
                     router.push('/parameters');
                 } else {
                     const errorData = await response.json();
-                    Alert.alert("Błąd zapisu", errorData.detail || "Wystąpił problem podczas komunikacji z serwerem.");
+                    let errMsg = "There was a problem communicating with the server.";
+                    if (errorData) {
+                        const detail = errorData.detail;
+                        if (typeof detail === 'string') {
+                            errMsg = detail;
+                        } else if (Array.isArray(detail)) {
+                            errMsg = detail.map((e: any) => {
+                                if (e && typeof e === 'object') {
+                                    const field = e.loc ? `${e.loc.slice(1).join('.')}: ` : '';
+                                    return `${field}${e.msg || JSON.stringify(e)}`;
+                                }
+                                return String(e);
+                            }).join('\n');
+                        } else if (detail) {
+                            errMsg = JSON.stringify(detail);
+                        } else if (errorData.message) {
+                            errMsg = String(errorData.message);
+                        } else {
+                            errMsg = JSON.stringify(errorData);
+                        }
+                    }
+                    Alert.alert("Save error", errMsg);
                 }
             }
         } catch (error) {
             console.error('Save error:', error);
-            Alert.alert("Błąd", isLocal ? "Nie udało się zapisać preferencji lokalnie." : "Nie udało się połączyć z serwerem.");
+            Alert.alert("Error", isLocal ? "Failed to save preferences locally." : "Failed to connect to the server.");
         } finally {
             setLoading(false);
         }
@@ -154,12 +192,15 @@ export default function PreferencesScreen() {
     const toggleVibe = (vibe: string, type: 'liked' | 'disliked' | '') => {
         if (!type) return;
         setPreferences(prev => {
+            const isCurrentlyLiked = prev.vibes.liked.includes(vibe);
+            const isCurrentlyDisliked = prev.vibes.disliked.includes(vibe);
+
             const newLiked = prev.vibes.liked.filter(v => v !== vibe);
             const newDisliked = prev.vibes.disliked.filter(v => v !== vibe);
 
-            if (type === 'liked') {
+            if (type === 'liked' && !isCurrentlyLiked) {
                 newLiked.push(vibe);
-            } else if (type === 'disliked') {
+            } else if (type === 'disliked' && !isCurrentlyDisliked) {
                 newDisliked.push(vibe);
             }
 
@@ -176,9 +217,9 @@ export default function PreferencesScreen() {
                     transition={{ duration: 600 }}
                     className="flex-row justify-between items-center px-6 pt-5 pb-3"
                 >
-                    <Text className="font-outfit-bold text-[24px]">Krótko o sobie</Text>
+                    <Text className="font-outfit-bold text-[24px]">A bit about yourself</Text>
                     <TouchableOpacity onPress={() => router.push('/parameters')}>
-                        <Text className="font-outfit text-[13px] opacity-35 uppercase tracking-[2px]">Pomiń</Text>
+                        <Text className="font-outfit text-[13px] opacity-35 uppercase tracking-[2px]">Skip</Text>
                     </TouchableOpacity>
                 </MotiView>
 
@@ -190,8 +231,8 @@ export default function PreferencesScreen() {
                         className="flex flex-col gap-3"
                     >
                         <CollapsibleSection
-                            title="Mój vibe filmowy"
-                            subtitle="Kategorie"
+                            title="My movie vibe"
+                            subtitle="Categories"
                             icon={Film}
                             defaultOpen={true}
                         >
@@ -199,12 +240,13 @@ export default function PreferencesScreen() {
                                 liked={preferences.vibes.liked}
                                 disliked={preferences.vibes.disliked}
                                 onToggleVibe={(vibe, type) => toggleVibe(vibe, type)}
-                                label1="Uwielbiam"
-                                label2="Unikam"
+                                label1="I love"
+                                label2="I avoid"
+                                options={availableVibes}
                             />
                         </CollapsibleSection>
 
-                        <CollapsibleSection
+                        {/* <CollapsibleSection
                             title="Ulubione epoki filmowe"
                             subtitle="Czas produkcji"
                             value={preferences.eras.length}
@@ -212,7 +254,7 @@ export default function PreferencesScreen() {
                             defaultOpen={false}
                         >
                             <View className="flex flex-wrap flex-row gap-2">
-                                {eras.map(era => (
+                                {availableEras.map(era => (
                                     <TouchableOpacity
                                         key={era}
                                         onPress={() => setPreferences(prev => {
@@ -226,12 +268,12 @@ export default function PreferencesScreen() {
                                     </TouchableOpacity>
                                 ))}
                             </View>
-                        </CollapsibleSection>
+                        </CollapsibleSection> */}
 
 
                         <CollapsibleSection
-                            title="Ulubione filmy"
-                            subtitle="Tytyły, Baza rekomendacji"
+                            title="Favorite movies"
+                            subtitle="Titles, Recommendation base"
                             value={preferences.movies.length}
                             icon={Star}
                             defaultOpen={false}
@@ -255,7 +297,7 @@ export default function PreferencesScreen() {
                                 <View className="flex-row gap-2.5 mt-1.5">
                                     <TextInput
                                         className={FillStyles.inputInline}
-                                        placeholder="Np. Matrix (1999)"
+                                        placeholder="E.g., Matrix (1999)"
                                         placeholderTextColor="#ffffff30"
                                         value={movieInput}
                                         onChangeText={setMovieInput}
@@ -263,7 +305,7 @@ export default function PreferencesScreen() {
                                         returnKeyType="done"
                                     />
                                     <TouchableOpacity
-                                        className={FillStyles.inputIconBtn}
+                                        className={`${FillStyles.inputIconBtn} bg-accent`}
                                         onPress={addMovie}
                                     >
                                         <Plus color="#000" size={20} />
@@ -281,7 +323,7 @@ export default function PreferencesScreen() {
                     className="absolute bottom-10 right-5"
                 >
                     <TouchableOpacity
-                        className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary}`}
+                        className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
                         onPress={handleSave}
                         disabled={loading}
                     >
@@ -289,7 +331,7 @@ export default function PreferencesScreen() {
                             <ActivityIndicator color="#000" size="small" />
                         ) : (
                             <>
-                                <Text className="font-outfit-semi text-[15px] text-black">Zapisz preferencje</Text>
+                                <Text className="font-outfit-semi text-[15px] text-black">Save preferences</Text>
                                 <Check color="#000" size={18} strokeWidth={2.5} />
                             </>
                         )}

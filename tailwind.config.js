@@ -1,3 +1,5 @@
+const appColors = require("./constants/colors");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
     content: [
@@ -10,22 +12,22 @@ module.exports = {
         extend: {
             colors: {
                 background: {
-                    DEFAULT: "var(--color-background)",
-                    dark: "var(--color-background-dark)",
+                    DEFAULT: appColors.background,
+                    dark: appColors.backgroundDark,
                 },
                 accent: {
-                    DEFAULT: "var(--color-accent)",
-                    dim: "var(--color-accent-dim)",
+                    DEFAULT: appColors.accent,
+                    dim: appColors.accentDim,
                 },
                 card: {
-                    DEFAULT: "var(--color-card)",
-                    active: "var(--color-card-active)",
+                    DEFAULT: appColors.card,
+                    active: appColors.cardActive,
                 },
                 text: {
-                    DEFAULT: "var(--color-text)",
-                    muted: "var(--color-text-muted)",
-                    dim: "var(--color-text-dim)",
-                    secondary: "var(--color-text-secondary)",
+                    DEFAULT: appColors.text,
+                    muted: appColors.textMuted,
+                    dim: appColors.textDim,
+                    secondary: appColors.textSecondary,
                 }
             },
             fontFamily: {
@@ -35,5 +37,22 @@ module.exports = {
             }
         },
     },
-    plugins: [],
+    plugins: [
+        ({ addBase }) => {
+            addBase({
+                ":root": {
+                    "--color-text": appColors.text,
+                    "--color-background": appColors.background,
+                    "--color-background-dark": appColors.backgroundDark,
+                    "--color-accent": appColors.accent,
+                    "--color-accent-dim": appColors.accentDim,
+                    "--color-card": appColors.card,
+                    "--color-card-active": appColors.cardActive,
+                    "--color-text-muted": appColors.textMuted,
+                    "--color-text-dim": appColors.textDim,
+                    "--color-text-secondary": appColors.textSecondary,
+                },
+            });
+        },
+    ],
 };

@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { ArrowRight, Cloud, Smartphone, Sparkles } from 'lucide-react-native';
+import { ArrowRight, Cloud, Plus, Search, Smartphone, Sparkles, UserRound, UsersRound } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState, useEffect } from 'react';
 import { Dimensions, SafeAreaView, View } from 'react-native';
@@ -8,6 +8,10 @@ import Animated, { LinearTransition } from 'react-native-reanimated';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { FillStyles } from '../constants/themeStyles';
 import { storageService } from '../services/storageService';
+import { Colors } from '@/constants/theme';
+import { APP_NAME } from '../constants/app';
+
+const ACCENT = Colors.dark.accent;
 
 const { width } = Dimensions.get('window');
 
@@ -24,7 +28,7 @@ export default function WelcomeScreen() {
             const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
             if (lp) {
-                router.replace('/parameters');
+                router.replace('/home');
                 return;
             }
 
@@ -44,7 +48,7 @@ export default function WelcomeScreen() {
                             (data.movies && data.movies.length > 0)
                         );
                         if (hasData) {
-                            router.replace('/parameters');
+                            router.replace('/home');
                         }
                     }
                 } catch (e) {
@@ -55,88 +59,89 @@ export default function WelcomeScreen() {
         checkExistingPrefs();
     }, []);
 
-    const handleNext = () => {
-        if (selected === 'cloud') {
-            router.push('/login');
-        } else if (selected === 'local') {
-            router.push({ pathname: '/preferences', params: { storageType: 'local' } });
-        }
-    };
-
     return (
-        <View className="flex-1 bg-transparent">
+        <View className="flex-1 bg-transparent pt-10">
             <SafeAreaView className="flex-1">
-                <View className="flex-1 px-5 justify-center">
+                {/* Header */}
+                <View className="px-8 pt-4">
                     <MotiView
-                        from={{ opacity: 0, translateY: 20 }}
-                        animate={{ opacity: 1, translateY: 0 }}
-                        transition={{ delay: 200, type: 'timing', duration: 800 }}
-                        className="mb-12 px-2"
+                        from={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 300 }}
                     >
-                        <View className="flex-row items-center gap-2 mb-4">
-                            <Sparkles color="#CDFF64" size={20} strokeWidth={2} />
-                            <Text className="font-outfit text-[12px] uppercase tracking-[4px] text-[#CDFF64]/80">MovieNight</Text>
-                        </View>
-                        <Text className="font-outfit-bold text-[34px] leading-[40px] mb-2">Witamy w{'\n'}MovieNight</Text>
-                        <Text className="font-outfit text-[15px] opacity-40">Gdzie chcesz zapisywać swoje preferencje?</Text>
+                        <Text className="font-outfit-bold text-[24px] tracking-tighter">{APP_NAME}®</Text>
+                    </MotiView>
+                </View>
+
+                {/* Main Content */}
+                <View className="flex-1 px-8 justify-center">
+                    <MotiView
+                        from={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ type: 'timing', duration: 1000, delay: 500 }}
+                        className="mb-12"
+                    >
+                        <Text className="font-outfit text-[42px] leading-[48px] tracking-tight text-white/90">
+                            welcome to{'\n'}{APP_NAME.includes('.') ? APP_NAME.split('.')[0] : APP_NAME}{'\n'}
+                            {APP_NAME.includes('.') && <Text style={{ color: ACCENT }}>{APP_NAME.split('.')[1]} </Text>}
+                            <Text style={{ color: ACCENT }}>(alpha*)</Text>
+                        </Text>
+
+                        {/* Decorative line */}
+                        <View className="w-16 h-[1px] bg-white/20 mt-6" />
                     </MotiView>
 
-                    <MotiView
-                        from={{ opacity: 0, translateY: 20 }}
-                        animate={{ opacity: 1, translateY: 0 }}
-                        transition={{ delay: 400, type: 'timing', duration: 800 }}
-                        className="gap-3"
-                    >
-                        <Animated.View
-                            layout={LinearTransition}
-                            className={`${FillStyles.cardBase} ${selected === 'cloud' ? FillStyles.cardActive : FillStyles.cardInactive} rounded-b-2xl`}
+                    {/* Interactive Elements inspired by the design */}
+                    <View className="flex-row justify-center gap-x-20">
+                        {/* "Find Movie" Large Circle Button */}
+                        <MotiView
+                            from={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ type: 'spring', delay: 800 }}
                         >
-                            <AnimatedTouchableOpacity
-                                layout={LinearTransition}
-                                className="flex-row gap-4 items-center p-5"
-                                onPress={() => setSelected('cloud')}
+                            <TouchableOpacity
+                                onPress={() => router.push('/login')}
+                                className="h-[140px] mt-10 items-center justify-center overflow-hidden"
                             >
-                                <View className={FillStyles.cardIcon}>
-                                    <Cloud color={selected === 'cloud' ? '#CDFF64' : '#707080'} size={26} strokeWidth={selected === 'cloud' ? 2.5 : 1.5} />
+                                <View className="items-center">
+                                    <UserRound color={ACCENT} size={32} strokeWidth={1.5} />
+                                    <Text className="font-outfit-bold text-white/90 border-b border-white/50 text-[18px] uppercase mt-3 text-center">
+                                        Log In
+                                    </Text>
                                 </View>
-                                <View className="flex-1">
-                                    <Text className="text-[17px] font-outfit-semi tracking-wider">Chmura</Text>
-                                    <Text className="font-outfit text-[13px] opacity-40 leading-[18px] mt-0.5">Preferencje filmowe powiązane z kontem</Text>
-                                </View>
-                            </AnimatedTouchableOpacity>
-                        </Animated.View>
-
-                        <Animated.View
-                            layout={LinearTransition}
-                            className={`${FillStyles.cardBase} ${selected === 'local' ? FillStyles.cardActive : FillStyles.cardInactive} rounded-t-2xl`}
+                            </TouchableOpacity>
+                        </MotiView>
+                        <MotiView
+                            from={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ type: 'spring', delay: 800 }}
                         >
-                            <AnimatedTouchableOpacity
-                                layout={LinearTransition}
-                                className="flex-row gap-4 items-center p-5"
-                                onPress={() => setSelected('local')}
+                            <TouchableOpacity
+                                onPress={() => router.push({ pathname: '/login', params: { mode: 'register' } })}
+                                className="h-[140px] items-center justify-center overflow-hidden"
                             >
-                                <View className={FillStyles.cardIcon}>
-                                    <Smartphone color={selected === 'local' ? '#CDFF64' : '#707080'} size={26} strokeWidth={selected === 'local' ? 2.5 : 1.5} />
+                                <View className="items-center">
+                                    <Plus color={ACCENT} size={32} strokeWidth={1.5} />
+                                    <Text className="font-outfit-bold text-white/90 border-b border-white/50 text-[18px] uppercase mt-3 text-center">
+                                        Sign Up
+                                    </Text>
                                 </View>
-                                <View className="flex-1">
-                                    <Text className="text-[17px] font-outfit-semi tracking-wider">Lokalnie</Text>
-                                    <Text className="font-outfit text-[13px] opacity-40 leading-[18px] mt-0.5">Preferencje filmowe tylko na urządzeniu</Text>
-                                </View>
-                            </AnimatedTouchableOpacity>
-                        </Animated.View>
+                            </TouchableOpacity>
+                        </MotiView>
+                    </View>
+                </View>
 
-                    </MotiView>
-
+                {/* Bottom Actions */}
+                <View className="px-8 pb-12 flex-row justify-between items-end">
                     <MotiView
-                        from={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: selected ? 1 : 0, scale: selected ? 1 : 0.9 }}
-                        transition={{ type: 'spring' }}
-                        className="absolute bottom-10 right-5"
+                        from={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1500 }}
                     >
-                        <TouchableOpacity onPress={handleNext} className="flex-row gap-x-2 items-center bg-[#CDFF64] py-3.5 px-6 rounded-full">
-                            <Text className="font-outfit-semi text-[15px] text-black">Potwierdź wybór</Text>
-                            <ArrowRight color="#000" size={18} strokeWidth={2.5} />
-                        </TouchableOpacity>
+                        <Text className="font-outfit text-[10px] uppercase tracking-[2px] opacity-30">{APP_NAME} © 2026</Text>
+                        <Text className="font-outfit text-[10px] text-white/40 mt-1 max-w-[150px]">
+                            we'll find your{'\n'}perfect screening
+                        </Text>
                     </MotiView>
                 </View>
             </SafeAreaView>

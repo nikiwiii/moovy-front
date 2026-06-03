@@ -6,8 +6,9 @@ export const defaultVibes = [
     "DEEP_FEELS",
     "LAUGH_RIOT",
     "SPINE_CHILLING",
-    "NOSTALGIA",
+    "FAMILY_FUN",
     "INSPIRING",
     "EPIC_JOURNEY",
-    "GUILTY_PLEASURE"
+    "GUILTY_PLEASURE",
+    "AMBITIOUS"
 ];

@@ -5,6 +5,9 @@ import { AppText as Text } from '@/components/AppText';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import { FillStyles } from '../constants/themeStyles';
 import TouchableOpacity from './TouchableOpacity';
+import { Colors } from '@/constants/theme';
+
+const ACCENT = Colors.dark.accent;
 
 export interface MiniCollapsibleSectionProps {
     title: string;
@@ -37,14 +40,14 @@ export default function CollapsibleSection({ title, value, children, defaultOpen
                                 {rightIcon}
                             </TouchableOpacity>
                         )}
-                        <View className={`w-8 h-8 rounded-full items-center justify-center border ${open ? 'bg-[#CDFF64] border-[#CDFF64]' : 'bg-white/[0.06] border-white/[0.08]'}`}>
+                        <View className={`w-8 h-8 rounded-full items-center justify-center border ${open ? 'bg-accent border-accent' : 'bg-white/[0.06] border-white/[0.08]'}`}>
                             {open ? <ChevronUp color="#000" size={16} /> : <ChevronDown color="#707080" size={16} />}
                         </View>
                     </View>
                 </View>
             </TouchableOpacity>
             {open && (
-                <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} className="px-4 pb-5 pt-1">
+                <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} className="px-4 pb-4 pt-1">
                     {children}
                 </Animated.View>
             )}
