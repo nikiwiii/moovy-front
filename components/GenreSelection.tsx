@@ -56,12 +56,12 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
                 onRightIconPress={() => setModalState('liked')}
                 className="rounded-b-[10px]"
             >
-                <View className="flex-col gap-2 divide-y divide-text-muted">
+                <View className="flex-col gap-2">
                     {liked.map(vibe => (
-                        <View className="flex flex-row justify-between items-center py-1" key={vibe}>
-                            <Text className="font-outfit text-[14px]">{vibe}</Text>
+                        <View className={`${FillStyles.pillBase} ${FillStyles.pillInactive} flex flex-row justify-between items-center py-1`} key={vibe}>
+                            <Text className="font-outfit text-[14px]">{vibe.replace("_", " ")}</Text>
                             <TouchableOpacity onPress={() => onToggleVibe(vibe, 'liked')}>
-                                <X size={16} color="#707080" />
+                                <X size={18} color="#707080" />
                             </TouchableOpacity>
                         </View>
                     ))}
@@ -75,12 +75,12 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
                 onRightIconPress={() => setModalState('disliked')}
                 className="rounded-t-[10px]"
             >
-                <View className="flex-col gap-2 divide-y divide-text-muted">
+                <View className="flex-col gap-2">
                     {disliked.map(vibe => (
                         <View className="flex flex-row justify-between items-center py-1" key={vibe}>
-                            <Text className="font-outfit text-[14px]">{vibe}</Text>
+                            <Text className="font-outfit text-[14px]">{vibe.replace("_", " ")}</Text>
                             <TouchableOpacity onPress={() => onToggleVibe(vibe, 'disliked')}>
-                                <X size={16} color="#707080" />
+                                <X size={18} color="#707080" />
                             </TouchableOpacity>
                         </View>
                     ))}
@@ -90,7 +90,7 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
             <Modal visible={modalState !== ''} animationType="fade" transparent>
                 <View className="bg-black/80" style={StyleSheet.absoluteFill}>
                     <View className="flex-1 justify-center items-center px-6">
-                        <Text className="font-outfit-bold text-2xl mb-5 self-center">Wybierz vibe</Text>
+                        <Text className="font-outfit-bold text-2xl mb-5 self-center">Select vibe</Text>
                         <View className="flex-row flex-wrap items-center justify-center gap-2 mb-6">
                             {vibesToUse
                                 .filter(vibe => {
@@ -113,7 +113,7 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
                         </View>
                         <View className="flex-row justify-end gap-3">
                             <TouchableOpacity onPress={() => setModalState('')} className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary}`}>
-                                <Text className="font-outfit-semi text-[15px] text-black">Zapisz</Text>
+                                <Text className="font-outfit-semi text-[15px] text-black">Save</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

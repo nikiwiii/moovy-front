@@ -37,14 +37,14 @@ export default function ParametersScreen() {
     const [selectedGroup, setSelectedGroup] = useState<string | null>('solo');
 
     const [groups, setGroups] = useState<Group[]>([
-        { id: 'solo', icon: UserRound, title: 'Solo', description: 'filmy dla Ciebie, tylko Ty i Twoje preferencje' },
-        { id: 'tlum', icon: UsersRound, title: 'Tłum', description: 'nienudne filmy, skuteczne przy wielu gustach' },
-        { id: 'randewu', icon: Heart, title: 'Randewu', description: 'angażujące, wzruszające kino' }
+        { id: 'solo', icon: UserRound, title: 'Solo', description: 'movies for you, just you and your preferences' },
+        { id: 'tlum', icon: UsersRound, title: 'Crowd', description: 'engaging movies, great for matching different tastes' },
+        { id: 'randewu', icon: Heart, title: 'Rendezvous', description: 'engaging, touching movies' }
     ]);
     const [settings, setSettings] = useState([
-        { icon: Heart, title: "Używaj preferencji profilu", value: true },
-        { icon: ScanEye, title: "Filmy które widziałeś", value: false },
-        { icon: Clock, title: "Maks. czas", value: 240 },
+        { icon: Heart, title: "Use profile preferences", value: true },
+        { icon: ScanEye, title: "Watched movies", value: false },
+        { icon: Clock, title: "Max runtime", value: 240 },
     ])
 
     const setSettingValue = (title: string, value: boolean | number) => {
@@ -78,12 +78,12 @@ export default function ParametersScreen() {
             users: [
                 {
                     user_id: "00000000-0000-0000-0000-000000000000",
-                    user_name: 'Gość',
+                    user_name: 'Guest',
                     personal_vibe: {
                         vibes: genres.liked,
                         hard_nos: genres.disliked,
-                        max_runtime: settings.find(s => s.title === "Długość")?.value || 120,
-                        allow_seen: settings.find(s => s.title === "Filmy które widziałeś")?.value || false,
+                        max_runtime: settings.find(s => s.title === "Max runtime")?.value || 120,
+                        allow_seen: settings.find(s => s.title === "Watched movies")?.value || false,
                         eras: []
                     }
                 }
@@ -91,16 +91,16 @@ export default function ParametersScreen() {
             final_preferences: {
                 vibes: genres.liked,
                 hard_nos: genres.disliked,
-                max_runtime: settings.find(s => s.title === "Długość")?.value || 120,
-                allow_seen: settings.find(s => s.title === "Filmy które widziałeś")?.value || false,
+                max_runtime: settings.find(s => s.title === "Max runtime")?.value || 120,
+                allow_seen: settings.find(s => s.title === "Watched movies")?.value || false,
                 eras: []
             }
         };
 
         const criteriaData = {
-            preset: groups.find(g => g.id === selectedGroup)?.title || "Tłum",
+            preset: groups.find(g => g.id === selectedGroup)?.title || "Crowd",
             genres: genres.liked,
-            duration: `${settings.find(s => s.title === "Maks. czas")?.value} min`,
+            duration: `${settings.find(s => s.title === "Max runtime")?.value} min`,
             friendsAdded: 0,
         };
 
@@ -158,7 +158,7 @@ export default function ParametersScreen() {
                             >
                                 <Plus color={ACCENT} size={22} strokeWidth={2.5} />
                                 <Text className="font-outfit-bold text-[14px] uppercase tracking-[2px] mt-0.5 mr-3">
-                                    Utwórz sesję
+                                    Create session
                                 </Text>
                             </TouchableOpacity>
                             <TouchableOpacity
@@ -169,11 +169,11 @@ export default function ParametersScreen() {
                             </TouchableOpacity>
                         </View>
                         <CollapsibleSection
-                            title="Wybierz grono"
-                            subtitle="Dla kogo?"
+                            title="Select group"
+                            subtitle="For whom?"
                             value={groups.find(g => g.id === selectedGroup)?.title || '-'}
                             icon={UsersRound}
-                            defaultOpen={true}
+                            defaultOpen={false}
                             rightIcon={<Plus size={16} color={ACCENT} />}
                             onRightIconPress={() => setModalVisible(true)}
                         >
@@ -185,8 +185,8 @@ export default function ParametersScreen() {
                         </CollapsibleSection>
 
                         <CollapsibleSection
-                            title="Wybierz vibe"
-                            subtitle="Kategorie"
+                            title="Select vibe"
+                            subtitle="Categories"
                             value={genres.liked.length + genres.disliked.length}
                             icon={Film}
                             defaultOpen={false}
@@ -195,13 +195,13 @@ export default function ParametersScreen() {
                                 liked={genres.liked}
                                 disliked={genres.disliked}
                                 onToggleVibe={toggleGenre}
-                                label1="Uwzględniaj"
-                                label2="Wyklucz"
+                                label1="Include"
+                                label2="Exclude"
                             />
                         </CollapsibleSection>
                         <CollapsibleSection
-                            title="Ustawienia"
-                            subtitle="ostatnie szlify"
+                            title="Settings"
+                            subtitle="final touches"
                             icon={Cog}
                             defaultOpen={true}
                         >
@@ -209,7 +209,7 @@ export default function ParametersScreen() {
                                 {settings.map((setting, i) =>
                                     <TouchableOpacity
                                         key={setting.title}
-                                        className={`${FillStyles.pillBase} ${setting.value ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center justify-between gap-x-2 min-h-14 ${i === 0 ? FillStyles.pillFirst : ''} ${i === settings.length - 1 ? FillStyles.pillLast : ''}`}
+                                        className={`${FillStyles.pillBase} ${setting.value ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center justify-between gap-x-1 min-h-14 ${i === 0 ? FillStyles.pillFirst : ''} ${i === settings.length - 1 ? FillStyles.pillLast : ''}`}
                                         onPress={() => {
                                             if (typeof setting.value === 'boolean') {
                                                 setSettingValue(setting.title, !setting.value)
@@ -217,14 +217,14 @@ export default function ParametersScreen() {
                                         }}
                                         disabled={typeof setting.value !== 'boolean'}
                                     >
-                                        <View className="flex-row items-center gap-x-2">
-                                            <setting.icon size={16} fill={setting.value && typeof setting.value === 'boolean' ? ACCENT : "transparent"} color={setting.value && typeof setting.value === 'boolean' ? ACCENT : "#707080"} />
+                                        <View className="flex-row items-center gap-x-2.5">
+                                            <setting.icon size={18} fill={setting.value && typeof setting.value === 'boolean' ? ACCENT : "transparent"} color={setting.value ? ACCENT : "#707080"} />
                                             <Text className={`font-outfit text-[13px]`}>{setting.title}</Text>
                                         </View>
                                         {typeof setting.value === 'boolean' ? (
-                                            <Text style={setting.value ? { color: ACCENT } : {}} className={`font-outfit uppercase tracking-wider text-[11px] ${setting.value ? 'font-outfit-semi' : 'opacity-40'}`}>{setting.value ? 'Zezwalaj' : 'Nie zezwalaj'}</Text>
+                                            <Text style={setting.value ? { color: ACCENT } : {}} className={`font-outfit uppercase tracking-wider text-[11px] ${setting.value ? 'font-outfit-semi' : 'opacity-40'}`}>{setting.value ? 'Allow' : 'Disallow'}</Text>
                                         ) : (
-                                            <View className="flex-row items-center gap-x-2 justify-end flex-1 pl-4">
+                                            <View className="flex-row items-center gap-x-1 justify-end flex-1 pl-4">
                                                 <Slider
                                                     style={{ flex: 1, minWidth: 100, height: 40 }}
                                                     minimumValue={60}
@@ -250,7 +250,7 @@ export default function ParametersScreen() {
                                     className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
                                     onPress={handleFindMovie}
                                 >
-                                    <Text className="font-outfit-semi text-[15px] text-black">Znajdź film</Text>
+                                    <Text className="font-outfit-semi text-[15px] text-black">Find Movie</Text>
                                     <Check color="#000" size={18} strokeWidth={2.5} />
                                 </TouchableOpacity>
                             </View>
@@ -281,11 +281,11 @@ export default function ParametersScreen() {
             <Modal visible={modalVisible} transparent animationType="fade">
                 <View className='bg-black/80' style={StyleSheet.absoluteFill}>
                     <View className="flex-1 justify-center items-center px-6">
-                        <Text className="font-outfit-bold text-2xl mb-5">Dodaj nowe grono</Text>
+                        <Text className="font-outfit-bold text-2xl mb-5">Add new group</Text>
 
                         <TextInput
                             className={`${FillStyles.inputLarge} mb-3 w-2/3`}
-                            placeholder="Tytuł (np. Znajomi z pracy)"
+                            placeholder="Title (e.g., Work friends)"
                             placeholderTextColor="#ffffff30"
                             value={newTitle}
                             onChangeText={setNewTitle}
@@ -293,7 +293,7 @@ export default function ParametersScreen() {
 
                         <TextInput
                             className={`${FillStyles.inputLarge} mb-6 w-2/3`}
-                            placeholder="Krótki opis"
+                            placeholder="Short description"
                             placeholderTextColor="#ffffff30"
                             value={newDesc}
                             onChangeText={setNewDesc}
@@ -301,10 +301,10 @@ export default function ParametersScreen() {
 
                         <View className="flex-row justify-end gap-3">
                             <TouchableOpacity onPress={handleCancelGroup} className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnSecondary}`}>
-                                <Text className="font-outfit opacity-60">Anuluj</Text>
+                                <Text className="font-outfit opacity-60">Cancel</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={handleAddGroup} className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary}`}>
-                                <Text className="font-outfit-semi text-black">Dodaj grono</Text>
+                                <Text className="font-outfit-semi text-black">Add group</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

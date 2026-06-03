@@ -170,9 +170,9 @@ function JoinLoadingScreen() {
                 transition={{ delay: 300, duration: 600 }}
                 className="mt-10 items-center"
             >
-                <Text className="font-outfit-bold text-[22px] mb-2">Dołączanie do sesji</Text>
+                <Text className="font-outfit-bold text-[22px] mb-2">Joining session</Text>
                 <View className="flex-row items-center gap-1.5 mt-1">
-                    <Text className="font-outfit text-[14px] opacity-40">Łączenie</Text>
+                    <Text className="font-outfit text-[14px] opacity-40">Connecting</Text>
                     <Animated.View style={dot1Style} className="w-1.5 h-1.5 rounded-full bg-accent" />
                     <Animated.View style={dot2Style} className="w-1.5 h-1.5 rounded-full bg-accent" />
                     <Animated.View style={dot3Style} className="w-1.5 h-1.5 rounded-full bg-accent" />
@@ -188,7 +188,7 @@ function JoinLoadingScreen() {
             >
                 <View className={`${FillStyles.subsection} p-4 items-center`}>
                     <Text className="font-outfit text-[12px] opacity-30 text-center leading-5">
-                        💡 Po dołączeniu będziesz mógł ustawić swoje{'\n'}preferencje filmowe na ten wieczór
+                        💡 After joining, you will be able to set your{'\n'}movie preferences for tonight
                     </Text>
                 </View>
             </MotiView>
@@ -242,7 +242,7 @@ export default function SessionJoinScreen() {
             });
         } catch (error: any) {
             setIsLoading(false);
-            Alert.alert('Błąd', error.message);
+            Alert.alert('Error', error.message);
         }
     };
 
@@ -268,7 +268,7 @@ export default function SessionJoinScreen() {
                 >
                     <TouchableOpacity onPress={() => router.back()} className="flex-row items-center gap-2">
                         <ArrowLeft color="#fff" size={20} strokeWidth={2} />
-                        <Text className="font-outfit text-[13px] opacity-40 uppercase tracking-[2px]">Wróć</Text>
+                        <Text className="font-outfit text-[13px] opacity-40 uppercase tracking-[2px]">Back</Text>
                     </TouchableOpacity>
                 </MotiView>
 
@@ -288,8 +288,8 @@ export default function SessionJoinScreen() {
                             >
                                 <Ticket color={ACCENT} size={28} strokeWidth={1.5} />
                             </MotiView>
-                            <Text className="font-outfit-bold text-[28px] text-center">Dołącz do sesji</Text>
-                            <Text className="font-outfit text-[14px] opacity-35 mt-2 text-center">Wpisz 6-znakowy kod zaproszenia</Text>
+                            <Text className="font-outfit-bold text-[28px] text-center">Join session</Text>
+                            <Text className="font-outfit text-[14px] opacity-35 mt-2 text-center">Enter 6-character invite code</Text>
                         </View>
 
                         {/* Code input */}
@@ -339,7 +339,7 @@ export default function SessionJoinScreen() {
                             >
                                 <View className="flex-row items-center gap-2">
                                     <LogIn color="#fff" size={18} strokeWidth={2.5} />
-                                    <Text className="font-outfit-semi text-[15px]">Dołącz do sesji</Text>
+                                    <Text className="font-outfit-semi text-[15px]">Join session</Text>
                                 </View>
                             </TouchableOpacity>
                         </MotiView>

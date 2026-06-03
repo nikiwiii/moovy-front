@@ -49,7 +49,7 @@ function MemberCard({ member, isHost }: { member: SessionMember; isHost: boolean
             <View className="flex-1">
                 <Text className="font-outfit-semi text-[14px]">{member.user_name}</Text>
                 <Text style={isReady ? { color: `${ACCENT}99` } : {}} className={`font-outfit text-[11px] mt-0.5 ${!isReady ? 'opacity-30' : ''}`}>
-                    {isReady ? 'Gotowy' : 'Oczekiwanie na preferencje...'}
+                    {isReady ? 'Ready' : 'Waiting for preferences...'}
                 </Text>
             </View>
             <View className={`w-7 h-7 rounded-full items-center justify-center ${isReady ? 'bg-accent' : 'bg-white/[0.06] border border-white/[0.08]'}`}>
@@ -85,8 +85,8 @@ function RecommendingOverlay() {
             <Animated.View style={[rotateStyle, { marginBottom: 16 }]}>
                 <Sparkles color={ACCENT} size={32} strokeWidth={1.5} />
             </Animated.View>
-            <Text className="font-outfit-semi text-[16px] mb-1">AI myśli nad filmem</Text>
-            <Text className="font-outfit text-[13px] opacity-35">To może potrwać chwilę...</Text>
+            <Text className="font-outfit-semi text-[16px] mb-1">AI is choosing a movie</Text>
+            <Text className="font-outfit text-[13px] opacity-35">This may take a moment...</Text>
         </MotiView>
     );
 }
@@ -174,7 +174,7 @@ export default function SessionLobbyScreen() {
             setPrefsSubmitted(true);
             await fetchSession();
         } catch (err: any) {
-            Alert.alert('Błąd', err.message);
+            Alert.alert('Error', err.message);
         } finally {
             setSubmittingPrefs(false);
         }
@@ -187,7 +187,7 @@ export default function SessionLobbyScreen() {
             await sessionService.triggerRecommendations(sessionId);
             await fetchSession();
         } catch (err: any) {
-            Alert.alert('Błąd', err.message);
+            Alert.alert('Error', err.message);
         } finally {
             setRecommendLoading(false);
         }
@@ -196,18 +196,18 @@ export default function SessionLobbyScreen() {
     // Delete session (host only)
     const handleDelete = () => {
         Alert.alert(
-            'Zamknij sesję',
-            'Czy na pewno chcesz zamknąć tę sesję? Ta akcja jest nieodwracalna.',
+            'Close session',
+            'Are you sure you want to close this session? This action cannot be undone.',
             [
-                { text: 'Anuluj', style: 'cancel' },
+                { text: 'Cancel', style: 'cancel' },
                 {
-                    text: 'Zamknij', style: 'destructive', onPress: async () => {
+                    text: 'Close', style: 'destructive', onPress: async () => {
                         setDeleteLoading(true);
                         try {
                             await sessionService.deleteSession(sessionId);
                             router.back();
                         } catch (err: any) {
-                            Alert.alert('Błąd', err.message);
+                            Alert.alert('Error', err.message);
                             setDeleteLoading(false);
                         }
                     }
@@ -240,7 +240,7 @@ export default function SessionLobbyScreen() {
             rec.extra_movies.forEach((extra: any) => {
                 data.push({
                     title: extra.movie_title,
-                    description: "Alternatywna propozycja od naszego systemu, dobrana pod Wasz gust.",
+                    description: "An alternative suggestion from our system, tailored to your taste.",
                     genres: extra.genres,
                     poster_path: extra.poster_path,
                     release_date: extra.release_date,
@@ -263,10 +263,10 @@ export default function SessionLobbyScreen() {
     if (error || !session) {
         return (
             <View className="flex-1 bg-transparent items-center justify-center px-6">
-                <Text className="font-outfit-semi text-[18px] mb-2">Nie znaleziono sesji</Text>
-                <Text className="font-outfit text-[14px] opacity-40 text-center mb-6">{error || 'Sesja nie istnieje'}</Text>
+                <Text className="font-outfit-semi text-[18px] mb-2">Session not found</Text>
+                <Text className="font-outfit text-[14px] opacity-40 text-center mb-6">{error || 'Session does not exist'}</Text>
                 <TouchableOpacity onPress={() => router.back()} className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnSecondary}`}>
-                    <Text className="font-outfit opacity-60">Wróć</Text>
+                    <Text className="font-outfit opacity-60">Back</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -284,7 +284,7 @@ export default function SessionLobbyScreen() {
                 >
                     <TouchableOpacity onPress={() => router.back()} className="flex-row items-center gap-2">
                         <ArrowLeft color="#fff" size={20} strokeWidth={2} />
-                        <Text className="font-outfit text-[13px] opacity-40 uppercase tracking-[2px]">Wróć</Text>
+                        <Text className="font-outfit text-[13px] opacity-40 uppercase tracking-[2px]">Back</Text>
                     </TouchableOpacity>
                     <StatusBadge accent={ACCENT} status={session.status} />
                 </MotiView>
@@ -299,7 +299,7 @@ export default function SessionLobbyScreen() {
                         {/* Session info header */}
                         <View className="px-2 mb-2">
                             <View className="flex-row items-center gap-2 mb-2">
-                                <Text style={{ color: `${ACCENT}99` }} className="font-outfit text-[11px] uppercase tracking-[3px]">Sesja filmowa</Text>
+                                <Text style={{ color: `${ACCENT}99` }} className="font-outfit text-[11px] uppercase tracking-[3px]">Movie session</Text>
                             </View>
                             <View className="flex-row items-center gap-3">
                                 {session.meeting_type === 'RANDKA' ? <Heart color={ACCENT} size={24} fill={`${ACCENT}33`} strokeWidth={2.5} /> :
@@ -307,20 +307,20 @@ export default function SessionLobbyScreen() {
                                         session.meeting_type === 'RODZINA' ? <Home color={ACCENT} size={24} strokeWidth={2.5} /> :
                                             <UserRound color={ACCENT} size={24} strokeWidth={2.5} />}
                                 <Text className="font-outfit-bold text-[28px] leading-tight">
-                                    {session.meeting_type === 'RANDKA' ? 'Randka' :
-                                        session.meeting_type === 'EKIPA' ? 'Ekipa' :
-                                            session.meeting_type === 'RODZINA' ? 'Rodzina' : 'Solo'}
+                                    {session.meeting_type === 'RANDKA' ? 'Date' :
+                                        session.meeting_type === 'EKIPA' ? 'Crew' :
+                                            session.meeting_type === 'RODZINA' ? 'Family' : 'Solo'}
                                 </Text>
                             </View>
                             <Text className="font-outfit text-[13px] opacity-30 mt-1">
-                                Kod: {session.invite_code} • {memberCount} {memberCount === 1 ? 'osoba' : memberCount < 5 ? 'osoby' : 'osób'}
+                                Code: {session.invite_code} • {memberCount} {memberCount === 1 ? 'member' : 'members'}
                             </Text>
                         </View>
 
                         {/* Members section */}
                         <CollapsibleSection
-                            title="Członkowie"
-                            subtitle="Kto jest w sesji?"
+                            title="Members"
+                            subtitle="Who is in the session?"
                             value={`${readyCount}/${memberCount}`}
                             icon={UsersRound}
                             defaultOpen={true}
@@ -340,8 +340,8 @@ export default function SessionLobbyScreen() {
                         {!prefsSubmitted && session.status === 'LOBBY' && (
                             <>
                                 <CollapsibleSection
-                                    title="Twoje preferencje"
-                                    subtitle="Co chcesz oglądać?"
+                                    title="Your preferences"
+                                    subtitle="What do you want to watch?"
                                     icon={Film}
                                     defaultOpen={true}
                                 >
@@ -349,20 +349,20 @@ export default function SessionLobbyScreen() {
                                         liked={genres.liked}
                                         disliked={genres.disliked}
                                         onToggleVibe={toggleGenre}
-                                        label1="Uwzględniaj"
-                                        label2="Wyklucz"
+                                        label1="Include"
+                                        label2="Exclude"
                                     />
                                 </CollapsibleSection>
 
-                                <CollapsibleSection title="Ustawienia" subtitle="Ostatnie szlify" icon={Cog}>
+                                <CollapsibleSection title="Settings" subtitle="Final touches" icon={Cog}>
                                     <View className="gap-2">
                                         {/* Runtime slider */}
-                                        <View className={`${FillStyles.pillBase} ${FillStyles.pillInactive} flex-row items-center justify-between gap-x-2 min-h-14 ${FillStyles.pillFirst}`}>
-                                            <View className="flex-row items-center gap-x-2">
-                                                <Clock size={16} color="#707080" />
-                                                <Text className="font-outfit text-[13px]">Maks. czas</Text>
+                                        <View className={`${FillStyles.pillBase} ${FillStyles.pillActive} flex-row items-center justify-between gap-x-1 min-h-14 ${FillStyles.pillFirst}`}>
+                                            <View className="flex-row items-center gap-x-2.5">
+                                                <Clock size={18} color={ACCENT} />
+                                                <Text className="font-outfit text-[13px]">Max runtime</Text>
                                             </View>
-                                            <View className="flex-row items-center gap-x-2 justify-end flex-1 pl-4">
+                                            <View className="flex-row items-center gap-x-1 justify-end flex-1 pl-4">
                                                 <Slider
                                                     style={{ flex: 1, minWidth: 100, height: 40 }}
                                                     minimumValue={60}
@@ -383,12 +383,12 @@ export default function SessionLobbyScreen() {
                                             className={`${FillStyles.pillBase} ${allowSeen ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center justify-between gap-x-2 min-h-14 ${FillStyles.pillLast}`}
                                             onPress={() => setAllowSeen(!allowSeen)}
                                         >
-                                            <View className="flex-row items-center gap-x-2">
-                                                <Film size={16} fill={allowSeen ? ACCENT : 'transparent'} color={allowSeen ? ACCENT : '#707080'} />
-                                                <Text className="font-outfit text-[13px]">Filmy widziane</Text>
+                                            <View className="flex-row items-center gap-x-2.5">
+                                                <Film size={18} color={allowSeen ? ACCENT : '#707080'} />
+                                                <Text className="font-outfit text-[13px]">Watched movies</Text>
                                             </View>
                                             <Text style={allowSeen ? { color: ACCENT } : {}} className={`font-outfit uppercase tracking-wider text-[11px] ${allowSeen ? 'font-outfit-semi' : 'opacity-40'}`}>
-                                                {allowSeen ? 'Zezwalaj' : 'Nie zezwalaj'}
+                                                {allowSeen ? 'Allow' : 'Disallow'}
                                             </Text>
                                         </TouchableOpacity>
                                     </View>
@@ -405,7 +405,7 @@ export default function SessionLobbyScreen() {
                                             <ActivityIndicator color="#000" size="small" />
                                         ) : (
                                             <>
-                                                <Text className="font-outfit-semi text-[15px] text-black">Zatwierdź preferencje</Text>
+                                                <Text className="font-outfit-semi text-[15px] text-black">Submit preferences</Text>
                                                 <CheckCheck color="#000" size={18} strokeWidth={2.5} />
                                             </>
                                         )}
@@ -424,9 +424,9 @@ export default function SessionLobbyScreen() {
                                 <View className="w-14 h-14 rounded-full bg-accent/10 items-center justify-center mb-4">
                                     <Check color={ACCENT} size={24} strokeWidth={2} />
                                 </View>
-                                <Text className="font-outfit-semi text-[16px] mb-1">Preferencje zapisane</Text>
+                                <Text className="font-outfit-semi text-[16px] mb-1">Preferences saved</Text>
                                 <Text className="font-outfit text-[13px] opacity-35 text-center">
-                                    Oczekiwanie na pozostałych członków...
+                                    Waiting for other members...
                                 </Text>
                             </MotiView>
                         )}
@@ -438,7 +438,7 @@ export default function SessionLobbyScreen() {
 
                         {/* Host actions */}
                         {isHost && (
-                            <Animated.View layout={LinearTransition} className="gap-3 mt-2">
+                            <Animated.View layout={LinearTransition} className="gap-3">
                                 {/* Generate recommendations button */}
                                 {(session.status === 'ALL_READY') && (
                                     <TouchableOpacity
@@ -451,7 +451,7 @@ export default function SessionLobbyScreen() {
                                         ) : (
                                             <>
                                                 <Zap color="#000" size={18} strokeWidth={2.5} />
-                                                <Text className="font-outfit-semi text-[15px] text-black">Generuj rekomendacje</Text>
+                                                <Text className="font-outfit-semi text-[15px] text-black">Generate recommendations</Text>
                                             </>
                                         )}
                                     </TouchableOpacity>
@@ -468,7 +468,7 @@ export default function SessionLobbyScreen() {
                                     ) : (
                                         <>
                                             <Trash2 color="#FF6B6B" size={16} strokeWidth={2} />
-                                            <Text className="font-outfit text-[13px] text-[#FF6B6B]/80">Zamknij sesję</Text>
+                                            <Text className="font-outfit text-[13px] text-[#FF6B6B]/80">Close session</Text>
                                         </>
                                     )}
                                 </TouchableOpacity>
@@ -483,10 +483,6 @@ export default function SessionLobbyScreen() {
                                 transition={{ delay: 200, type: 'spring', damping: 14 }}
                                 className="gap-3"
                             >
-                                <View className="flex-row items-center gap-2 px-2 mt-2">
-                                    <Sparkles color={ACCENT} size={16} strokeWidth={2} />
-                                    <Text style={{ color: `${ACCENT}99` }} className="font-outfit text-[11px] uppercase tracking-[3px]">Rekomendacje AI</Text>
-                                </View>
                                 <View className="gap-3">
                                     {moviesData.map((movie, index) => (
                                         <FilmView key={index} movieData={movie} />
@@ -502,7 +498,7 @@ export default function SessionLobbyScreen() {
                                 className="flex-row items-center gap-2 py-2 px-4"
                             >
                                 <RefreshCw color="#707080" size={14} strokeWidth={2} />
-                                <Text className="font-outfit text-[12px] opacity-30">Odśwież</Text>
+                                <Text className="font-outfit text-[12px] opacity-30">Refresh</Text>
                             </TouchableOpacity>
                         </Animated.View>
                     </MotiView>

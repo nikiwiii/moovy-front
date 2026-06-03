@@ -82,7 +82,7 @@ export default function WelcomeScreen() {
                         className="mb-12"
                     >
                         <Text className="font-outfit text-[42px] leading-[48px] tracking-tight text-white/90">
-                            witamy w{'\n'}{APP_NAME.includes('.') ? APP_NAME.split('.')[0] : APP_NAME}{'\n'}
+                            welcome to{'\n'}{APP_NAME.includes('.') ? APP_NAME.split('.')[0] : APP_NAME}{'\n'}
                             {APP_NAME.includes('.') && <Text style={{ color: ACCENT }}>{APP_NAME.split('.')[1]} </Text>}
                             <Text style={{ color: ACCENT }}>(alpha*)</Text>
                         </Text>
@@ -92,7 +92,7 @@ export default function WelcomeScreen() {
                     </MotiView>
 
                     {/* Interactive Elements inspired by the design */}
-                    <View className="flex-row justify-between">
+                    <View className="flex-row justify-center gap-x-20">
                         {/* "Find Movie" Large Circle Button */}
                         <MotiView
                             from={{ opacity: 0, scale: 0.5 }}
@@ -106,7 +106,7 @@ export default function WelcomeScreen() {
                                 <View className="items-center">
                                     <UserRound color={ACCENT} size={32} strokeWidth={1.5} />
                                     <Text className="font-outfit-bold text-white/90 border-b border-white/50 text-[18px] uppercase mt-3 text-center">
-                                        Zaloguj się
+                                        Log In
                                     </Text>
                                 </View>
                             </TouchableOpacity>
@@ -123,7 +123,7 @@ export default function WelcomeScreen() {
                                 <View className="items-center">
                                     <Plus color={ACCENT} size={32} strokeWidth={1.5} />
                                     <Text className="font-outfit-bold text-white/90 border-b border-white/50 text-[18px] uppercase mt-3 text-center">
-                                        Zarejestruj się
+                                        Sign Up
                                     </Text>
                                 </View>
                             </TouchableOpacity>
@@ -140,7 +140,7 @@ export default function WelcomeScreen() {
                     >
                         <Text className="font-outfit text-[10px] uppercase tracking-[2px] opacity-30">{APP_NAME} © 2026</Text>
                         <Text className="font-outfit text-[10px] text-white/40 mt-1 max-w-[150px]">
-                            znajdziemy dla Ciebie{'\n'}idealny seans
+                            we'll find your{'\n'}perfect screening
                         </Text>
                     </MotiView>
                 </View>

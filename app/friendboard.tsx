@@ -94,15 +94,15 @@ export default function FriendBoard() {
                 <View className="flex flex-col gap-6">
                     {/* Twoje Sesje */}
                     <View className="flex flex-col gap-3">
-                        <Text className="font-outfit-semi text-[16px] ml-2 opacity-80">Otwarte Sesje</Text>
+                        <Text className="font-outfit-semi text-[16px] ml-2 opacity-80">Open Sessions</Text>
                         {isLoadingSessions ? (
-                            <Text className="font-outfit text-white/50 ml-2 text-[14px]">Ładowanie...</Text>
+                            <Text className="font-outfit text-white/50 ml-2 text-[14px]">Loading...</Text>
                         ) : mySessions.length === 0 ? (
-                            <Text className="font-outfit text-white/50 ml-2 text-[14px]">Brak otwartych sesji</Text>
+                            <Text className="font-outfit text-white/50 ml-2 text-[14px]">No open sessions</Text>
                         ) : (
                             mySessions.map(session => {
                                 const hostMember = session.members?.find(m => m.user_id === session.host_id);
-                                const hostName = hostMember ? hostMember.user_name : "Nieznany";
+                                const hostName = hostMember ? hostMember.user_name : "Unknown";
 
                                 return (
                                     <TouchableOpacity
@@ -114,7 +114,7 @@ export default function FriendBoard() {
                                             <View>
                                                 <Text className="font-outfit-bold text-[16px]">{session.meeting_type}</Text>
                                                 <Text className="font-outfit text-[13px] opacity-60 mt-1">Host: <Text className='font-outfit-bold text-white'>{hostName}</Text></Text>
-                                                <Text className="font-outfit text-[13px] opacity-60 mt-1">Kod: <Text className='font-outfit-semi text-white'>{session.invite_code}</Text></Text>
+                                                <Text className="font-outfit text-[13px] opacity-60 mt-1">Code: <Text className='font-outfit-semi text-white'>{session.invite_code}</Text></Text>
                                             </View>
                                             <StatusBadge accent={ACCENT} status={session.status} />
                                         </View>
@@ -165,7 +165,7 @@ export default function FriendBoard() {
                             </MiniCollapsibleSection>
                         ))}
                     </View> */}
-                    <Text className="font-outfit-bold text-[18px] text-white/60 text-center uppercase tracking-[3px]">Znajomi wkrótce w apce</Text>
+                    <Text className="font-outfit-bold text-[18px] text-white/60 text-center uppercase tracking-[3px]">Friends coming soon</Text>
                 </View>
             </ScrollView>
         </View>

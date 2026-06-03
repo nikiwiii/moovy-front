@@ -33,12 +33,12 @@ export default function LoginScreen() {
 
     const handleSubmit = async () => {
         if (!email || !password) {
-            Alert.alert('Błąd', 'Podaj e-mail i hasło');
+            Alert.alert('Error', 'Enter email and password');
             return;
         }
 
         if (!isLogin && password !== confirmPassword) {
-            Alert.alert('Błąd', 'Hasła nie są identyczne');
+            Alert.alert('Error', 'Passwords are not identical');
             return;
         }
 
@@ -46,7 +46,7 @@ export default function LoginScreen() {
         try {
             if (isLogin) {
                 const result = await authService.login(email, password);
-                console.log('Zalogowano:', result);
+                console.log('Logged in:', result);
 
                 if (result.access_token) {
                     await storageService.saveToken(result.access_token);
@@ -92,12 +92,12 @@ export default function LoginScreen() {
                 }
             } else {
                 const result = await authService.register(email, password, confirmPassword);
-                console.log('Zarejestrowano:', result);
-                Alert.alert('Sukces', 'Konto utworzone! Możesz się zalogować.');
+                console.log('Registered:', result);
+                Alert.alert('Success', 'Account created! You can now log in.');
                 setIsLogin(true);
             }
         } catch (error: any) {
-            Alert.alert('Błąd', error.message);
+            Alert.alert('Error', error.message);
         } finally {
             setLoading(false);
         }
@@ -117,10 +117,10 @@ export default function LoginScreen() {
                             {isLogin ? <LogIn color={ACCENT} size={32} /> : <UserPlus color={ACCENT} size={32} />}
                         </View>
                         <Text className="font-outfit-bold text-[26px] mb-1">
-                            {isLogin ? 'Witaj ponownie!' : 'Nowe konto'}
+                            {isLogin ? 'Welcome back!' : 'New account'}
                         </Text>
                         <Text className="font-outfit text-[14px] opacity-35">
-                            {isLogin ? 'Zaloguj się, aby kontynuować' : `Zarejestruj się w ${APP_NAME}`}
+                            {isLogin ? 'Log in to continue' : `Sign up for ${APP_NAME}`}
                         </Text>
                     </View>
 
@@ -147,7 +147,7 @@ export default function LoginScreen() {
                             </View>
                             <TextInput
                                 className={`${FillStyles.inputLarge} pl-12 pr-12`}
-                                placeholder="Hasło"
+                                placeholder="Password"
                                 placeholderTextColor="#ffffff30"
                                 value={password}
                                 onChangeText={setPassword}
@@ -168,7 +168,7 @@ export default function LoginScreen() {
                             </View>
                             <TextInput
                                 className={`${FillStyles.inputLarge} pl-12 pr-12`}
-                                placeholder="Powtórz hasło"
+                                placeholder="Repeat password"
                                 placeholderTextColor="#ffffff30"
                                 value={confirmPassword}
                                 onChangeText={setConfirmPassword}
@@ -195,7 +195,7 @@ export default function LoginScreen() {
                         ) : (
                             <>
                                 <Text className="font-outfit-bold text-black text-[16px] mr-2">
-                                    {isLogin ? 'Zaloguj się' : 'Zarejestruj się'}
+                                    {isLogin ? 'Log In' : 'Sign Up'}
                                 </Text>
                                 <ArrowRight color="#000" size={18} strokeWidth={2.5} />
                             </>
@@ -204,11 +204,11 @@ export default function LoginScreen() {
 
                     <View className="flex-row justify-center mt-6">
                         <Text className="font-outfit mr-2 opacity-35 text-[14px]">
-                            {isLogin ? 'Nie masz konta?' : 'Masz już konto?'}
+                            {isLogin ? "Don't have an account?" : 'Already have an account?'}
                         </Text>
                         <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
                             <Text style={{ color: ACCENT }} className="font-outfit-semi text-[14px]">
-                                {isLogin ? 'Zarejestruj się' : 'Zaloguj się'}
+                                {isLogin ? 'Sign Up' : 'Log In'}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -218,7 +218,7 @@ export default function LoginScreen() {
                     className="mt-8 self-center"
                     onPress={() => router.back()}
                 >
-                    <Text className="font-outfit opacity-30 text-[14px]">Wróć do startu</Text>
+                    <Text className="font-outfit opacity-30 text-[14px]">Go back to start</Text>
                 </TouchableOpacity>
             </SafeAreaView>
         </View>

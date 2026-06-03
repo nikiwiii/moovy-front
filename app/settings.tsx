@@ -24,12 +24,12 @@ export default function Settings() {
 
     const handleLogout = () => {
         Alert.alert(
-            "Wyloguj się",
-            "Czy na pewno chcesz się wylogować?",
+            "Log out",
+            "Are you sure you want to log out?",
             [
-                { text: "Anuluj", style: "cancel" },
+                { text: "Cancel", style: "cancel" },
                 {
-                    text: "Tak",
+                    text: "Yes",
                     onPress: async () => {
                         await storageService.logout();
                         setIsLoggedIn(false);
@@ -54,7 +54,7 @@ export default function Settings() {
                 transition={{ duration: 600 }}
                 className="px-6 pt-5 pb-3 flex-row justify-between items-center"
             >
-                <Text className="font-outfit-bold text-[24px]">Ustawienia</Text>
+                <Text className="font-outfit-bold text-[24px]">Settings</Text>
             </MotiView>
 
             <ScrollView className="px-5" contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
@@ -62,16 +62,16 @@ export default function Settings() {
 
                     {!isLoggedIn && (
                         <TouchableOpacity
-                            onPress={() => router.push('/login')}
-                            className="bg-accent/10 rounded-[24px] flex-row items-center justify-between gap-x-3 min-h-20 p-5 border border-accent/20"
+                             onPress={() => router.push('/login')}
+                             className="bg-accent/10 rounded-[24px] flex-row items-center justify-between gap-x-3 min-h-20 p-5 border border-accent/20"
                         >
                             <View className="flex-row items-center gap-x-4">
                                 <View className="bg-accent/15 p-2.5 rounded-xl">
                                     <LogIn color={ACCENT} size={22} />
                                 </View>
                                 <View>
-                                    <Text className="font-outfit-semi text-[15px]">Połącz z chmurą</Text>
-                                    <Text className="font-outfit text-[12px] opacity-35">Zaloguj się i ciesz się pełną funkcjonalnością</Text>
+                                    <Text className="font-outfit-semi text-[15px]">Connect with Cloud</Text>
+                                    <Text className="font-outfit text-[12px] opacity-35">Log in and enjoy full functionality</Text>
                                 </View>
                             </View>
                         </TouchableOpacity>
@@ -83,7 +83,7 @@ export default function Settings() {
                     >
                         <View className="flex-row items-center gap-x-3 pl-1">
                             <UserCircle2 color="#707080" size={18} />
-                            <Text className="font-outfit text-[14px]">Zmień preferencje</Text>
+                            <Text className="font-outfit text-[14px]">Change preferences</Text>
                         </View>
                         {Arrow}
                     </TouchableOpacity>
@@ -106,7 +106,7 @@ export default function Settings() {
                     >
                         <View className="flex-row items-center gap-x-3 pl-1">
                             <SettingsIcon color="#707080" size={18} />
-                            <Text className="font-outfit text-[14px]">Inne ustawienia</Text>
+                            <Text className="font-outfit text-[14px]">Other settings</Text>
                         </View>
                         {Arrow}
                     </TouchableOpacity>
@@ -118,7 +118,7 @@ export default function Settings() {
                         >
                             <View className="flex-row items-center gap-x-3 pl-1">
                                 <LogOut color="#ef4444" size={18} />
-                                <Text className="font-outfit-semi text-[14px] text-red-400">Wyloguj się</Text>
+                                <Text className="font-outfit-semi text-[14px] text-red-400">Log out</Text>
                             </View>
                             {Arrow}
                         </TouchableOpacity>

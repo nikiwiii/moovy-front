@@ -47,7 +47,7 @@ export default function CollapsibleSection({ title, value, children, defaultOpen
                 </View>
             </TouchableOpacity>
             {open && (
-                <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} className="px-4 pb-5 pt-1">
+                <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} className="px-4 pb-4 pt-1">
                     {children}
                 </Animated.View>
             )}

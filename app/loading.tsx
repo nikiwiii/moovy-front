@@ -20,11 +20,11 @@ import { storageService } from '@/services/storageService';
 const ACCENT = Colors.dark.accent;
 
 const HINTS = [
-    'Analizujemy Twój gust filmowy…',
-    'Szukamy perełek kina…',
-    'Dopasowujemy nastrój…',
-    'Konsultujemy z AI…',
-    'Prawie gotowe…',
+    'Analyzing your movie taste...',
+    'Looking for cinematic gems...',
+    'Adjusting the vibe...',
+    'Consulting with AI...',
+    'Almost ready...',
 ];
 
 function PulsingDot({ delay }: { delay: number }) {
@@ -167,18 +167,18 @@ export default function LoadingScreen() {
                     if (recRes.status === 404) {
                         const errorData = await recRes.json().catch(() => ({}));
                         let errMsg =
-                            'Nie znaleziono filmów spełniających Twoje kryteria. Spróbuj zwiększyć dozwolony czas trwania.';
+                            'No movies found matching your criteria. Try increasing the maximum duration.';
                         const detail = errorData?.detail;
                         if (typeof detail === 'string') errMsg = detail;
                         else if (Array.isArray(detail))
                             errMsg = detail
                                 .map((e: any) => {
-                                    const field = e?.loc ? `${e.loc.slice(1).join('.')}: ` : '';
-                                    return `${field}${e.msg || JSON.stringify(e)}`;
+                                     const field = e?.loc ? `${e.loc.slice(1).join('.')}: ` : '';
+                                     return `${field}${e.msg || JSON.stringify(e)}`;
                                 })
                                 .join('\n');
                         else if (detail) errMsg = JSON.stringify(detail);
-                        Alert.alert('Brak filmów', errMsg);
+                        Alert.alert('No movies found', errMsg);
                     }
                     router.back();
                     return;

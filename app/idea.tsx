@@ -45,7 +45,7 @@ export default function IdeaScreen() {
             parsedMovies.extra_movies.forEach((extra: any) => {
                 moviesData.push({
                     title: extra.movie_title,
-                    description: "Alternatywna propozycja od naszego systemu, dobrana pod Wasz gust.",
+                    description: "An alternative suggestion from our system, tailored to your taste.",
                     genres: extra.genres,
                     poster_path: extra.poster_path,
                     release_date: extra.release_date,
@@ -66,12 +66,12 @@ export default function IdeaScreen() {
                     transition={{ duration: 600 }}
                     className="px-4 pt-5 pb-3 flex-row justify-between items-center"
                 >
-                    <Text className="font-outfit-bold text-[24px]">Pomysły</Text>
+                    <Text className="font-outfit-bold text-[24px]">Ideas</Text>
                     <TouchableOpacity
                         onPress={() => router.back()}
                         className="flex-row items-center gap-2"
                     >
-                        <Text className="font-outfit text-[13px] opacity-35 uppercase tracking-[2px]">Wróć</Text>
+                        <Text className="font-outfit text-[13px] opacity-35 uppercase tracking-[2px]">Back</Text>
                     </TouchableOpacity>
                 </MotiView>
                 <View className="flex-1 px-2 flex-col gap-y-3">
@@ -85,14 +85,14 @@ export default function IdeaScreen() {
                         )}
                     </View>
                     <CollapsibleSection
-                        title="Twoje kryteria"
-                        subtitle="Skąd ten pomysł?"
+                        title="Your criteria"
+                        subtitle="Why this suggestion?"
                         icon={Users}
                         defaultOpen={false}
                     >
                         <Animated.View layout={LinearTransition} className="flex-col gap-3">
                             <View className="flex-row items-center gap-3"><Users size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.preset}</Text></View>
-                            <View className="flex-row items-center gap-3"><Film size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.genres.length > 0 ? parsedCriteria.genres.join(", ") : "Dowolny"}</Text></View>
+                            <View className="flex-row items-center gap-3"><Film size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.genres.length > 0 ? parsedCriteria.genres.join(", ") : "Any"}</Text></View>
                             <View className="flex-row items-center gap-3"><Clock size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.duration}</Text></View>
                             <View className="flex-row items-center gap-3"><UserPlus size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.friendsAdded}</Text></View>
                         </Animated.View>
@@ -107,7 +107,7 @@ export default function IdeaScreen() {
                             onPress={() => router.back()}
                         >
                             <RotateCcw color="#000" size={18} strokeWidth={2.5} />
-                            <Text className="font-outfit-semi text-[15px] text-black">Spróbuj ponownie</Text>
+                            <Text className="font-outfit-semi text-[15px] text-black">Try again</Text>
                         </TouchableOpacity>
                     </Animated.View>
 

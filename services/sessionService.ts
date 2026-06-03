@@ -1,6 +1,6 @@
 import { storageService } from './storageService';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://35.254.103.33:8010';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://35.253.185.77:8010';
 console.log('[sessionService] API_URL:', API_URL);
 
 export type MeetingType = 'RANDKA' | 'EKIPA' | 'RODZINA' | 'SOLO';
@@ -98,7 +98,7 @@ export const sessionService = {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(extractErrorMsg(data, 'Błąd tworzenia sesji'));
+            throw new Error(extractErrorMsg(data, 'Error creating session'));
         }
         return data;
     },
@@ -116,7 +116,7 @@ export const sessionService = {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(extractErrorMsg(data, 'Błąd dołączania do sesji'));
+            throw new Error(extractErrorMsg(data, 'Error joining session'));
         }
         return data;
     },
@@ -134,7 +134,7 @@ export const sessionService = {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(extractErrorMsg(data, 'Błąd zapisywania preferencji'));
+            throw new Error(extractErrorMsg(data, 'Error saving preferences'));
         }
         return data;
     },
@@ -151,7 +151,7 @@ export const sessionService = {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(extractErrorMsg(data, 'Błąd pobierania sesji'));
+            throw new Error(extractErrorMsg(data, 'Error fetching session'));
         }
         return data;
     },
@@ -168,7 +168,7 @@ export const sessionService = {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(extractErrorMsg(data, 'Błąd pobierania moich sesji'));
+            throw new Error(extractErrorMsg(data, 'Error fetching my sessions'));
         }
         return data;
     },
@@ -185,7 +185,7 @@ export const sessionService = {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(extractErrorMsg(data, 'Błąd generowania rekomendacji'));
+            throw new Error(extractErrorMsg(data, 'Error generating recommendations'));
         }
         return data;
     },
@@ -202,7 +202,7 @@ export const sessionService = {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(extractErrorMsg(data, 'Błąd zamykania sesji'));
+            throw new Error(extractErrorMsg(data, 'Error closing session'));
         }
         return data;
     },

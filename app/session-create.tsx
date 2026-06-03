@@ -24,9 +24,9 @@ import { Colors } from '@/constants/theme';
 const ACCENT = Colors.dark.accent;
 
 const meetingTypes: { id: MeetingType; icon: LucideIcon; title: string; description: string }[] = [
-    { id: 'EKIPA', icon: UsersRound, title: 'Ekipa', description: 'Wieczór filmowy z przyjaciółmi' },
-    { id: 'RANDKA', icon: Heart, title: 'Randka', description: 'Romantyczny seans we dwoje' },
-    { id: 'RODZINA', icon: Baby, title: 'Rodzina', description: 'Film dla całej rodziny' },
+    { id: 'EKIPA', icon: UsersRound, title: 'Crew', description: 'Movie night with friends' },
+    { id: 'RANDKA', icon: Heart, title: 'Date', description: 'Romantic screening for two' },
+    { id: 'RODZINA', icon: Baby, title: 'Family', description: 'Movie for the whole family' },
 ];
 
 export default function SessionCreateScreen() {
@@ -42,7 +42,7 @@ export default function SessionCreateScreen() {
             const result = await sessionService.createSession(selectedType);
             setCreatedSession({ session_id: result.session_id, invite_code: result.invite_code });
         } catch (error: any) {
-            Alert.alert('Błąd', error.message);
+            Alert.alert('Error', error.message);
         } finally {
             setIsLoading(false);
         }
@@ -80,7 +80,7 @@ export default function SessionCreateScreen() {
                 >
                     <TouchableOpacity onPress={() => router.back()} className="flex-row items-center gap-2">
                         <ArrowLeft color="#fff" size={20} strokeWidth={2} />
-                        <Text className="font-outfit text-[13px] opacity-40 uppercase tracking-[2px]">Wróć</Text>
+                        <Text className="font-outfit text-[13px] opacity-40 uppercase tracking-[2px]">Back</Text>
                     </TouchableOpacity>
                     <View className="flex-row items-center gap-2">
                         <Crown color={ACCENT} size={18} strokeWidth={2} />
@@ -106,8 +106,8 @@ export default function SessionCreateScreen() {
                                 >
                                     <Hand color={ACCENT} size={28} strokeWidth={1.5} />
                                 </MotiView>
-                                <Text className="font-outfit-bold text-[28px] text-center">Utwórz sesję</Text>
-                                <Text className="font-outfit text-[14px] opacity-35 mt-2 text-center">Wybierz typ spotkania i zaproś znajomych</Text>
+                                <Text className="font-outfit-bold text-[28px] text-center">Create session</Text>
+                                <Text className="font-outfit text-[14px] opacity-35 mt-2 text-center">Select meeting type and invite friends</Text>
                             </View>
 
                             {/* Meeting type selection */}
@@ -129,7 +129,7 @@ export default function SessionCreateScreen() {
                                     ) : (
                                         <>
                                             <UserRoundCheck color="#000" size={18} strokeWidth={2.5} />
-                                            <Text className="font-outfit-semi text-[15px] text-black">Utwórz sesję</Text>
+                                            <Text className="font-outfit-semi text-[15px] text-black">Create session</Text>
                                         </>
                                     )}
                                 </TouchableOpacity>
@@ -153,14 +153,14 @@ export default function SessionCreateScreen() {
                                 >
                                     <Check color={ACCENT} size={36} strokeWidth={2.5} />
                                 </MotiView>
-                                <Text className="font-outfit-bold text-[24px]">Sesja utworzona!</Text>
-                                <Text className="font-outfit text-[14px] opacity-35 mt-1 text-center">Udostępnij kod zaproszenia znajomym</Text>
+                                <Text className="font-outfit-bold text-[24px]">Session created!</Text>
+                                <Text className="font-outfit text-[14px] opacity-35 mt-1 text-center">Share invite code with friends</Text>
                             </View>
 
                             {/* Invite code card */}
                             <View className={`overflow-hidden`}>
                                 <View className="p-6 items-center">
-                                    <Text className="font-outfit text-[11px] uppercase tracking-[4px] opacity-40 mb-4">Kod zaproszenia</Text>
+                                    <Text className="font-outfit text-[11px] uppercase tracking-[4px] opacity-40 mb-4">Invite code</Text>
                                     <View className="flex-row items-center gap-3 mb-5">
                                         {createdSession.invite_code.split('').map((char, i) => (
                                             <MotiView
@@ -180,7 +180,7 @@ export default function SessionCreateScreen() {
                                     >
                                         <Copy color={copied ? ACCENT : '#fff'} size={16} strokeWidth={2} />
                                         <Text style={copied ? { color: ACCENT } : {}} className={`font-outfit text-[13px] ${copied ? '' : 'opacity-60'}`}>
-                                            {copied ? 'Skopiowano!' : 'Kopiuj kod'}
+                                            {copied ? 'Copied!' : 'Copy code'}
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
@@ -192,8 +192,8 @@ export default function SessionCreateScreen() {
                                     className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
                                     onPress={handleGoToLobby}
                                 >
-                                    <Text className="font-outfit-semi text-[15px] text-black">Przejdź do lobby</Text>
                                     <ChevronRight color="#000" size={18} strokeWidth={2.5} />
+                                    <Text className="font-outfit-semi text-[15px] text-black">Go to lobby</Text>
                                 </TouchableOpacity>
                             </View>
                         </MotiView>

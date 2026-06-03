@@ -14,11 +14,11 @@ import { storageService } from '../services/storageService';
 import { metadataService } from '../services/metadataService';
 
 const DEFAULT_ERAS = [
-    'Złota Era Hollywood',
-    'Lata 80.',
-    'Lata 90.',
-    'Kino współczesne',
-    'Nowości (Lata 20.)'
+    'Golden Age of Hollywood',
+    '80s',
+    '90s',
+    'Modern Cinema',
+    'New Releases (2020s)'
 ];
 
 export default function PreferencesScreen() {
@@ -130,7 +130,7 @@ export default function PreferencesScreen() {
 
             if (isLocal) {
                 await storageService.saveLocalPreferences(payload);
-                Alert.alert("Sukces!", "Pomyślnie zapisano preferencje na urządzeniu.");
+                Alert.alert("Success!", "Preferences saved successfully on your device.");
                 router.push('/parameters');
             } else {
                 const token = await storageService.getToken();
@@ -138,7 +138,7 @@ export default function PreferencesScreen() {
                 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
                 if (!token || !userId) {
-                    Alert.alert("Błąd logowania", "Zaloguj się ponownie, aby zapisać preferencje.");
+                    Alert.alert("Login error", "Please log in again to save preferences.");
                     setLoading(false);
                     return;
                 }
@@ -153,11 +153,11 @@ export default function PreferencesScreen() {
                 });
 
                 if (response.ok) {
-                    Alert.alert("Sukces!", "Pomyślnie zapisano preferencje w chmurze.");
+                    Alert.alert("Success!", "Preferences saved successfully in the cloud.");
                     router.push('/parameters');
                 } else {
                     const errorData = await response.json();
-                    let errMsg = "Wystąpił problem podczas komunikacji z serwerem.";
+                    let errMsg = "There was a problem communicating with the server.";
                     if (errorData) {
                         const detail = errorData.detail;
                         if (typeof detail === 'string') {
@@ -178,12 +178,12 @@ export default function PreferencesScreen() {
                             errMsg = JSON.stringify(errorData);
                         }
                     }
-                    Alert.alert("Błąd zapisu", errMsg);
+                    Alert.alert("Save error", errMsg);
                 }
             }
         } catch (error) {
             console.error('Save error:', error);
-            Alert.alert("Błąd", isLocal ? "Nie udało się zapisać preferencji lokalnie." : "Nie udało się połączyć z serwerem.");
+            Alert.alert("Error", isLocal ? "Failed to save preferences locally." : "Failed to connect to the server.");
         } finally {
             setLoading(false);
         }
@@ -194,7 +194,7 @@ export default function PreferencesScreen() {
         setPreferences(prev => {
             const isCurrentlyLiked = prev.vibes.liked.includes(vibe);
             const isCurrentlyDisliked = prev.vibes.disliked.includes(vibe);
-            
+
             const newLiked = prev.vibes.liked.filter(v => v !== vibe);
             const newDisliked = prev.vibes.disliked.filter(v => v !== vibe);
 
@@ -217,9 +217,9 @@ export default function PreferencesScreen() {
                     transition={{ duration: 600 }}
                     className="flex-row justify-between items-center px-6 pt-5 pb-3"
                 >
-                    <Text className="font-outfit-bold text-[24px]">Krótko o sobie</Text>
+                    <Text className="font-outfit-bold text-[24px]">A bit about yourself</Text>
                     <TouchableOpacity onPress={() => router.push('/parameters')}>
-                        <Text className="font-outfit text-[13px] opacity-35 uppercase tracking-[2px]">Pomiń</Text>
+                        <Text className="font-outfit text-[13px] opacity-35 uppercase tracking-[2px]">Skip</Text>
                     </TouchableOpacity>
                 </MotiView>
 
@@ -231,8 +231,8 @@ export default function PreferencesScreen() {
                         className="flex flex-col gap-3"
                     >
                         <CollapsibleSection
-                            title="Mój vibe filmowy"
-                            subtitle="Kategorie"
+                            title="My movie vibe"
+                            subtitle="Categories"
                             icon={Film}
                             defaultOpen={true}
                         >
@@ -240,13 +240,13 @@ export default function PreferencesScreen() {
                                 liked={preferences.vibes.liked}
                                 disliked={preferences.vibes.disliked}
                                 onToggleVibe={(vibe, type) => toggleVibe(vibe, type)}
-                                label1="Uwielbiam"
-                                label2="Unikam"
+                                label1="I love"
+                                label2="I avoid"
                                 options={availableVibes}
                             />
                         </CollapsibleSection>
 
-                        <CollapsibleSection
+                        {/* <CollapsibleSection
                             title="Ulubione epoki filmowe"
                             subtitle="Czas produkcji"
                             value={preferences.eras.length}
@@ -268,12 +268,12 @@ export default function PreferencesScreen() {
                                     </TouchableOpacity>
                                 ))}
                             </View>
-                        </CollapsibleSection>
+                        </CollapsibleSection> */}
 
 
                         <CollapsibleSection
-                            title="Ulubione filmy"
-                            subtitle="Tytyły, Baza rekomendacji"
+                            title="Favorite movies"
+                            subtitle="Titles, Recommendation base"
                             value={preferences.movies.length}
                             icon={Star}
                             defaultOpen={false}
@@ -297,7 +297,7 @@ export default function PreferencesScreen() {
                                 <View className="flex-row gap-2.5 mt-1.5">
                                     <TextInput
                                         className={FillStyles.inputInline}
-                                        placeholder="Np. Matrix (1999)"
+                                        placeholder="E.g., Matrix (1999)"
                                         placeholderTextColor="#ffffff30"
                                         value={movieInput}
                                         onChangeText={setMovieInput}
@@ -331,7 +331,7 @@ export default function PreferencesScreen() {
                             <ActivityIndicator color="#000" size="small" />
                         ) : (
                             <>
-                                <Text className="font-outfit-semi text-[15px] text-black">Zapisz preferencje</Text>
+                                <Text className="font-outfit-semi text-[15px] text-black">Save preferences</Text>
                                 <Check color="#000" size={18} strokeWidth={2.5} />
                             </>
                         )}
