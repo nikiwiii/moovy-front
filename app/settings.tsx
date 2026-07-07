@@ -8,6 +8,7 @@ import { AppText as Text } from '@/components/AppText';
 import TouchableOpacity from "@/components/TouchableOpacity";
 import { storageService } from "@/services/storageService";
 import { Colors } from "@/constants/theme";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 const ACCENT = Colors.dark.accent;
 
@@ -22,22 +23,17 @@ export default function Settings() {
         checkAuth();
     }, []);
 
+    const [logoutConfirmVisible, setLogoutConfirmVisible] = useState(false);
+
     const handleLogout = () => {
-        Alert.alert(
-            "Log out",
-            "Are you sure you want to log out?",
-            [
-                { text: "Cancel", style: "cancel" },
-                {
-                    text: "Yes",
-                    onPress: async () => {
-                        await storageService.logout();
-                        setIsLoggedIn(false);
-                        router.replace('/');
-                    }
-                }
-            ]
-        );
+        setLogoutConfirmVisible(true);
+    };
+
+    const confirmLogout = async () => {
+        setLogoutConfirmVisible(false);
+        await storageService.logout();
+        setIsLoggedIn(false);
+        router.replace('/');
     };
 
     const Arrow = (
@@ -125,6 +121,16 @@ export default function Settings() {
                     )}
                 </View>
             </ScrollView>
+
+            <ConfirmDialog
+                visible={logoutConfirmVisible}
+                title="Log out"
+                message="Are you sure you want to log out of your account?"
+                confirmText="Log out"
+                isDestructive
+                onConfirm={confirmLogout}
+                onCancel={() => setLogoutConfirmVisible(false)}
+            />
         </View>
     );
 }

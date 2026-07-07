@@ -2,7 +2,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Eye, EyeOff, Lock, Mail, ArrowRight, UserPlus, LogIn, RotateCw } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, TextInput, View, Alert, ActivityIndicator } from 'react-native';
+import { SafeAreaView, TextInput, View, ActivityIndicator } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { authService } from '../services/authService';
@@ -10,6 +10,7 @@ import { storageService } from '../services/storageService';
 import { FillStyles } from '../constants/themeStyles';
 import { Colors } from '@/constants/theme';
 import { APP_NAME } from '../constants/app';
+import Toast from '../components/Toast';
 
 const ACCENT = Colors.dark.accent;
 
@@ -31,14 +32,38 @@ export default function LoginScreen() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
+    const [toast, setToast] = useState<{
+        visible: boolean;
+        message: string;
+        type: 'success' | 'error' | 'info';
+        title?: string;
+    }>({
+        visible: false,
+        message: '',
+        type: 'info',
+    });
+
+    const showToast = (message: string, type: 'success' | 'error' | 'info', title?: string) => {
+        setToast({
+            visible: true,
+            message,
+            type,
+            title,
+        });
+    };
+
+    const hideToast = () => {
+        setToast((prev) => ({ ...prev, visible: false }));
+    };
+
     const handleSubmit = async () => {
         if (!email || !password) {
-            Alert.alert('Error', 'Enter email and password');
+            showToast('Enter email and password', 'error', 'Missing Fields');
             return;
         }
 
         if (!isLogin && password !== confirmPassword) {
-            Alert.alert('Error', 'Passwords are not identical');
+            showToast('Passwords are not identical', 'error', 'Password Mismatch');
             return;
         }
 
@@ -93,11 +118,11 @@ export default function LoginScreen() {
             } else {
                 const result = await authService.register(email, password, confirmPassword);
                 console.log('Registered:', result);
-                Alert.alert('Success', 'Account created! You can now log in.');
+                showToast('Account created! You can now log in.', 'success', 'Success');
                 setIsLogin(true);
             }
         } catch (error: any) {
-            Alert.alert('Error', error.message);
+            showToast(error.message, 'error', 'Error');
         } finally {
             setLoading(false);
         }
@@ -105,6 +130,13 @@ export default function LoginScreen() {
 
     return (
         <View className="flex-1 bg-transparent px-5 justify-center">
+            <Toast
+                visible={toast.visible}
+                message={toast.message}
+                type={toast.type}
+                title={toast.title}
+                onClose={hideToast}
+            />
             <SafeAreaView>
                 <MotiView
                     from={{ opacity: 0, translateY: 20 }}

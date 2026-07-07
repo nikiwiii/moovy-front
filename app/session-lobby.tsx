@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
-    ArrowLeft, Check, CheckCheck, ChevronRight, Clock, Cog, Crown,
+    ArrowLeft, Check, CheckCheck, ChevronRight, Clapperboard, Clock, Cog, Crown,
     Film, Heart, Home, Loader2, RefreshCw, Smile, Sparkles, Trash2, UserRound, UsersRound, X, Zap,
 } from 'lucide-react-native';
 import { MotiView } from 'moti';
@@ -11,7 +11,7 @@ import {
 import { AppText as Text } from '@/components/AppText';
 import Animated, {
     Easing, FadeIn, FadeOut, LinearTransition,
-    useAnimatedStyle, useSharedValue, withRepeat, withTiming,
+    useAnimatedStyle, useSharedValue, withRepeat, withTiming, withSequence,
 } from 'react-native-reanimated';
 import TouchableOpacity from '../components/TouchableOpacity';
 import CollapsibleSection from '../components/CollapsibleSection';
@@ -25,6 +25,8 @@ import Slider from '@react-native-community/slider';
 import FilmView, { MovieViewProps } from '@/components/FilmView';
 import { Colors } from '@/constants/theme';
 import StatusBadge from '@/components/StatusBadge';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { Toast } from '@/components/Toast';
 
 const ACCENT = Colors.dark.accent;
 
@@ -65,28 +67,133 @@ function MemberCard({ member, isHost }: { member: SessionMember; isHost: boolean
 
 /* ─── Recommending animation overlay ─────────────────────────────────── */
 function RecommendingOverlay() {
-    const rotation = useSharedValue(0);
+    const dotRotation = useSharedValue(0);
+    const reelRotation = useSharedValue(0);
+
     useEffect(() => {
-        rotation.value = withRepeat(
-            withTiming(360, { duration: 2000, easing: Easing.linear }),
-            -1, false
+        dotRotation.value = withRepeat(
+            withTiming(360, { duration: 3000, easing: Easing.linear }),
+            -1,
+            false
+        );
+        reelRotation.value = withRepeat(
+            withTiming(360, { duration: 7000, easing: Easing.linear }),
+            -1,
+            false
         );
     }, []);
-    const rotateStyle = useAnimatedStyle(() => ({
-        transform: [{ rotate: `${rotation.value}deg` }],
+
+    const dotStyle = useAnimatedStyle(() => ({
+        transform: [{ rotate: `${dotRotation.value}deg` }],
+    }));
+
+    const reelStyle = useAnimatedStyle(() => ({
+        transform: [{ rotate: `${reelRotation.value}deg` }],
     }));
 
     return (
         <MotiView
-            from={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="items-center py-8"
+            from={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: 'timing', duration: 500 }}
+            className="items-center w-full"
         >
-            <Animated.View style={[rotateStyle, { marginBottom: 16 }]}>
-                <Sparkles color={ACCENT} size={32} strokeWidth={1.5} />
-            </Animated.View>
-            <Text className="font-outfit-semi text-[16px] mb-1">AI is choosing a movie</Text>
-            <Text className="font-outfit text-[13px] opacity-35">This may take a moment...</Text>
+            <View className="relative w-32 h-32 items-center justify-center">
+                {/* Outer pulsing ring 1 */}
+                <MotiView
+                    from={{ scale: 0.7, opacity: 0.6 }}
+                    animate={{ scale: 1.4, opacity: 0 }}
+                    transition={{
+                        type: 'timing',
+                        duration: 2000,
+                        loop: true,
+                        repeatContainerStyle: { position: 'absolute' }
+                    }}
+                    style={{
+                        position: 'absolute',
+                        width: 80,
+                        height: 80,
+                        borderRadius: 40,
+                        borderWidth: 1.5,
+                        borderColor: `${ACCENT}40`,
+                    }}
+                />
+
+                {/* Inner pulsing ring 2 */}
+                <MotiView
+                    from={{ scale: 0.5, opacity: 0.8 }}
+                    animate={{ scale: 1.1, opacity: 0 }}
+                    transition={{
+                        type: 'timing',
+                        duration: 2000,
+                        delay: 700,
+                        loop: true,
+                        repeatContainerStyle: { position: 'absolute' }
+                    }}
+                    style={{
+                        position: 'absolute',
+                        width: 80,
+                        height: 80,
+                        borderRadius: 40,
+                        borderWidth: 1,
+                        borderColor: `${ACCENT}60`,
+                    }}
+                />
+
+                {/* Orbiting dot */}
+                <Animated.View
+                    style={[
+                        dotStyle,
+                        {
+                            position: 'absolute',
+                            width: 86,
+                            height: 86,
+                            justifyContent: 'flex-start',
+                            alignItems: 'center',
+                        }
+                    ]}
+                >
+                    <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: ACCENT }} />
+                </Animated.View>
+
+                {/* Central glowing background */}
+                <View className="absolute w-[60px] h-[60px] rounded-full bg-accent/5 border border-accent/20 items-center justify-center shadow-lg shadow-accent/25" />
+
+                {/* Rotating film reel in background */}
+                <Animated.View
+                    style={[
+                        reelStyle,
+                        { position: 'absolute' }
+                    ]}
+                >
+                    <Film color={ACCENT} size={50} strokeWidth={1.2} style={{ opacity: 0.18 }} />
+                </Animated.View>
+
+                {/* Tilting & Pulsing clapperboard in foreground */}
+                <MotiView
+                    animate={{
+                        rotate: ['-10deg', '10deg'],
+                        scale: [0.92, 1.08]
+                    }}
+                    transition={{
+                        type: 'timing',
+                        duration: 1100,
+                        loop: true,
+                        easing: Easing.bezier(0.25, 1, 0.5, 1),
+                        repeatContainerStyle: { position: 'absolute' }
+                    }}
+                    style={{ position: 'absolute' }}
+                >
+                    <Clapperboard color={ACCENT} size={30} strokeWidth={1.8} />
+                </MotiView>
+            </View>
+
+            <Text className="font-outfit-bold text-[18px] mb-1.5 tracking-tight text-white">
+                AI is choosing a movie
+            </Text>
+            <Text className="font-outfit text-[13px] opacity-40 text-center px-8">
+                Mixing your group preferences to find the perfect match...
+            </Text>
         </MotiView>
     );
 }
@@ -105,6 +212,17 @@ export default function SessionLobbyScreen() {
     const [error, setError] = useState<string | null>(null);
     const [recommendLoading, setRecommendLoading] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
+    const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+
+    const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' | 'info' }>({
+        visible: false,
+        message: '',
+        type: 'info'
+    });
+
+    const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+        setToast({ visible: true, message, type });
+    };
 
     // Preferences state for the current user
     const [prefsSubmitted, setPrefsSubmitted] = useState(false);
@@ -174,7 +292,7 @@ export default function SessionLobbyScreen() {
             setPrefsSubmitted(true);
             await fetchSession();
         } catch (err: any) {
-            Alert.alert('Error', err.message);
+            showToast(err.message, 'error');
         } finally {
             setSubmittingPrefs(false);
         }
@@ -187,7 +305,7 @@ export default function SessionLobbyScreen() {
             await sessionService.triggerRecommendations(sessionId);
             await fetchSession();
         } catch (err: any) {
-            Alert.alert('Error', err.message);
+            showToast(err.message, 'error');
         } finally {
             setRecommendLoading(false);
         }
@@ -195,25 +313,19 @@ export default function SessionLobbyScreen() {
 
     // Delete session (host only)
     const handleDelete = () => {
-        Alert.alert(
-            'Close session',
-            'Are you sure you want to close this session? This action cannot be undone.',
-            [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                    text: 'Close', style: 'destructive', onPress: async () => {
-                        setDeleteLoading(true);
-                        try {
-                            await sessionService.deleteSession(sessionId);
-                            router.back();
-                        } catch (err: any) {
-                            Alert.alert('Error', err.message);
-                            setDeleteLoading(false);
-                        }
-                    }
-                },
-            ]
-        );
+        setDeleteConfirmVisible(true);
+    };
+
+    const confirmDelete = async () => {
+        setDeleteConfirmVisible(false);
+        setDeleteLoading(true);
+        try {
+            await sessionService.deleteSession(sessionId);
+            router.replace('/home');
+        } catch (err: any) {
+            showToast(err.message, 'error');
+            setDeleteLoading(false);
+        }
     };
 
     const isHost = session ? userId === session.host_id : isHostParam;
@@ -438,7 +550,7 @@ export default function SessionLobbyScreen() {
 
                         {/* Host actions */}
                         {isHost && (
-                            <Animated.View layout={LinearTransition} className="gap-3">
+                            <Animated.View layout={LinearTransition} className="flex-col items-center gap-3">
                                 {/* Generate recommendations button */}
                                 {(session.status === 'ALL_READY') && (
                                     <TouchableOpacity
@@ -451,7 +563,7 @@ export default function SessionLobbyScreen() {
                                         ) : (
                                             <>
                                                 <Zap color="#000" size={18} strokeWidth={2.5} />
-                                                <Text className="font-outfit-semi text-[15px] text-black">Generate recommendations</Text>
+                                                <Text className="font-outfit-semi text-[15px] text-black">Generate ideas</Text>
                                             </>
                                         )}
                                     </TouchableOpacity>
@@ -459,7 +571,7 @@ export default function SessionLobbyScreen() {
 
                                 {/* Delete session */}
                                 <TouchableOpacity
-                                    className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnSecondary} justify-center`}
+                                    className={`${FillStyles.actionBtnBase} justify-center`}
                                     onPress={handleDelete}
                                     disabled={deleteLoading}
                                 >
@@ -492,7 +604,7 @@ export default function SessionLobbyScreen() {
                         )}
 
                         {/* Refresh button */}
-                        <Animated.View layout={LinearTransition} className="items-center mt-4">
+                        <Animated.View layout={LinearTransition} className="items-center">
                             <TouchableOpacity
                                 onPress={fetchSession}
                                 className="flex-row items-center gap-2 py-2 px-4"
@@ -504,6 +616,23 @@ export default function SessionLobbyScreen() {
                     </MotiView>
                 </ScrollView>
             </SafeAreaView>
+
+            <ConfirmDialog
+                visible={deleteConfirmVisible}
+                title="Close session"
+                message="Are you sure you want to close this session? This action cannot be undone."
+                confirmText="Close"
+                isDestructive
+                onConfirm={confirmDelete}
+                onCancel={() => setDeleteConfirmVisible(false)}
+            />
+
+            <Toast
+                visible={toast.visible}
+                message={toast.message}
+                type={toast.type}
+                onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+            />
         </View>
     );
 }

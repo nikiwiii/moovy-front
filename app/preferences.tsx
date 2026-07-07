@@ -12,6 +12,7 @@ import { defaultVibes } from '../constants/vibes';
 import { FillStyles } from '../constants/themeStyles';
 import { storageService } from '../services/storageService';
 import { metadataService } from '../services/metadataService';
+import { Toast } from '@/components/Toast';
 
 const DEFAULT_ERAS = [
     'Golden Age of Hollywood',
@@ -27,6 +28,16 @@ export default function PreferencesScreen() {
     const isLocal = params.storageType === 'local';
 
     const [loading, setLoading] = useState(false);
+    const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' | 'info' }>({
+        visible: false,
+        message: '',
+        type: 'info'
+    });
+
+    const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+        setToast({ visible: true, message, type });
+    };
+
     const [preferences, setPreferences] = useState({
         vibes: { liked: [] as string[], disliked: [] as string[] },
         eras: [] as string[],
@@ -130,15 +141,15 @@ export default function PreferencesScreen() {
 
             if (isLocal) {
                 await storageService.saveLocalPreferences(payload);
-                Alert.alert("Success!", "Preferences saved successfully on your device.");
-                router.push('/parameters');
+                showToast("Preferences saved successfully on your device.", "success");
+                setTimeout(() => router.push('/parameters'), 1500);
             } else {
                 const token = await storageService.getToken();
                 const userId = await storageService.getUserId();
                 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
                 if (!token || !userId) {
-                    Alert.alert("Login error", "Please log in again to save preferences.");
+                    showToast("Please log in again to save preferences.", "error");
                     setLoading(false);
                     return;
                 }
@@ -153,8 +164,8 @@ export default function PreferencesScreen() {
                 });
 
                 if (response.ok) {
-                    Alert.alert("Success!", "Preferences saved successfully in the cloud.");
-                    router.push('/parameters');
+                    showToast("Preferences saved successfully in the cloud.", "success");
+                    setTimeout(() => router.push('/parameters'), 1500);
                 } else {
                     const errorData = await response.json();
                     let errMsg = "There was a problem communicating with the server.";
@@ -178,12 +189,12 @@ export default function PreferencesScreen() {
                             errMsg = JSON.stringify(errorData);
                         }
                     }
-                    Alert.alert("Save error", errMsg);
+                    showToast(errMsg, "error");
                 }
             }
         } catch (error) {
             console.error('Save error:', error);
-            Alert.alert("Error", isLocal ? "Failed to save preferences locally." : "Failed to connect to the server.");
+            showToast(isLocal ? "Failed to save preferences locally." : "Failed to connect to the server.", "error");
         } finally {
             setLoading(false);
         }
@@ -338,6 +349,13 @@ export default function PreferencesScreen() {
                     </TouchableOpacity>
                 </MotiView>
             </SafeAreaView>
+
+            <Toast
+                visible={toast.visible}
+                message={toast.message}
+                type={toast.type}
+                onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+            />
         </View>
     );
 }

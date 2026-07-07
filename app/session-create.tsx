@@ -20,6 +20,7 @@ import GroupSelector from '../components/GroupSelector';
 import { FillStyles } from '../constants/themeStyles';
 import { sessionService, MeetingType } from '../services/sessionService';
 import { Colors } from '@/constants/theme';
+import { Toast } from '@/components/Toast';
 
 const ACCENT = Colors.dark.accent;
 
@@ -35,6 +36,15 @@ export default function SessionCreateScreen() {
     const [isLoading, setIsLoading] = useState(false);
     const [createdSession, setCreatedSession] = useState<{ session_id: string; invite_code: string } | null>(null);
     const [copied, setCopied] = useState(false);
+    const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' | 'info' }>({
+        visible: false,
+        message: '',
+        type: 'info'
+    });
+
+    const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+        setToast({ visible: true, message, type });
+    };
 
     const handleCreate = async () => {
         setIsLoading(true);
@@ -42,7 +52,7 @@ export default function SessionCreateScreen() {
             const result = await sessionService.createSession(selectedType);
             setCreatedSession({ session_id: result.session_id, invite_code: result.invite_code });
         } catch (error: any) {
-            Alert.alert('Error', error.message);
+            showToast(error.message, 'error');
         } finally {
             setIsLoading(false);
         }
@@ -200,6 +210,13 @@ export default function SessionCreateScreen() {
                     )}
                 </View>
             </SafeAreaView>
+
+            <Toast
+                visible={toast.visible}
+                message={toast.message}
+                type={toast.type}
+                onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+            />
         </View >
     );
 }

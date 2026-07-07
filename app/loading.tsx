@@ -3,7 +3,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Sparkles } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useEffect, useRef } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Toast } from '@/components/Toast';
 import Animated, {
     Easing,
     useAnimatedStyle,
@@ -112,6 +113,16 @@ export default function LoadingScreen() {
     const params = useLocalSearchParams<{ payload: string; groups: string; settings: string }>();
     const [hintIndex, setHintIndex] = React.useState(0);
     const fetchDone = useRef(false);
+    const [toast, setToast] = React.useState<{ visible: boolean; message: string; title?: string; type: 'success' | 'error' | 'info' }>({
+        visible: false,
+        message: '',
+        title: '',
+        type: 'info'
+    });
+
+    const showToast = (message: string, title?: string, type: 'success' | 'error' | 'info' = 'info') => {
+        setToast({ visible: true, message, title, type });
+    };
 
     // Rotate hints
     useEffect(() => {
@@ -178,9 +189,13 @@ export default function LoadingScreen() {
                                 })
                                 .join('\n');
                         else if (detail) errMsg = JSON.stringify(detail);
-                        Alert.alert('No movies found', errMsg);
+                        showToast(errMsg, 'No movies found', 'error');
+                        setTimeout(() => {
+                            router.back();
+                        }, 2500);
+                    } else {
+                        router.back();
                     }
-                    router.back();
                     return;
                 }
 
@@ -203,7 +218,12 @@ export default function LoadingScreen() {
     return (
         <View style={StyleSheet.absoluteFill} className="flex-1 items-center justify-center">
             {/* Background blur overlay */}
-            <BlurView intensity={18} tint="dark" style={StyleSheet.absoluteFill} />
+            <BlurView 
+                intensity={18} 
+                tint="dark" 
+                experimentalBlurMethod="dimezisBlurView" 
+                style={StyleSheet.absoluteFill} 
+            />
 
             {/* Glow behind spinner */}
             <MotiView
@@ -261,6 +281,14 @@ export default function LoadingScreen() {
                     {HINTS[hintIndex]}
                 </Text>
             </MotiView>
+
+            <Toast
+                visible={toast.visible}
+                message={toast.message}
+                title={toast.title}
+                type={toast.type}
+                onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+            />
         </View>
     );
 }

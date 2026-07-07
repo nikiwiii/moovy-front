@@ -1,6 +1,15 @@
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://35.253.185.77:8010';
 console.log('[authService] API_URL:', API_URL);
 
+function extractErrorMessage(data: any, fallback: string): string {
+  if (!data || !data.detail) return fallback;
+  if (typeof data.detail === 'string') return data.detail;
+  if (Array.isArray(data.detail)) {
+    return data.detail.map((err: any) => err.msg || JSON.stringify(err)).join(', ');
+  }
+  return JSON.stringify(data.detail);
+}
+
 export const authService = {
   async login(email: string, password: string) {
     try {
@@ -15,7 +24,7 @@ export const authService = {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || 'Login error');
+        throw new Error(extractErrorMessage(data, 'Login error'));
       }
 
       return data;
@@ -38,7 +47,7 @@ export const authService = {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || 'Registration error');
+        throw new Error(extractErrorMessage(data, 'Registration error'));
       }
 
       return data;
