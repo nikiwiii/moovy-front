@@ -1,7 +1,7 @@
 import Slider from '@react-native-community/slider';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
-import { Check, Clock, Film, Handshake, Heart, LucideIcon, Plus, ScanEye, Cog, Sparkle, Sparkles, UserRound, UsersRound } from 'lucide-react-native';
+import { Check, Clock, Film, Handshake, Heart, LucideIcon, Palette, Plus, ScanEye, Cog, Sparkle, Sparkles, UserRound, UsersRound } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState } from 'react';
 import { Image, Modal, SafeAreaView, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -11,6 +11,7 @@ import CollapsibleSection from '../components/CollapsibleSection';
 import GenreSelection from '../components/GenreSelection';
 import GroupSelector from '../components/GroupSelector';
 import TouchableOpacity from '../components/TouchableOpacity';
+import MoodPalette from '../components/MoodPalette';
 import { FillStyles } from '../constants/themeStyles';
 import { Colors } from '@/constants/theme';
 import { APP_NAME } from '../constants/app';
@@ -35,6 +36,8 @@ interface Group {
 export default function ParametersScreen() {
     const router = useRouter();
     const [selectedGroup, setSelectedGroup] = useState<string | null>('solo');
+    const [scrollEnabled, setScrollEnabled] = useState(true);
+    const [vibeMethod, setVibeMethod] = useState<'tags' | 'palette'>('tags');
 
     const [groups, setGroups] = useState<Group[]>([
         { id: 'solo', icon: UserRound, title: 'Solo', description: 'movies for you, just you and your preferences' },
@@ -56,6 +59,15 @@ export default function ParametersScreen() {
     const [newDesc, setNewDesc] = useState('');
 
     const [genres, setGenres] = useState({ liked: [] as string[], disliked: [] as string[] });
+    const [moodLabel, setMoodLabel] = useState<string | null>(null);
+
+    const handleMoodSelected = (vibes: string[], label: string) => {
+        setMoodLabel(label);
+        setGenres(prev => ({
+            ...prev,
+            liked: vibes
+        }));
+    };
 
     const toggleGenre = (genre: string, type: 'liked' | 'disliked') => {
         setGenres(prev => {
@@ -144,7 +156,7 @@ export default function ParametersScreen() {
                     </MotiView>
                 </View>
 
-                <ScrollView contentContainerClassName="px-4 pb-[120px]" showsVerticalScrollIndicator={false}>
+                <ScrollView contentContainerClassName="px-4 pb-[120px]" showsVerticalScrollIndicator={false} scrollEnabled={scrollEnabled}>
                     <MotiView
                         from={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -187,17 +199,45 @@ export default function ParametersScreen() {
                         <CollapsibleSection
                             title="Select vibe"
                             subtitle="Categories"
-                            value={genres.liked.length + genres.disliked.length}
+                            value={vibeMethod === 'palette' ? (moodLabel || '-') : (genres.liked.length + genres.disliked.length)}
                             icon={Film}
                             defaultOpen={false}
                         >
-                            <GenreSelection
-                                liked={genres.liked}
-                                disliked={genres.disliked}
-                                onToggleVibe={toggleGenre}
-                                label1="Include"
-                                label2="Exclude"
-                            />
+                            {/* Segmented Controller */}
+                            <View className="flex-row bg-white/[0.04] p-1 rounded-[16px] mb-4 border border-white/[0.08]">
+                                <TouchableOpacity
+                                    onPress={() => setVibeMethod('tags')}
+                                    className={`flex-1 py-2.5 rounded-[12px] items-center justify-center ${vibeMethod === 'tags' ? 'bg-white/[0.08]' : ''}`}
+                                >
+                                    <Text className={`font-outfit-bold text-[12px] tracking-[1.5px] uppercase ${vibeMethod === 'tags' ? 'text-white' : 'text-white/40'}`}>
+                                        Tags Selection
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => setVibeMethod('palette')}
+                                    className={`flex-1 py-2.5 rounded-[12px] items-center justify-center ${vibeMethod === 'palette' ? 'bg-white/[0.08]' : ''}`}
+                                >
+                                    <Text className={`font-outfit-bold text-[12px] tracking-[1.5px] uppercase ${vibeMethod === 'palette' ? 'text-white' : 'text-white/40'}`}>
+                                        Mood Palette
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            {vibeMethod === 'tags' ? (
+                                <GenreSelection
+                                    liked={genres.liked}
+                                    disliked={genres.disliked}
+                                    onToggleVibe={toggleGenre}
+                                    label1="Include"
+                                    label2="Exclude"
+                                />
+                            ) : (
+                                <MoodPalette
+                                    onMoodSelected={handleMoodSelected}
+                                    onTouchStart={() => setScrollEnabled(false)}
+                                    onTouchEnd={() => setScrollEnabled(true)}
+                                />
+                            )}
                         </CollapsibleSection>
                         <CollapsibleSection
                             title="Settings"
