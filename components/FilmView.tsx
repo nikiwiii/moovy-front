@@ -1,5 +1,5 @@
 import { FillStyles } from "@/constants/themeStyles";
-import { Clock, Star } from "lucide-react-native";
+import { Clock, Star, Heart, ThumbsUp, ThumbsDown, Skull } from "lucide-react-native";
 import { MotiView } from "moti";
 import { Image, View } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
@@ -7,6 +7,9 @@ import Animated, { LinearTransition } from "react-native-reanimated";
 import Svg, { Circle } from 'react-native-svg';
 import { Colors } from '@/constants/theme';
 import MiniCollapsibleSection from "./MiniCollapsibleSection";
+import React, { useState } from 'react';
+import TouchableOpacity from "./TouchableOpacity";
+import { storageService } from "../services/storageService";
 
 const ACCENT = Colors.dark.accent;
 const size = 56;
@@ -78,6 +81,8 @@ const DurationRing = ({ duration }: { duration: string }) => {
 };
 
 export interface MovieViewProps {
+    movie_id?: string;
+    tmdb_id?: number;
     title?: string;
     year?: number;
     rating?: number;
@@ -117,11 +122,13 @@ const translateGenre = (genre: string) => GENRE_TRANSLATIONS[genre] || genre;
 export default function FilmView({ movieData }: { movieData?: MovieViewProps }) {
     const defaultUrl = "https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg";
     const defaultData = {
+        movie_id: "1",
+        tmdb_id: 1,
         title: "The Lord of the Rings: The Return of the King",
         year: 2003,
         rating: 8.9,
-        director: "Peter Jackson",
-        actors: ["Elijah Wood", "Ian McKellen", "Viggo Mortensen"],
+        // director: "Peter Jackson",
+        // actors: ["Elijah Wood", "Ian McKellen", "Viggo Mortensen"],
         description: "The Lord of the Rings: The Return of the King is a 2003 epic fantasy adventure film directed by Peter Jackson. The film is the third installment in the Lord of the Rings trilogy and follows Frodo Baggins as he and Samwise Gamgee begin the final stage of their quest to destroy the One Ring.",
         genres: ["Fantasy", "Adventure", "Action"],
         duration: "201 minutes"
@@ -159,8 +166,32 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
     const displayGenres = data.genres && data.genres.length > 0 ? data.genres : defaultData.genres;
     const displayDuration = data.duration;
 
+    const [reaction, setReaction] = useState<'LIKE' | 'LOVE' | 'DISLIKE' | 'HATE' | null>(null);
+
+    const handleReaction = async (status: 'LIKE' | 'LOVE' | 'DISLIKE' | 'HATE') => {
+        if (!data.movie_id) return;
+
+        // Toggle behaviour
+        const nextStatus = reaction === status ? 'NEUTRAL' : status;
+        setReaction(nextStatus === 'NEUTRAL' ? null : status);
+
+        try {
+            const token = await storageService.getToken();
+            const API_URL = process.env.EXPO_PUBLIC_API_URL;
+            await fetch(`${API_URL}/preferences/interaction?movie_id=${data.movie_id}&status=${nextStatus}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token || ''}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+        } catch (error) {
+            console.error('Failed to save movie interaction:', error);
+        }
+    };
+
     return (
-        <Animated.View layout={LinearTransition} className="bg-white/[0.04] border border-white/[0.08] rounded-[32px] p-4 gap-y-4">
+        <Animated.View layout={LinearTransition} className="bg-white/[0.04] border border-white/[0.08] rounded-[32px] p-4 gap-y-3">
             <View className="flex-row gap-4">
                 <MotiView
                     from={{ opacity: 0, translateX: 50 }}
@@ -205,6 +236,50 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
                     <Text className="text-[14px] font-outfit opacity-70 leading-[22px]">{displayDescription}</Text>
                 </MiniCollapsibleSection>
             </View>
+
+            {data.movie_id && (
+                <View className="flex-row justify-between">
+                    <TouchableOpacity
+                        onPress={() => handleReaction('LOVE')}
+                        className={`flex-row items-center justify-center gap-1.5 px-2 py-1.5 rounded-full flex-1 mx-1 ${reaction === 'LOVE' ? 'bg-[#FF6B6B]/80' : 'bg-[#FF6B6B]/10 border border-[#FF6B6B]/40  opacity-60'}`}
+                    >
+                        <Heart size={14} color={reaction === 'LOVE' ? '#0d0b1a' : '#FF6B6B'} fill={reaction === 'LOVE' ? '#0d0b1a' : 'transparent'} />
+                        <Text className={`font-outfit-bold text-[11px] uppercase tracking-[1px] ${reaction === 'LOVE' ? 'text-[#0d0b1a]' : 'text-[#FF6B6B]'}`}>
+                            Love
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => handleReaction('LIKE')}
+                        className={`flex-row items-center justify-center gap-1.5 px-2 py-1.5 rounded-full flex-1 mx-1 ${reaction === 'LIKE' ? 'bg-[#4ECA64]/80' : 'bg-[#4ECA64]/10 border border-[#4ECA64]/40  opacity-60'}`}
+                    >
+                        <ThumbsUp size={14} color={reaction === 'LIKE' ? '#0d0b1a' : '#4ECA64'} fill={reaction === 'LIKE' ? '#0d0b1a' : 'transparent'} />
+                        <Text className={`font-outfit-bold text-[11px] uppercase tracking-[1px] ${reaction === 'LIKE' ? 'text-[#0d0b1a]' : 'text-[#4ECA64]'}`}>
+                            Like
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => handleReaction('DISLIKE')}
+                        className={`flex-row items-center justify-center gap-1.5 px-2 py-1.5 rounded-full flex-1 mx-1 ${reaction === 'DISLIKE' ? 'bg-[#FFA500]/80' : 'bg-[#FFA500]/10 border border-[#FFA500]/40  opacity-60'}`}
+                    >
+                        <ThumbsDown size={14} color={reaction === 'DISLIKE' ? '#0d0b1a' : '#FFA500'} fill={reaction === 'DISLIKE' ? '#0d0b1a' : 'transparent'} />
+                        <Text className={`font-outfit-bold text-[11px] uppercase tracking-[1px] ${reaction === 'DISLIKE' ? 'text-[#0d0b1a]' : 'text-[#FFA500]'}`}>
+                            Dislike
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => handleReaction('HATE')}
+                        className={`flex-row items-center justify-center gap-1.5 px-2 py-1.5 rounded-full flex-1 mx-1 ${reaction === 'HATE' ? 'bg-[#BD72FF]/80' : 'bg-[#BD72FF]/10 border border-[#BD72FF]/40  opacity-60'}`}
+                    >
+                        <Skull size={14} color={reaction === 'HATE' ? '#0d0b1a' : '#BD72FF'} fill={reaction === 'HATE' ? '#0d0b1a' : 'transparent'} />
+                        <Text className={`font-outfit-bold text-[11px] uppercase tracking-[1px] ${reaction === 'HATE' ? 'text-[#0d0b1a]' : 'text-[#BD72FF]'}`}>
+                            Hate
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            )}
         </Animated.View>
     );
 };

@@ -339,6 +339,8 @@ export default function SessionLobbyScreen() {
         const rec = session.recommendations[0];
 
         const data: MovieViewProps[] = [{
+            movie_id: rec.movie_id,
+            tmdb_id: rec.tmdb_id,
             title: rec.movie_title,
             description: rec.reasoning_pl,
             genres: rec.genres,
@@ -351,6 +353,8 @@ export default function SessionLobbyScreen() {
         if (rec.extra_movies && Array.isArray(rec.extra_movies)) {
             rec.extra_movies.forEach((extra: any) => {
                 data.push({
+                    movie_id: extra.movie_id,
+                    tmdb_id: extra.tmdb_id,
                     title: extra.movie_title,
                     description: "An alternative suggestion from our system, tailored to your taste.",
                     genres: extra.genres,

@@ -32,6 +32,8 @@ export default function IdeaScreen() {
 
     if (parsedMovies) {
         moviesData.push({
+            movie_id: parsedMovies.movie_id,
+            tmdb_id: parsedMovies.tmdb_id,
             title: parsedMovies.movie_title,
             description: parsedMovies.reasoning_pl,
             genres: parsedMovies.genres,
@@ -44,6 +46,8 @@ export default function IdeaScreen() {
         if (parsedMovies.extra_movies && Array.isArray(parsedMovies.extra_movies)) {
             parsedMovies.extra_movies.forEach((extra: any) => {
                 moviesData.push({
+                    movie_id: extra.movie_id,
+                    tmdb_id: extra.tmdb_id,
                     title: extra.movie_title,
                     description: "An alternative suggestion from our system, tailored to your taste.",
                     genres: extra.genres,
