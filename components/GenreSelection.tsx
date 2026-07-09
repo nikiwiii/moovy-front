@@ -47,7 +47,7 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
 
 
     return (
-        <View className="flex-col gap-2">
+        <View className="flex-col gap-1">
             <MiniCollapsibleSection
                 title={label1 + ":"}
                 value={liked.length}

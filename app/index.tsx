@@ -48,7 +48,7 @@ export default function WelcomeScreen() {
                             (data.movies && data.movies.length > 0)
                         );
                         if (hasData) {
-                            router.replace('/home');
+                            router.replace('/idea');
                         }
                     }
                 } catch (e) {

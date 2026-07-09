@@ -85,7 +85,7 @@ function GroupItemCard({
     return (
         <AnimatedTouchableOpacity
             layout={LinearTransition.springify().damping(200).stiffness(1200)}
-            className={`${FillStyles.cardBase} ${isActive ? FillStyles.cardActive : FillStyles.cardInactive} p-3 justify-center items-center rounded-[25px]`}
+            className={`${FillStyles.cardBase} ${isActive ? FillStyles.cardActive : FillStyles.cardInactive} justify-center items-center !rounded-[24px]`}
             style={animatedWidthStyle}
             onPress={onPress}
             onLongPress={onLongPress}
@@ -105,7 +105,7 @@ function GroupItemCard({
 
             <Animated.View style={animatedDescStyle}>
                 <Text
-                    className="font-outfit text-[11px] mt-2 mb-1"
+                    className="font-outfit text-[11px] px-2 mt-2 mb-1"
                     numberOfLines={3}
                 >
                     {item.description}
@@ -143,7 +143,7 @@ export default function GroupSelector({ items, selectedId, onSelect }: GroupSele
             <Animated.ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerClassName="gap-3 pb-3"
+                contentContainerClassName="gap-2 pb-3 px-2"
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
             >
@@ -162,7 +162,7 @@ export default function GroupSelector({ items, selectedId, onSelect }: GroupSele
             </Animated.ScrollView>
 
             {/* Custom Scroll Indicator */}
-            <View className="flex-row justify-center items-center -mb-3">
+            <View className="flex-row justify-center items-center">
                 <View className="w-16 h-[3px] bg-white/10 rounded-full overflow-hidden">
                     <Animated.View
                         style={[
@@ -180,6 +180,7 @@ export default function GroupSelector({ items, selectedId, onSelect }: GroupSele
                     />
                 </View>
             </View>
+            <Text className="font-outfit text-[15px] mb-2 mt-2 self-center opacity-50">*Hold for details</Text>
         </View>
     );
 }

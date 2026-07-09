@@ -90,11 +90,10 @@ export default function IdeaScreen() {
                     </View>
                     <CollapsibleSection
                         title="Your criteria"
-                        subtitle="Why this suggestion?"
                         icon={Users}
                         defaultOpen={false}
                     >
-                        <Animated.View layout={LinearTransition} className="flex-col gap-3">
+                        <Animated.View layout={LinearTransition} className="flex-col gap-3 px-4 pb-4">
                             <View className="flex-row items-center gap-3"><Users size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.preset}</Text></View>
                             <View className="flex-row items-center gap-3"><Film size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.genres.length > 0 ? parsedCriteria.genres.join(", ") : "Any"}</Text></View>
                             <View className="flex-row items-center gap-3"><Clock size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.duration}</Text></View>

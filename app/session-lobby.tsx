@@ -436,7 +436,6 @@ export default function SessionLobbyScreen() {
                         {/* Members section */}
                         <CollapsibleSection
                             title="Members"
-                            subtitle="Who is in the session?"
                             value={`${readyCount}/${memberCount}`}
                             icon={UsersRound}
                             defaultOpen={true}
@@ -457,7 +456,6 @@ export default function SessionLobbyScreen() {
                             <>
                                 <CollapsibleSection
                                     title="Your preferences"
-                                    subtitle="What do you want to watch?"
                                     icon={Film}
                                     defaultOpen={true}
                                 >
@@ -470,7 +468,7 @@ export default function SessionLobbyScreen() {
                                     />
                                 </CollapsibleSection>
 
-                                <CollapsibleSection title="Settings" subtitle="Final touches" icon={Cog}>
+                                <CollapsibleSection title="Settings" icon={Cog}>
                                     <View className="gap-2">
                                         {/* Runtime slider */}
                                         <View className={`${FillStyles.pillBase} ${FillStyles.pillActive} flex-row items-center justify-between gap-x-1 min-h-14 ${FillStyles.pillFirst}`}>

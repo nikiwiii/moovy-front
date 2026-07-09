@@ -316,7 +316,6 @@ export default function PreferencesScreen() {
                     >
                         <CollapsibleSection
                             title="My movie vibe"
-                            subtitle="Categories"
                             icon={Film}
                             defaultOpen={true}
                         >
@@ -357,7 +356,6 @@ export default function PreferencesScreen() {
 
                         <CollapsibleSection
                             title="Favorite movies"
-                            subtitle="Titles, Recommendation base"
                             value={preferences.movies.length}
                             icon={Star}
                             defaultOpen={false}

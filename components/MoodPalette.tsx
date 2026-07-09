@@ -9,6 +9,7 @@ import Animated, {
     useAnimatedStyle,
     withSpring,
     runOnJS,
+    withSequence,
 } from 'react-native-reanimated';
 import {
     Gesture,
@@ -33,7 +34,7 @@ const ACCENT = Colors.dark.accent;
 
 /* ─── Mood Zone Definitions ─────────────────────────────────────────── */
 
-interface MoodZone {
+export interface MoodZone {
     id: string;
     label: string;
     icon: LucideIcon;
@@ -43,7 +44,7 @@ interface MoodZone {
     y: [number, number];
 }
 
-const MOOD_ZONES: MoodZone[] = [
+export const MOOD_ZONES: MoodZone[] = [
     {
         id: 'chill', label: 'Cozy Chill', icon: Sofa,
         vibes: ['PIZZA_CHILL', 'FAMILY_FUN'],
@@ -104,13 +105,14 @@ function getZoneAtPosition(nx: number, ny: number): MoodZone {
 
 /* ─── Component ─────────────────────────────────────────────────────── */
 
-interface MoodPaletteProps {
+export interface MoodPaletteProps {
     onMoodSelected: (vibes: string[], label: string) => void;
     onTouchStart?: () => void;
     onTouchEnd?: () => void;
+    hideDetails?: boolean;
 }
 
-export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd }: MoodPaletteProps) {
+export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, hideDetails = false }: MoodPaletteProps) {
     const [currentZone, setCurrentZone] = useState<MoodZone | null>(null);
     const [isActive, setIsActive] = useState(false);
 
@@ -143,6 +145,7 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd }
     }, [onTouchEnd]);
 
     const panGesture = Gesture.Pan()
+        .minDistance(0)
         .onBegin((e) => {
             cursorX.value = e.x;
             cursorY.value = e.y;
@@ -165,10 +168,11 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd }
             }
         })
         .onEnd(() => {
-            cursorScale.value = withSpring(1.3, { damping: 8 }, () => {
-                cursorScale.value = withSpring(0, { damping: 15 });
-                cursorOpacity.value = withSpring(0, { damping: 15 });
-            });
+            cursorScale.value = withSequence(
+                withSpring(1.3, { damping: 8 }),
+                withSpring(0.8, { damping: 15 })
+            );
+            cursorOpacity.value = withSpring(0.2, { damping: 15 });
             runOnJS(confirmSelection)();
             runOnJS(endTouch)();
         })
@@ -178,8 +182,8 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd }
 
     const cursorStyle = useAnimatedStyle(() => ({
         transform: [
-            { translateX: cursorX.value - 28 },
-            { translateY: cursorY.value - 28 },
+            { translateX: cursorX.value - 18 },
+            { translateY: cursorY.value - 18 },
             { scale: cursorScale.value },
         ],
         opacity: cursorOpacity.value,
@@ -187,8 +191,8 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd }
 
     const glowStyle = useAnimatedStyle(() => ({
         transform: [
-            { translateX: cursorX.value - 50 },
-            { translateY: cursorY.value - 50 },
+            { translateX: cursorX.value - 30 },
+            { translateY: cursorY.value - 30 },
             { scale: cursorScale.value * 1.2 },
         ],
         opacity: cursorOpacity.value * 0.4,
@@ -200,8 +204,8 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd }
             <GestureHandlerRootView style={{ flex: 1 }}>
                 <GestureDetector gesture={panGesture}>
                     <View
-                        className="rounded-[24px] overflow-hidden border border-white/[0.08]"
-                        style={{ height: 260 }}
+                        className="rounded-[14px] overflow-hidden border border-white/[0.08]"
+                        style={{ height: 230 }}
                         onLayout={(e) => {
                             setPaletteLayout({
                                 width: e.nativeEvent.layout.width,
@@ -243,13 +247,13 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd }
                             <Text style={styles.axisLabel}>intense</Text>
                         </View>
                         {/* Left edge: Y label "light" */}
-                        <View style={[styles.axisVertical, { top: 48 }]} pointerEvents="none">
+                        <View style={[styles.axisVertical, { top: 16 }]} pointerEvents="none">
                             <Text style={styles.axisLabelVertical}>light</Text>
                         </View>
                         {/* Vertical line between light and dark */}
                         <View style={styles.axisVerticalLine} pointerEvents="none" />
                         {/* Left edge: Y label "dark" */}
-                        <View style={[styles.axisVertical, { bottom: 20 }]} pointerEvents="none">
+                        <View style={[styles.axisVertical, { bottom: 16 }]} pointerEvents="none">
                             <Text style={styles.axisLabelVertical}>dark</Text>
                         </View>
 
@@ -300,9 +304,9 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd }
                                 glowStyle,
                                 {
                                     position: 'absolute',
-                                    width: 100,
-                                    height: 100,
-                                    borderRadius: 50,
+                                    width: 60,
+                                    height: 60,
+                                    borderRadius: 30,
                                     backgroundColor: currentZone?.color ?? ACCENT,
                                 },
                             ]}
@@ -315,9 +319,9 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd }
                                 cursorStyle,
                                 {
                                     position: 'absolute',
-                                    width: 56,
-                                    height: 56,
-                                    borderRadius: 28,
+                                    width: 36,
+                                    height: 36,
+                                    borderRadius: 18,
                                     borderWidth: 2,
                                     borderColor: '#ffffffcc',
                                     backgroundColor: (currentZone?.color ?? ACCENT) + '30',
@@ -329,9 +333,9 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd }
                         >
                             <View
                                 style={{
-                                    width: 10,
-                                    height: 10,
-                                    borderRadius: 5,
+                                    width: 6,
+                                    height: 6,
+                                    borderRadius: 3,
                                     backgroundColor: '#fff',
                                 }}
                             />
@@ -350,10 +354,10 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd }
                                     intensity={25}
                                     tint="dark"
                                     experimentalBlurMethod="dimezisBlurView"
-                                    className="rounded-full overflow-hidden border border-white/[0.08] px-5 py-2.5 bg-black/35"
+                                    className="rounded-full overflow-hidden border border-white/[0.08] mx-5 py-2.5 bg-black/35"
                                 >
                                     <Text className="font-outfit-bold text-[10px] text-white/80 uppercase tracking-[2px] text-center">
-                                        Touch & drag to feel the mood
+                                        Touch & drag to choose the mood
                                     </Text>
                                 </BlurView>
                             </MotiView>
@@ -363,7 +367,7 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd }
             </GestureHandlerRootView>
 
             {/* Selected mood display */}
-            {currentZone && (
+            {!hideDetails && currentZone && (
                 <MotiView
                     key={currentZone.id}
                     from={{ opacity: 0, translateY: 8, scale: 0.97 }}
@@ -408,7 +412,7 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd }
 const styles = StyleSheet.create({
     axisRow: {
         position: 'absolute',
-        top: 14,
+        top: 8,
         left: 20,
         right: 20,
         flexDirection: 'row',
@@ -441,7 +445,7 @@ const styles = StyleSheet.create({
     axisVertical: {
         position: 'absolute',
         zIndex: 10,
-        left: 12,
+        left: 0,
         height: 40,
         width: 24,
         alignItems: 'center',
@@ -449,9 +453,9 @@ const styles = StyleSheet.create({
     },
     axisVerticalLine: {
         position: 'absolute',
-        left: 24,
-        top: 92,
-        bottom: 64,
+        left: 12,
+        top: 60,
+        bottom: 60,
         width: 1,
         backgroundColor: 'rgba(255,255,255,0.08)',
         zIndex: 10,

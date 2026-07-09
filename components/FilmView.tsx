@@ -192,7 +192,7 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
 
     return (
         <Animated.View layout={LinearTransition} className="bg-white/[0.04] border border-white/[0.08] rounded-[32px] p-4 gap-y-3">
-            <View className="flex-row gap-4">
+            <Animated.View layout={LinearTransition} className="flex-row gap-4">
                 <MotiView
                     from={{ opacity: 0, translateX: 50 }}
                     animate={{ opacity: 1, translateX: 0 }}
@@ -227,18 +227,18 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
                         </View>
                     ) : null}
                 </View>
-            </View>
-            <View className="flex-col gap-3">
+            </Animated.View>
+            <Animated.View layout={LinearTransition} className="flex-col gap-3">
                 <MiniCollapsibleSection
                     title="Description / Why?"
                     defaultOpen={false}
                 >
                     <Text className="text-[14px] font-outfit opacity-70 leading-[22px]">{displayDescription}</Text>
                 </MiniCollapsibleSection>
-            </View>
+            </Animated.View>
 
             {data.movie_id && (
-                <View className="flex-row justify-between">
+                <Animated.View layout={LinearTransition} className="flex-row justify-between">
                     <TouchableOpacity
                         onPress={() => handleReaction('LOVE')}
                         className={`flex-row items-center justify-center gap-1.5 px-2 py-1.5 rounded-full flex-1 mx-1 ${reaction === 'LOVE' ? 'bg-[#FF6B6B]/80' : 'bg-[#FF6B6B]/10 border border-[#FF6B6B]/40  opacity-60'}`}
@@ -278,7 +278,7 @@ export default function FilmView({ movieData }: { movieData?: MovieViewProps }) 
                             Hate
                         </Text>
                     </TouchableOpacity>
-                </View>
+                </Animated.View>
             )}
         </Animated.View>
     );

@@ -96,7 +96,7 @@ const AnimatedOrb = ({ color, size, startPos, animDuration, translateRange, opac
     );
 };
 
-export type BackgroundTheme = 'default' | 'ocean' | 'cyberpunk' | 'sunset' | 'aurora' | 'monochrome' | 'nebula' | 'midnight' | 'emerald';
+export type BackgroundTheme = 'default' | 'ocean' | 'cyberpunk' | 'sunset' | 'aurora' | 'monochrome' | 'nebula' | 'midnight' | 'emerald' | 'day' | 'cloudy' | 'black';
 
 export const BACKGROUND_THEMES: Record<BackgroundTheme, string[]> = {
     // Nowy domyślny — ciepły indygo z akcentem lime
@@ -117,13 +117,18 @@ export const BACKGROUND_THEMES: Record<BackgroundTheme, string[]> = {
     midnight: ['#1A103C', '#0D0B24', '#2D1B69', '#060412', '#1A0F3C'],
     // Szmaragd — zielony z ciemnym tłem
     emerald: ['#064E3B', '#065F46', '#0F3B2F', '#0A1A14', '#047857'],
+    // Dzień
+    day: ['#FAD0C4', '#FCE38A', '#FAD0C4', '#FCE38A', '#FAD0C4'],
+    // Pochmurnie
+    cloudy: ['#D7D2CC', '#1A0F3C', '#2D1B69', '#060412', '#1A0F3C'],
+    black: ['#102325', '#102325', '#102325', '#102325', '#102325'],
 };
 
 interface AnimatedBackgroundProps {
     theme?: BackgroundTheme;
 }
 
-export default function AnimatedBackground({ theme = 'sunset' }: AnimatedBackgroundProps) {
+export default function AnimatedBackground({ theme = 'black' }: AnimatedBackgroundProps) {
     const colors = BACKGROUND_THEMES[theme] || BACKGROUND_THEMES.default;
 
     return (

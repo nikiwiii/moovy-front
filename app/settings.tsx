@@ -58,8 +58,8 @@ export default function Settings() {
 
                     {!isLoggedIn && (
                         <TouchableOpacity
-                             onPress={() => router.push('/login')}
-                             className="bg-accent/10 rounded-[24px] flex-row items-center justify-between gap-x-3 min-h-20 p-5 border border-accent/20"
+                            onPress={() => router.push('/login')}
+                            className="bg-accent/10 rounded-[24px] flex-row items-center justify-between gap-x-3 min-h-20 p-5 border border-accent/20"
                         >
                             <View className="flex-row items-center gap-x-4">
                                 <View className="bg-accent/15 p-2.5 rounded-xl">
