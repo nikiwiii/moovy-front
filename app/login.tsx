@@ -78,6 +78,7 @@ export default function LoginScreen() {
                     if (result.user_id) {
                         await storageService.saveUserId(result.user_id);
                     }
+                    await storageService.saveUserEmail(email);
                 }
 
                 // Sprawdź, czy użytkownik ma już zapisane preferencje w chmurze

@@ -6,6 +6,7 @@ console.log('[metadataService] API_URL:', API_URL);
 export interface PreferencesOptions {
     vibes: string[];
     eras: string[];
+    vibe_colors?: Record<string, string>;
 }
 
 export const metadataService = {

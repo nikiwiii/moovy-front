@@ -3,28 +3,25 @@ import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { Check, Clock, Film, Handshake, Heart, LucideIcon, Palette, Plus, ScanEye, Cog, Sparkle, Sparkles, UserRound, UsersRound, Tag, EllipsisVertical } from 'lucide-react-native';
 import { MotiView } from 'moti';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image, Modal, SafeAreaView, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { getVibeColor } from '../constants/vibes';
+import { metadataService } from '../services/metadataService';
+import * as SecureStore from 'expo-secure-store';
 import { AppText as Text } from '@/components/AppText';
 import Animated, { FadeIn, LinearTransition, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import CollapsibleSection from '../components/CollapsibleSection';
 import GenreSelection from '../components/GenreSelection';
 import GroupSelector from '../components/GroupSelector';
 import TouchableOpacity from '../components/TouchableOpacity';
+import VibeBars from '../components/VibeBars';
 import MoodPalette, { MOOD_ZONES } from '../components/MoodPalette';
 import { FillStyles } from '../constants/themeStyles';
 import { Colors } from '@/constants/theme';
+import { updateBackgroundHighlightColors } from '../components/AnimatedBackground';
 import { APP_NAME } from '../constants/app';
 
 const ACCENT = Colors.dark.accent;
-
-
-const posters = [
-    'https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg',
-    'https://image.tmdb.org/t/p/w500/yF1eOkaYvwiORauRCPWznV9xVvi.jpg',
-    'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
-    'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
-];
 
 interface Group {
     id: string;
@@ -33,40 +30,198 @@ interface Group {
     icon: LucideIcon;
 }
 
+const getAverageColor = (colors: string[]): string => {
+    if (colors.length === 0) return Colors.dark.accent;
+
+    let totalR = 0;
+    let totalG = 0;
+    let totalB = 0;
+    let count = 0;
+
+    for (const color of colors) {
+        const hex = color.replace('#', '');
+        if (hex.length === 6) {
+            totalR += parseInt(hex.substring(0, 2), 16);
+            totalG += parseInt(hex.substring(2, 4), 16);
+            totalB += parseInt(hex.substring(4, 6), 16);
+            count++;
+        } else if (hex.length === 3) {
+            totalR += parseInt(hex.charAt(0) + hex.charAt(0), 16);
+            totalG += parseInt(hex.charAt(1) + hex.charAt(1), 16);
+            totalB += parseInt(hex.charAt(2) + hex.charAt(2), 16);
+            count++;
+        }
+    }
+
+    if (count === 0) return Colors.dark.accent;
+
+    const avgR = Math.round(totalR / count);
+    const avgG = Math.round(totalG / count);
+    const avgB = Math.round(totalB / count);
+
+    const rHex = avgR.toString(16).padStart(2, '0');
+    const gHex = avgG.toString(16).padStart(2, '0');
+    const bHex = avgB.toString(16).padStart(2, '0');
+
+    return `#${rHex}${gHex}${bHex}`;
+};
+
+let cachedParametersState: any = null;
+
 export default function ParametersScreen() {
     const router = useRouter();
-    const [selectedGroup, setSelectedGroup] = useState<string | null>('solo');
+    const [selectedGroup, setSelectedGroup] = useState<string | null>(() => cachedParametersState?.selectedGroup ?? 'solo');
     const [scrollEnabled, setScrollEnabled] = useState(true);
-    const [vibeMethod, setVibeMethod] = useState<'tags' | 'palette'>('palette');
+    const [vibeMethod, setVibeMethod] = useState<'tags' | 'palette'>(() => cachedParametersState?.vibeMethod ?? 'palette');
+
+    const [backendColors, setBackendColors] = useState<Record<string, string>>({});
+    const [isLoaded, setIsLoaded] = useState(false);
 
     const [groups, setGroups] = useState<Group[]>([
         { id: 'solo', icon: UserRound, title: 'Solo', description: 'movies for you, just you and your preferences' },
         { id: 'tlum', icon: UsersRound, title: 'Crowd', description: 'engaging movies, great for matching different tastes' },
         { id: 'randewu', icon: Heart, title: 'Rendezvous', description: 'engaging, touching movies' }
     ]);
-    const [settings, setSettings] = useState([
+    const [settings, setSettings] = useState<{ icon: LucideIcon; title: string; value: boolean | number; }[]>(() => cachedParametersState?.settings ?? [
         { icon: Heart, title: "Use profile preferences", value: true },
         { icon: ScanEye, title: "Watched movies", value: false },
         { icon: Clock, title: "Max runtime", value: 240 },
-    ])
-
-    const setSettingValue = (title: string, value: boolean | number) => {
-        setSettings(prev => prev.map(setting => setting.title === title ? { ...setting, value } : setting));
-    }
+    ]);
 
     const [modalVisible, setModalVisible] = useState(false);
     const [newTitle, setNewTitle] = useState('');
     const [newDesc, setNewDesc] = useState('');
 
-    const [genres, setGenres] = useState({ liked: [] as string[], disliked: [] as string[] });
-    const [moodLabel, setMoodLabel] = useState<string | null>(null);
+    const [genres, setGenres] = useState<{ liked: string[]; disliked: string[]; }>(() => cachedParametersState?.genres ?? { liked: [] as string[], disliked: [] as string[] });
+    const [moodLabel, setMoodLabel] = useState<string | null>(() => cachedParametersState?.moodLabel ?? null);
+    const [paletteVibes, setPaletteVibes] = useState<string[]>(() => cachedParametersState?.paletteVibes ?? []);
+
+    const resolveVibeColor = (vibe: string): string => {
+        return backendColors[vibe.toUpperCase()] || getVibeColor(vibe);
+    };
+
+    const getVibeBarSegments = (likedVibes: string[]): { color: string; opacity: number }[] => {
+        const segments: { color: string; opacity: number }[] = [];
+        const L = likedVibes.length;
+
+        if (L === 0) {
+            for (let i = 0; i < 6; i++) {
+                segments.push({ color: 'rgba(255, 255, 255, 0.05)', opacity: 1 });
+            }
+            return segments;
+        }
+
+        const opacityFactors = [1.0, 0.6, 0.35, 0.2, 0.1, 0.05];
+
+        for (let i = 0; i < 6; i++) {
+            const vibeIndex = i % L;
+            const cycle = Math.floor(i / L);
+            const color = resolveVibeColor(likedVibes[vibeIndex]);
+            const opacity = opacityFactors[cycle] !== undefined ? opacityFactors[cycle] : 0.05;
+            segments.push({ color, opacity });
+        }
+        return segments;
+    };
+
+    const VibeBadge = ({ vibe }: { vibe: string }) => {
+        const color = resolveVibeColor(vibe);
+        return (
+            <View className="bg-white/[0.03] rounded-[6px] flex-row items-center">
+                <VibeBars color={color} width={2} height={8} gap={1} marginRight={2} borderRadius={1} />
+                <Text className="font-outfit text-[9px] text-white/50 uppercase tracking-[1px] mt-0.5">
+                    {vibe.replace('_', ' ').toLowerCase()}
+                </Text>
+            </View>
+        );
+    };
+
+    const getCustomVibeIconColor = (): string => {
+        if (genres && genres.liked && genres.liked.length === 0) return ACCENT;
+        const colors = (genres?.liked || []).map(v => resolveVibeColor(v));
+        return getAverageColor(colors);
+    };
+
+    const avgVibeColor = getCustomVibeIconColor();
+
+    const setSettingValue = (title: string, value: boolean | number) => {
+        setSettings(prev => prev.map(setting => setting.title === title ? { ...setting, value } : setting));
+    };
+
+    useEffect(() => {
+        const loadStateAndColors = async () => {
+            try {
+                // 1. Fetch colors
+                const data = await metadataService.getPreferencesOptions();
+                if (data && data.vibe_colors) {
+                    setBackendColors(data.vibe_colors);
+                }
+            } catch (e) {
+                console.warn('Failed to load vibe colors for header bar:', e);
+            }
+
+            try {
+                // 2. Load saved parameters
+                const saved = await SecureStore.getItemAsync('parameters_state');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.selectedGroup !== undefined) setSelectedGroup(parsed.selectedGroup);
+                    if (parsed.vibeMethod !== undefined) setVibeMethod(parsed.vibeMethod);
+                    if (parsed.genres !== undefined) setGenres(parsed.genres);
+                    if (parsed.paletteVibes !== undefined) setPaletteVibes(parsed.paletteVibes);
+                    if (parsed.moodLabel !== undefined) setMoodLabel(parsed.moodLabel);
+                    if (parsed.settings !== undefined) {
+                        setSettings(prev => {
+                            const updated = prev.map(s => {
+                                const savedSetting = parsed.settings.find((ps: any) => ps.title === s.title);
+                                return savedSetting ? { ...s, value: savedSetting.value } : s;
+                            });
+                            cachedParametersState = {
+                                selectedGroup: parsed.selectedGroup,
+                                vibeMethod: parsed.vibeMethod,
+                                genres: parsed.genres,
+                                paletteVibes: parsed.paletteVibes,
+                                moodLabel: parsed.moodLabel,
+                                settings: updated
+                            };
+                            return updated;
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn('Failed to load parameters state:', e);
+            } finally {
+                setIsLoaded(true);
+            }
+        };
+        loadStateAndColors();
+    }, []);
+
+    useEffect(() => {
+        if (!isLoaded) return;
+
+        const state = {
+            selectedGroup,
+            vibeMethod,
+            genres,
+            paletteVibes,
+            moodLabel,
+            settings
+        };
+        cachedParametersState = state; // Sync memory cache
+        SecureStore.setItemAsync('parameters_state', JSON.stringify(state)).catch(err => {
+            console.warn('Error saving parameters state:', err);
+        });
+    }, [selectedGroup, vibeMethod, genres, paletteVibes, moodLabel, settings, isLoaded]);
+
+    useEffect(() => {
+        const activeLikedVibes = vibeMethod === 'palette' ? paletteVibes : genres.liked;
+        const colors = activeLikedVibes.slice(0, 6).map(v => resolveVibeColor(v));
+        updateBackgroundHighlightColors(colors);
+    }, [genres.liked, paletteVibes, vibeMethod, backendColors]);
 
     const handleMoodSelected = (vibes: string[], label: string) => {
         setMoodLabel(label);
-        setGenres(prev => ({
-            ...prev,
-            liked: vibes
-        }));
+        setPaletteVibes(vibes);
     };
 
     const toggleGenre = (genre: string, type: 'liked' | 'disliked') => {
@@ -82,6 +237,9 @@ export default function ParametersScreen() {
     };
 
     const handleFindMovie = () => {
+        const activeVibes = vibeMethod === 'palette' ? paletteVibes : genres.liked;
+        const activeHardNos = vibeMethod === 'palette' ? [] : genres.disliked;
+
         const payload = {
             host_id: "00000000-0000-0000-0000-000000000000",
             invite_code: "12345",
@@ -92,8 +250,8 @@ export default function ParametersScreen() {
                     user_id: "00000000-0000-0000-0000-000000000000",
                     user_name: 'Guest',
                     personal_vibe: {
-                        vibes: genres.liked,
-                        hard_nos: genres.disliked,
+                        vibes: activeVibes,
+                        hard_nos: activeHardNos,
                         max_runtime: settings.find(s => s.title === "Max runtime")?.value || 120,
                         allow_seen: settings.find(s => s.title === "Watched movies")?.value || false,
                         eras: []
@@ -101,8 +259,8 @@ export default function ParametersScreen() {
                 }
             ],
             final_preferences: {
-                vibes: genres.liked,
-                hard_nos: genres.disliked,
+                vibes: activeVibes,
+                hard_nos: activeHardNos,
                 max_runtime: settings.find(s => s.title === "Max runtime")?.value || 120,
                 allow_seen: settings.find(s => s.title === "Watched movies")?.value || false,
                 eras: []
@@ -111,7 +269,7 @@ export default function ParametersScreen() {
 
         const criteriaData = {
             preset: groups.find(g => g.id === selectedGroup)?.title || "Crowd",
-            genres: genres.liked,
+            genres: activeVibes,
             duration: `${settings.find(s => s.title === "Max runtime")?.value} min`,
             friendsAdded: 0,
         };
@@ -146,7 +304,7 @@ export default function ParametersScreen() {
     return (
         <View className="flex-1 bg-transparent pt-10">
             <SafeAreaView className="flex-1">
-                <View className="px-2 pt-4 mb-4 flex-row justify-between items-center gap-2">
+                <View className="px-2 pt-4 mb-2 flex-row justify-between items-center gap-2">
                     <Text className="font-outfit-bold text-[24px] tracking-tighter pl-4">{APP_NAME}®</Text>
 
                     <View className='flex-row items-center gap-x-2'>
@@ -171,7 +329,26 @@ export default function ParametersScreen() {
                     </View>
                 </View>
 
-                <ScrollView contentContainerClassName="px-2 pb-[120px]" showsVerticalScrollIndicator={false} scrollEnabled={scrollEnabled}>
+                {/* Colored vibe indicators bar */}
+                <View style={{ height: 3, flexDirection: 'row' }}>
+                    {getVibeBarSegments(vibeMethod === 'palette' ? paletteVibes : genres.liked).map((seg, idx) => (
+                        <View
+                            key={idx}
+                            style={{
+                                flex: 1,
+                                height: '100%',
+                                backgroundColor: seg.color,
+                                opacity: seg.opacity,
+                                // borderBottomLeftRadius: idx === 0 ? 5 : 0,
+                                // borderTopLeftRadius: idx === 0 ? 5 : 0,
+                                // borderBottomRightRadius: idx === 5 ? 5 : 0,
+                                // borderTopRightRadius: idx === 5 ? 5 : 0,
+                            }}
+                        />
+                    ))}
+                </View>
+
+                <ScrollView contentContainerClassName="px-2 pb-[120px] pt-2.5" showsVerticalScrollIndicator={false} scrollEnabled={scrollEnabled}>
                     <MotiView
                         from={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -255,11 +432,7 @@ export default function ParametersScreen() {
                                                         </View>
                                                         <View className="flex-row flex-wrap gap-1">
                                                             {activeZone.vibes.map(v => (
-                                                                <View key={v} className="bg-white/[0.03] border border-white/[0.06] px-2 py-0.5 rounded-[6px]">
-                                                                    <Text className="font-outfit text-[9px] text-white/50 uppercase tracking-[1px]">
-                                                                        {v.replace('_', ' ').toLowerCase()}
-                                                                    </Text>
-                                                                </View>
+                                                                <VibeBadge key={v} vibe={v} />
                                                             ))}
                                                         </View>
                                                     </MotiView>
@@ -281,8 +454,17 @@ export default function ParametersScreen() {
                                         })() : (
                                             <View className="mb-4">
                                                 <View className="flex-row items-center gap-2 mb-2.5">
-                                                    <View style={{ width: 32, height: 32 }} className="rounded-full bg-accent/10 border border-accent/30 items-center justify-center">
-                                                        <Tag color={ACCENT} size={15} strokeWidth={2} />
+                                                    <View
+                                                        style={{
+                                                            width: 32,
+                                                            height: 32,
+                                                            backgroundColor: avgVibeColor + '15',
+                                                            borderColor: avgVibeColor + '40',
+                                                            borderWidth: 1,
+                                                        }}
+                                                        className="rounded-full items-center justify-center"
+                                                    >
+                                                        <Tag color={avgVibeColor} size={15} strokeWidth={2} />
                                                     </View>
                                                     <Text className="font-outfit-bold text-[13px] text-white uppercase tracking-wider">
                                                         Custom Vibe
@@ -290,12 +472,8 @@ export default function ParametersScreen() {
                                                 </View>
                                                 <View className="flex-row flex-wrap gap-1">
                                                     {genres.liked.length > 0 ? (
-                                                        genres.liked.slice(0, 3).map(g => (
-                                                            <View key={g} className="bg-white/[0.03] border border-white/[0.06] px-2 py-0.5 rounded-[6px]">
-                                                                <Text className="font-outfit text-[9px] text-white/50 uppercase tracking-[1px]">
-                                                                    {g.replace('_', ' ').toLowerCase()}
-                                                                </Text>
-                                                            </View>
+                                                        genres.liked.map(g => (
+                                                            <VibeBadge key={g} vibe={g} />
                                                         ))
                                                     ) : (
                                                         <Text className="font-outfit text-[12px] text-white/30">

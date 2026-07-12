@@ -1,6 +1,6 @@
 import { FillStyles } from "@/constants/themeStyles";
 import { router } from "expo-router";
-import { ChevronRight, LogIn, LogOut, Settings as SettingsIcon, Smartphone, UserCircle2 } from "lucide-react-native";
+import { Bookmark, ChevronRight, LogIn, LogOut, Settings as SettingsIcon, Smartphone, UserCircle2 } from "lucide-react-native";
 import { MotiView } from "moti";
 import React, { useEffect, useState } from "react";
 import { ScrollView, View, Alert } from 'react-native';
