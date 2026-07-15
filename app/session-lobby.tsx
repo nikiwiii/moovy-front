@@ -599,7 +599,15 @@ export default function SessionLobbyScreen() {
                             >
                                 <View className="gap-3">
                                     {moviesData.map((movie, index) => (
-                                        <FilmView key={index} movieData={movie} />
+                                        <FilmView 
+                                            key={index} 
+                                            movieData={movie} 
+                                            groupName={
+                                                session.meeting_type === 'RANDKA' ? 'Rendezvous' :
+                                                session.meeting_type === 'EKIPA' ? 'Crowd' :
+                                                session.meeting_type === 'RODZINA' ? 'Family' : 'Solo'
+                                            }
+                                        />
                                     ))}
                                 </View>
                             </MotiView>

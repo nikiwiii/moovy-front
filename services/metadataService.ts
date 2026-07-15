@@ -1,6 +1,7 @@
 import { storageService } from './storageService';
+import { setBackendVibeColors } from '../constants/vibes';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://35.253.185.77:8010';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
 console.log('[metadataService] API_URL:', API_URL);
 
 export interface PreferencesOptions {
@@ -31,10 +32,16 @@ export const metadataService = {
                 throw new Error(errorData.detail || 'Błąd pobierania metadanych z serwera');
             }
 
-            return await response.json();
+            const data = await response.json();
+            if (data && data.vibe_colors) {
+                const normalizedColors = setBackendVibeColors(data.vibe_colors);
+                data.vibe_colors = normalizedColors;
+            }
+            return data;
         } catch (error) {
             console.error('Failed to fetch preferences options:', error);
             throw error;
         }
     }
 };
+

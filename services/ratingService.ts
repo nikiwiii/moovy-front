@@ -1,6 +1,6 @@
 import { storageService } from './storageService';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://35.253.185.77:8010';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
 
 export interface WatchlistMovie {
     movie_id: string;

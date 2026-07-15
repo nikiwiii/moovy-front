@@ -214,7 +214,7 @@ export default function ProfileScreen() {
                                                 release_date: item.release_date || undefined,
                                                 initialReaction: 'WATCHLIST'
                                             };
-                                            return <FilmView key={item.movie_id} movieData={mappedMovie} />;
+                                            return <FilmView key={item.movie_id} movieData={mappedMovie} groupName="Watchlist" />;
                                         })
                                     )
                                 ) : (
@@ -235,7 +235,7 @@ export default function ProfileScreen() {
                                                 genres: [],
                                                 initialReaction: item.status as any
                                             };
-                                            return <FilmView key={item.movie_id} movieData={mappedMovie} />;
+                                            return <FilmView key={item.movie_id} movieData={mappedMovie} groupName="Rating" />;
                                         })
                                     )
                                 )}

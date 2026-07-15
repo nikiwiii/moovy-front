@@ -127,7 +127,7 @@ export default function WatchlistScreen() {
                                     release_date: item.release_date || undefined,
                                     initialReaction: 'WATCHLIST'
                                 };
-                                return <FilmView key={item.movie_id} movieData={mappedMovie} />;
+                                return <FilmView key={item.movie_id} movieData={mappedMovie} groupName="Watchlist" />;
                             })}
                         </MotiView>
                     </ScrollView>

@@ -1,4 +1,4 @@
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://35.253.185.77:8010';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
 console.log('[authService] API_URL:', API_URL);
 
 function extractErrorMessage(data: any, fallback: string): string {

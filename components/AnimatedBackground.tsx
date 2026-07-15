@@ -14,6 +14,7 @@ import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 const { width, height } = Dimensions.get('window');
 
 interface AnimatedOrbProps {
+    id: string;
     color: string;
     size: number;
     startPos: { x: number; y: number };
@@ -23,13 +24,13 @@ interface AnimatedOrbProps {
     vibeActive?: boolean;
 }
 
-const AnimatedOrb = ({ color, size, startPos, animDuration, translateRange, opacity = 0.5, vibeActive = false }: AnimatedOrbProps) => {
+const AnimatedOrb = React.memo(({ id, color, size, startPos, animDuration, translateRange, opacity = 0.5, vibeActive = false }: AnimatedOrbProps) => {
     const scale = useSharedValue(1);
     const translateX = useSharedValue(0);
     const translateY = useSharedValue(0);
     const animatedOpacity = useSharedValue(0);
 
-    const gradientId = useMemo(() => `glow-${color.replace('#', '')}-${Math.random()}`, [color]);
+    const gradientId = useMemo(() => `glow-${id}-${color.replace('#', '')}`, [id, color]);
 
     useEffect(() => {
         scale.value = withRepeat(
@@ -56,7 +57,7 @@ const AnimatedOrb = ({ color, size, startPos, animDuration, translateRange, opac
 
     useEffect(() => {
         // Smoothly dim default orbs when custom vibe corner highlights are active
-        animatedOpacity.value = withTiming(vibeActive ? 0.05 : opacity, { duration: 1000 });
+        animatedOpacity.value = withTiming(vibeActive ? 0.3 : opacity, { duration: 1000 });
     }, [vibeActive, opacity]);
 
     const animatedStyle = useAnimatedStyle(() => {
@@ -72,8 +73,6 @@ const AnimatedOrb = ({ color, size, startPos, animDuration, translateRange, opac
 
     return (
         <Animated.View
-            renderToHardwareTextureAndroid={true}
-            shouldRasterizeIOS={true}
             style={[
                 {
                     position: 'absolute',
@@ -104,9 +103,10 @@ const AnimatedOrb = ({ color, size, startPos, animDuration, translateRange, opac
             </Svg>
         </Animated.View>
     );
-};
+});
 
 interface VibeCornerLightProps {
+    id: string;
     color: string | undefined;
     size: number;
     startPos: { x: number; y: number };
@@ -115,7 +115,7 @@ interface VibeCornerLightProps {
     opacity?: number;
 }
 
-const VibeCornerLight = ({ color, size, startPos, animDuration, translateRange, opacity = 0.5 }: VibeCornerLightProps) => {
+const VibeCornerLight = React.memo(({ id, color, size, startPos, animDuration, translateRange, opacity = 0.25 }: VibeCornerLightProps) => {
     const scale = useSharedValue(1);
     const translateX = useSharedValue(0);
     const translateY = useSharedValue(0);
@@ -123,7 +123,7 @@ const VibeCornerLight = ({ color, size, startPos, animDuration, translateRange, 
 
     const [displayColor, setDisplayColor] = useState<string | undefined>(color);
 
-    const gradientId = useMemo(() => `glow-vibe-${(displayColor || '#000').replace('#', '')}-${Math.random()}`, [displayColor]);
+    const gradientId = useMemo(() => `glow-vibe-${id}-${(displayColor || '000').replace('#', '')}`, [id, displayColor]);
 
     useEffect(() => {
         scale.value = withRepeat(
@@ -179,8 +179,6 @@ const VibeCornerLight = ({ color, size, startPos, animDuration, translateRange, 
 
     return (
         <Animated.View
-            renderToHardwareTextureAndroid={true}
-            shouldRasterizeIOS={true}
             style={[
                 {
                     position: 'absolute',
@@ -211,7 +209,7 @@ const VibeCornerLight = ({ color, size, startPos, animDuration, translateRange, 
             </Svg>
         </Animated.View>
     );
-};
+});
 
 export type BackgroundTheme = 'default' | 'ocean' | 'cyberpunk' | 'sunset' | 'aurora' | 'monochrome' | 'nebula' | 'midnight' | 'emerald' | 'day' | 'cloudy' | 'black';
 
@@ -261,9 +259,13 @@ export default function AnimatedBackground({ theme = 'cloudy' }: AnimatedBackgro
     const vibeActive = highlights.length > 0;
 
     return (
-        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#040210', overflow: 'hidden' }}>
+        <View
+            pointerEvents="none"
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#040210', overflow: 'hidden' }}
+        >
             {/* Deep purple top-left */}
             <AnimatedOrb
+                id="orb-0"
                 color={colors[0]}
                 size={width * 1.8}
                 startPos={{ x: -width * 0.3, y: -height * 0.05 }}
@@ -274,6 +276,7 @@ export default function AnimatedBackground({ theme = 'cloudy' }: AnimatedBackgro
             />
             {/* Indigo right */}
             <AnimatedOrb
+                id="orb-1"
                 color={colors[1]}
                 size={width * 1.4}
                 startPos={{ x: width * 0.8, y: height * 0.25 }}
@@ -284,6 +287,7 @@ export default function AnimatedBackground({ theme = 'cloudy' }: AnimatedBackgro
             />
             {/* Deep violet bottom-left */}
             <AnimatedOrb
+                id="orb-2"
                 color={colors[2]}
                 size={width * 1.6}
                 startPos={{ x: -width * 0.15, y: height * 0.85 }}
@@ -294,6 +298,7 @@ export default function AnimatedBackground({ theme = 'cloudy' }: AnimatedBackgro
             />
             {/* Dark base bottom-right */}
             <AnimatedOrb
+                id="orb-3"
                 color={colors[3]}
                 size={width * 1.8}
                 startPos={{ x: width * 1, y: height * 1.05 }}
@@ -304,6 +309,7 @@ export default function AnimatedBackground({ theme = 'cloudy' }: AnimatedBackgro
             />
             {/* Subtle center fill */}
             <AnimatedOrb
+                id="orb-4"
                 color={colors[4]}
                 size={width * 1.2}
                 startPos={{ x: width * 0.5, y: height * 0.5 }}
@@ -314,64 +320,82 @@ export default function AnimatedBackground({ theme = 'cloudy' }: AnimatedBackgro
             />
 
             {/* Vibe corner highlight 1: Bottom Right */}
-            <VibeCornerLight
-                color={highlights[0]}
-                size={width * 1.2}
-                startPos={{ x: width * 0.95, y: height * 0.95 }}
-                animDuration={15000}
-                translateRange={{ x: -35, y: -35 }}
-                opacity={0.45}
-            />
+            {highlights[0] && (
+                <VibeCornerLight
+                    id="vibe-0"
+                    color={highlights[0]}
+                    size={width * 1.2}
+                    startPos={{ x: width * 0.95, y: height * 0.95 }}
+                    animDuration={15000}
+                    translateRange={{ x: -35, y: -35 }}
+                    opacity={0.22}
+                />
+            )}
 
             {/* Vibe corner highlight 2: Bottom Center-Right */}
-            <VibeCornerLight
-                color={highlights[1]}
-                size={width * 1.1}
-                startPos={{ x: width * 0.75, y: height * 0.75 }}
-                animDuration={17000}
-                translateRange={{ x: -30, y: -30 }}
-                opacity={0.4}
-            />
+            {highlights[1] && (
+                <VibeCornerLight
+                    id="vibe-1"
+                    color={highlights[1]}
+                    size={width * 1.1}
+                    startPos={{ x: width * 0.75, y: height * 0.75 }}
+                    animDuration={17000}
+                    translateRange={{ x: -30, y: -30 }}
+                    opacity={0.2}
+                />
+            )}
 
             {/* Vibe corner highlight 3: Center Right */}
-            <VibeCornerLight
-                color={highlights[2]}
-                size={width * 1.2}
-                startPos={{ x: width * 0.9, y: height * 0.45 }}
-                animDuration={16000}
-                translateRange={{ x: -40, y: 20 }}
-                opacity={0.45}
-            />
+            {highlights[2] && (
+                <VibeCornerLight
+                    id="vibe-2"
+                    color={highlights[2]}
+                    size={width * 1.2}
+                    startPos={{ x: width * 0.9, y: height * 0.45 }}
+                    animDuration={16000}
+                    translateRange={{ x: -40, y: 20 }}
+                    opacity={0.22}
+                />
+            )}
 
             {/* Vibe corner highlight 4: Center Left */}
-            <VibeCornerLight
-                color={highlights[3]}
-                size={width * 1.2}
-                startPos={{ x: width * 0.1, y: height * 0.55 }}
-                animDuration={18000}
-                translateRange={{ x: 35, y: -20 }}
-                opacity={0.45}
-            />
+            {highlights[3] && (
+                <VibeCornerLight
+                    id="vibe-3"
+                    color={highlights[3]}
+                    size={width * 1.2}
+                    startPos={{ x: width * 0.1, y: height * 0.55 }}
+                    animDuration={18000}
+                    translateRange={{ x: 35, y: -20 }}
+                    opacity={0.22}
+                />
+            )}
 
             {/* Vibe corner highlight 5: Top Center-Left */}
-            <VibeCornerLight
-                color={highlights[4]}
-                size={width * 1.1}
-                startPos={{ x: width * 0.25, y: height * 0.25 }}
-                animDuration={19000}
-                translateRange={{ x: 30, y: 30 }}
-                opacity={0.4}
-            />
+            {highlights[4] && (
+                <VibeCornerLight
+                    id="vibe-4"
+                    color={highlights[4]}
+                    size={width * 1.1}
+                    startPos={{ x: width * 0.25, y: height * 0.25 }}
+                    animDuration={19000}
+                    translateRange={{ x: 30, y: 30 }}
+                    opacity={0.2}
+                />
+            )}
 
             {/* Vibe corner highlight 6: Top Left */}
-            <VibeCornerLight
-                color={highlights[5]}
-                size={width * 1.2}
-                startPos={{ x: width * 0.05, y: height * 0.05 }}
-                animDuration={14000}
-                translateRange={{ x: 30, y: 30 }}
-                opacity={0.45}
-            />
+            {highlights[5] && (
+                <VibeCornerLight
+                    id="vibe-5"
+                    color={highlights[5]}
+                    size={width * 1.2}
+                    startPos={{ x: width * 0.05, y: height * 0.05 }}
+                    animDuration={14000}
+                    translateRange={{ x: 30, y: 30 }}
+                    opacity={0.22}
+                />
+            )}
         </View>
     );
 }

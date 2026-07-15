@@ -82,7 +82,7 @@ export default function IdeaScreen() {
                     <View className="flex-col gap-4">
                         {moviesData.length > 0 ? (
                             moviesData.map((movie, index) => (
-                                <FilmView key={index} movieData={movie} />
+                                <FilmView key={index} movieData={movie} groupName={parsedCriteria.preset} />
                             ))
                         ) : (
                             <FilmView /> // Default fallback
