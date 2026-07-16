@@ -32,6 +32,8 @@ export default function IdeaScreen() {
 
     if (parsedMovies) {
         moviesData.push({
+            movie_id: parsedMovies.movie_id,
+            tmdb_id: parsedMovies.tmdb_id,
             title: parsedMovies.movie_title,
             description: parsedMovies.reasoning_pl,
             genres: parsedMovies.genres,
@@ -44,6 +46,8 @@ export default function IdeaScreen() {
         if (parsedMovies.extra_movies && Array.isArray(parsedMovies.extra_movies)) {
             parsedMovies.extra_movies.forEach((extra: any) => {
                 moviesData.push({
+                    movie_id: extra.movie_id,
+                    tmdb_id: extra.tmdb_id,
                     title: extra.movie_title,
                     description: "An alternative suggestion from our system, tailored to your taste.",
                     genres: extra.genres,
@@ -78,7 +82,7 @@ export default function IdeaScreen() {
                     <View className="flex-col gap-4">
                         {moviesData.length > 0 ? (
                             moviesData.map((movie, index) => (
-                                <FilmView key={index} movieData={movie} />
+                                <FilmView key={index} movieData={movie} groupName={parsedCriteria.preset} />
                             ))
                         ) : (
                             <FilmView /> // Default fallback
@@ -86,11 +90,10 @@ export default function IdeaScreen() {
                     </View>
                     <CollapsibleSection
                         title="Your criteria"
-                        subtitle="Why this suggestion?"
                         icon={Users}
                         defaultOpen={false}
                     >
-                        <Animated.View layout={LinearTransition} className="flex-col gap-3">
+                        <Animated.View layout={LinearTransition} className="flex-col gap-3 px-4 pb-4">
                             <View className="flex-row items-center gap-3"><Users size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.preset}</Text></View>
                             <View className="flex-row items-center gap-3"><Film size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.genres.length > 0 ? parsedCriteria.genres.join(", ") : "Any"}</Text></View>
                             <View className="flex-row items-center gap-3"><Clock size={16} strokeWidth={2} color={ACCENT} /><Text className="font-outfit text-[14px]">{parsedCriteria.duration}</Text></View>

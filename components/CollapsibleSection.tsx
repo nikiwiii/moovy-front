@@ -11,7 +11,6 @@ const ACCENT = Colors.dark.accent;
 
 export interface CollapsibleSectionProps {
     title: string;
-    subtitle: string;
     value?: number | string;
     icon: any;
     children: React.ReactNode;
@@ -21,7 +20,7 @@ export interface CollapsibleSectionProps {
     className?: string;
 }
 
-export default function CollapsibleSection({ title, subtitle, value, icon: IconComponent, children, defaultOpen = false, rightIcon = null, onRightIconPress, className }: CollapsibleSectionProps) {
+export default function CollapsibleSection({ title, value, icon: IconComponent, children, defaultOpen = false, rightIcon = null, onRightIconPress, className }: CollapsibleSectionProps) {
     const [open, setOpen] = useState(defaultOpen);
 
     return (
@@ -30,9 +29,15 @@ export default function CollapsibleSection({ title, subtitle, value, icon: IconC
                 className="p-4 flex-col justify-between"
                 onPress={() => setOpen(!open)}
             >
-                <View className="flex-row justify-between items-start">
-                    <View className="w-[48px] h-[48px] rounded-full bg-white/[0.06] items-center justify-center border border-white/[0.08]">
+                <View className="flex-row justify-between items-center">
+                    {/* <View className="w-[48px] h-[48px] rounded-full bg-white/[0.06] items-center justify-center border border-white/[0.08]">
                         <IconComponent color={ACCENT} size={22} strokeWidth={1.5} />
+                    </View> */}
+                    <View className="flex-row items-center justify-start gap-2">
+                        <View className="w-[24px] h-[24px] flex items-center justify-center">
+                            <IconComponent color={ACCENT} size={22} strokeWidth={1.5} />
+                        </View>
+                        <Text className="font-outfit-bold text-[18px] leading-tight uppercase border-b border-white/40">{title}</Text>
                     </View>
                     <View className="flex-row items-center">
                         {rightIcon && (
@@ -45,18 +50,15 @@ export default function CollapsibleSection({ title, subtitle, value, icon: IconC
                         </View>
                     </View>
                 </View>
-                <View className="flex-row justify-between items-end">
-                    <View className="flex-1 mr-4 mt-4">
-                        <Text className="font-outfit text-[11px] opacity-40 uppercase tracking-[3px]">{subtitle}</Text>
-                        <Text className="font-outfit-bold text-[20px] leading-tight mt-0.5">{title}</Text>
-                    </View>
+                {/* <View className="flex-row justify-between items-end">
+                    <Text className="font-outfit-bold text-[20px] leading-tight mt-0.5 uppercase border-b border-white">{title}</Text>
                     {value !== undefined && value !== null && (
                         <Text style={{ color: ACCENT }} className="font-outfit-bold text-[32px] relative top-[8px] opacity-40">{value}</Text>
                     )}
-                </View>
+                </View> */}
             </TouchableOpacity>
             {open && (
-                <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} className="px-4 pb-4">
+                <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} className="px-0.5 pb-0.5">
                     {children}
                 </Animated.View>
             )}

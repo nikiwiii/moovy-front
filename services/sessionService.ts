@@ -1,6 +1,6 @@
 import { storageService } from './storageService';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://35.253.185.77:8010';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
 console.log('[sessionService] API_URL:', API_URL);
 
 export type MeetingType = 'RANDKA' | 'EKIPA' | 'RODZINA' | 'SOLO';
@@ -84,6 +84,15 @@ function extractErrorMsg(data: any, defaultMsg: string): string {
     return defaultMsg;
 }
 
+async function parseResponse(response: Response) {
+    const text = await response.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return { detail: text || `Server error (${response.status}: ${response.statusText || 'Internal Error'})` };
+    }
+}
+
 export const sessionService = {
     /**
      * 1. POST /session/create — Host tworzy sesję
@@ -96,7 +105,7 @@ export const sessionService = {
             body: JSON.stringify({ meeting_type: meetingType }),
         });
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
             throw new Error(extractErrorMsg(data, 'Error creating session'));
         }
@@ -114,7 +123,7 @@ export const sessionService = {
             body: JSON.stringify({ invite_code: inviteCode }),
         });
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
             throw new Error(extractErrorMsg(data, 'Error joining session'));
         }
@@ -132,7 +141,7 @@ export const sessionService = {
             body: JSON.stringify({ preferences }),
         });
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
             throw new Error(extractErrorMsg(data, 'Error saving preferences'));
         }
@@ -149,7 +158,7 @@ export const sessionService = {
             headers,
         });
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
             throw new Error(extractErrorMsg(data, 'Error fetching session'));
         }
@@ -166,7 +175,7 @@ export const sessionService = {
             headers,
         });
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
             throw new Error(extractErrorMsg(data, 'Error fetching my sessions'));
         }
@@ -183,7 +192,7 @@ export const sessionService = {
             headers,
         });
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
             throw new Error(extractErrorMsg(data, 'Error generating recommendations'));
         }
@@ -200,7 +209,7 @@ export const sessionService = {
             headers,
         });
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
             throw new Error(extractErrorMsg(data, 'Error closing session'));
         }

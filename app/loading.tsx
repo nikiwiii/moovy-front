@@ -3,7 +3,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Sparkles } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useEffect, useRef } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Toast } from '@/components/Toast';
 import Animated, {
     Easing,
     useAnimatedStyle,
@@ -16,6 +17,8 @@ import Animated, {
 import { AppText as Text } from '@/components/AppText';
 import { Colors } from '@/constants/theme';
 import { storageService } from '@/services/storageService';
+import { getVibeColor } from '@/constants/vibes';
+import Svg, { Circle } from 'react-native-svg';
 
 const ACCENT = Colors.dark.accent;
 
@@ -74,7 +77,7 @@ function PulsingDot({ delay }: { delay: number }) {
     );
 }
 
-function RotatingRing() {
+function RotatingRing({ colors }: { colors: string[] }) {
     const rotate = useSharedValue(0);
 
     useEffect(() => {
@@ -88,22 +91,39 @@ function RotatingRing() {
         transform: [{ rotate: `${rotate.value}deg` }],
     }));
 
+    const size = 100;
+    const strokeWidth = 3;
+    const center = size / 2;
+    const radius = center - strokeWidth;
+    const circumference = 2 * Math.PI * radius;
+
+    const displayColors = colors.length > 0 ? colors : [ACCENT];
+    const N = displayColors.length;
+    const segmentLength = circumference / N;
+
     return (
-        <Animated.View
-            style={[
-                {
-                    width: 100,
-                    height: 100,
-                    borderRadius: 50,
-                    borderWidth: 2,
-                    borderColor: 'transparent',
-                    borderTopColor: ACCENT,
-                    borderRightColor: `${ACCENT}44`,
-                    position: 'absolute',
-                },
-                style,
-            ]}
-        />
+        <Animated.View style={[{ width: size, height: size, position: 'absolute' }, style]}>
+            <Svg width={size} height={size}>
+                {displayColors.map((color, i) => {
+                    const strokeDasharray = `${segmentLength} ${circumference}`;
+                    const strokeDashoffset = -i * segmentLength;
+                    return (
+                        <Circle
+                            key={i}
+                            cx={center}
+                            cy={center}
+                            r={radius}
+                            stroke={color}
+                            strokeWidth={strokeWidth}
+                            strokeDasharray={strokeDasharray}
+                            strokeDashoffset={strokeDashoffset}
+                            strokeLinecap="round"
+                            fill="transparent"
+                        />
+                    );
+                })}
+            </Svg>
+        </Animated.View>
     );
 }
 
@@ -111,7 +131,28 @@ export default function LoadingScreen() {
     const router = useRouter();
     const params = useLocalSearchParams<{ payload: string; groups: string; settings: string }>();
     const [hintIndex, setHintIndex] = React.useState(0);
+
+    const vibeColorsList = React.useMemo(() => {
+        try {
+            if (!params.groups) return [];
+            const criteriaData = JSON.parse(params.groups as string);
+            const vibes: string[] = criteriaData.genres || [];
+            return vibes.map(v => getVibeColor(v));
+        } catch (e) {
+            return [];
+        }
+    }, [params.groups]);
     const fetchDone = useRef(false);
+    const [toast, setToast] = React.useState<{ visible: boolean; message: string; title?: string; type: 'success' | 'error' | 'info' }>({
+        visible: false,
+        message: '',
+        title: '',
+        type: 'info'
+    });
+
+    const showToast = (message: string, title?: string, type: 'success' | 'error' | 'info' = 'info') => {
+        setToast({ visible: true, message, title, type });
+    };
 
     // Rotate hints
     useEffect(() => {
@@ -131,7 +172,7 @@ export default function LoadingScreen() {
                 const payload = JSON.parse(params.payload as string);
                 const criteriaData = JSON.parse(params.groups as string);
 
-                const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.1:8000';
+                const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
                 const token = await storageService.getToken();
 
                 // Step 1 — create session
@@ -178,9 +219,13 @@ export default function LoadingScreen() {
                                 })
                                 .join('\n');
                         else if (detail) errMsg = JSON.stringify(detail);
-                        Alert.alert('No movies found', errMsg);
+                        showToast(errMsg, 'No movies found', 'error');
+                        setTimeout(() => {
+                            router.back();
+                        }, 2500);
+                    } else {
+                        router.back();
                     }
-                    router.back();
                     return;
                 }
 
@@ -203,7 +248,12 @@ export default function LoadingScreen() {
     return (
         <View style={StyleSheet.absoluteFill} className="flex-1 items-center justify-center">
             {/* Background blur overlay */}
-            <BlurView intensity={18} tint="dark" style={StyleSheet.absoluteFill} />
+            <BlurView 
+                intensity={18} 
+                tint="dark" 
+                experimentalBlurMethod="dimezisBlurView" 
+                style={StyleSheet.absoluteFill} 
+            />
 
             {/* Glow behind spinner */}
             <MotiView
@@ -222,7 +272,7 @@ export default function LoadingScreen() {
 
             {/* Spinner ring */}
             <View style={{ width: 100, height: 100, alignItems: 'center', justifyContent: 'center' }}>
-                <RotatingRing />
+                <RotatingRing colors={vibeColorsList} />
                 <View
                     style={{
                         width: 64,
@@ -261,6 +311,14 @@ export default function LoadingScreen() {
                     {HINTS[hintIndex]}
                 </Text>
             </MotiView>
+
+            <Toast
+                visible={toast.visible}
+                message={toast.message}
+                title={toast.title}
+                type={toast.type}
+                onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+            />
         </View>
     );
 }

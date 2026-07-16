@@ -1,29 +1,27 @@
 import Slider from '@react-native-community/slider';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
-import { Check, Clock, Film, Handshake, Heart, LucideIcon, Plus, ScanEye, Cog, Sparkle, Sparkles, UserRound, UsersRound } from 'lucide-react-native';
+import { Check, Clock, Film, Handshake, Heart, LucideIcon, Palette, Plus, ScanEye, Cog, Sparkle, Sparkles, UserRound, UsersRound, Tag, EllipsisVertical } from 'lucide-react-native';
 import { MotiView } from 'moti';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image, Modal, SafeAreaView, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { getVibeColor } from '../constants/vibes';
+import { metadataService } from '../services/metadataService';
+import * as SecureStore from 'expo-secure-store';
 import { AppText as Text } from '@/components/AppText';
 import Animated, { FadeIn, LinearTransition, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import CollapsibleSection from '../components/CollapsibleSection';
 import GenreSelection from '../components/GenreSelection';
 import GroupSelector from '../components/GroupSelector';
 import TouchableOpacity from '../components/TouchableOpacity';
+import VibeBars from '../components/VibeBars';
+import MoodPalette, { MOOD_ZONES } from '../components/MoodPalette';
 import { FillStyles } from '../constants/themeStyles';
 import { Colors } from '@/constants/theme';
+import { updateBackgroundHighlightColors } from '../components/AnimatedBackground';
 import { APP_NAME } from '../constants/app';
 
 const ACCENT = Colors.dark.accent;
-
-
-const posters = [
-    'https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg',
-    'https://image.tmdb.org/t/p/w500/yF1eOkaYvwiORauRCPWznV9xVvi.jpg',
-    'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
-    'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
-];
 
 interface Group {
     id: string;
@@ -32,30 +30,199 @@ interface Group {
     icon: LucideIcon;
 }
 
+const getAverageColor = (colors: string[]): string => {
+    if (colors.length === 0) return Colors.dark.accent;
+
+    let totalR = 0;
+    let totalG = 0;
+    let totalB = 0;
+    let count = 0;
+
+    for (const color of colors) {
+        const hex = color.replace('#', '');
+        if (hex.length === 6) {
+            totalR += parseInt(hex.substring(0, 2), 16);
+            totalG += parseInt(hex.substring(2, 4), 16);
+            totalB += parseInt(hex.substring(4, 6), 16);
+            count++;
+        } else if (hex.length === 3) {
+            totalR += parseInt(hex.charAt(0) + hex.charAt(0), 16);
+            totalG += parseInt(hex.charAt(1) + hex.charAt(1), 16);
+            totalB += parseInt(hex.charAt(2) + hex.charAt(2), 16);
+            count++;
+        }
+    }
+
+    if (count === 0) return Colors.dark.accent;
+
+    const avgR = Math.round(totalR / count);
+    const avgG = Math.round(totalG / count);
+    const avgB = Math.round(totalB / count);
+
+    const rHex = avgR.toString(16).padStart(2, '0');
+    const gHex = avgG.toString(16).padStart(2, '0');
+    const bHex = avgB.toString(16).padStart(2, '0');
+
+    return `#${rHex}${gHex}${bHex}`;
+};
+
+let cachedParametersState: any = null;
+
 export default function ParametersScreen() {
     const router = useRouter();
-    const [selectedGroup, setSelectedGroup] = useState<string | null>('solo');
+    const [selectedGroup, setSelectedGroup] = useState<string | null>(() => cachedParametersState?.selectedGroup ?? 'solo');
+    const [scrollEnabled, setScrollEnabled] = useState(true);
+    const [vibeMethod, setVibeMethod] = useState<'tags' | 'palette'>(() => cachedParametersState?.vibeMethod ?? 'palette');
+
+    const [backendColors, setBackendColors] = useState<Record<string, string>>({});
+    const [isLoaded, setIsLoaded] = useState(false);
 
     const [groups, setGroups] = useState<Group[]>([
         { id: 'solo', icon: UserRound, title: 'Solo', description: 'movies for you, just you and your preferences' },
         { id: 'tlum', icon: UsersRound, title: 'Crowd', description: 'engaging movies, great for matching different tastes' },
         { id: 'randewu', icon: Heart, title: 'Rendezvous', description: 'engaging, touching movies' }
     ]);
-    const [settings, setSettings] = useState([
+    const [settings, setSettings] = useState<{ icon: LucideIcon; title: string; value: boolean | number; }[]>(() => cachedParametersState?.settings ?? [
         { icon: Heart, title: "Use profile preferences", value: true },
         { icon: ScanEye, title: "Watched movies", value: false },
         { icon: Clock, title: "Max runtime", value: 240 },
-    ])
-
-    const setSettingValue = (title: string, value: boolean | number) => {
-        setSettings(prev => prev.map(setting => setting.title === title ? { ...setting, value } : setting));
-    }
+    ]);
 
     const [modalVisible, setModalVisible] = useState(false);
     const [newTitle, setNewTitle] = useState('');
     const [newDesc, setNewDesc] = useState('');
 
-    const [genres, setGenres] = useState({ liked: [] as string[], disliked: [] as string[] });
+    const [genres, setGenres] = useState<{ liked: string[]; disliked: string[]; }>(() => cachedParametersState?.genres ?? { liked: [] as string[], disliked: [] as string[] });
+    const [moodLabel, setMoodLabel] = useState<string | null>(() => cachedParametersState?.moodLabel ?? null);
+    const [paletteVibes, setPaletteVibes] = useState<string[]>(() => cachedParametersState?.paletteVibes ?? []);
+
+    const resolveVibeColor = (vibe: string): string => {
+        return backendColors[vibe.toUpperCase()] || getVibeColor(vibe);
+    };
+
+    const getVibeBarSegments = (likedVibes: string[]): { color: string; opacity: number }[] => {
+        const segments: { color: string; opacity: number }[] = [];
+        const L = likedVibes.length;
+
+        if (L === 0) {
+            for (let i = 0; i < 6; i++) {
+                segments.push({ color: 'rgba(255, 255, 255, 0.05)', opacity: 1 });
+            }
+            return segments;
+        }
+
+        const opacityFactors = [1.0, 0.6, 0.35, 0.2, 0.1, 0.05];
+
+        for (let i = 0; i < 6; i++) {
+            const vibeIndex = i % L;
+            const cycle = Math.floor(i / L);
+            const color = resolveVibeColor(likedVibes[vibeIndex]);
+            const opacity = opacityFactors[cycle] !== undefined ? opacityFactors[cycle] : 0.05;
+            segments.push({ color, opacity });
+        }
+        return segments;
+    };
+
+    const VibeBadge = ({ vibe }: { vibe: string }) => {
+        const color = resolveVibeColor(vibe);
+        return (
+            <View className="bg-white/[0.03] rounded-[6px] flex-row items-center">
+                <VibeBars color={color} width={2} height={8} gap={1} marginRight={2} borderRadius={1} />
+                <Text className="font-outfit text-[9px] text-white/50 uppercase tracking-[1px] mt-0.5">
+                    {vibe.replace('_', ' ').toLowerCase()}
+                </Text>
+            </View>
+        );
+    };
+
+    const getCustomVibeIconColor = (): string => {
+        if (genres && genres.liked && genres.liked.length === 0) return ACCENT;
+        const colors = (genres?.liked || []).map(v => resolveVibeColor(v));
+        return getAverageColor(colors);
+    };
+
+    const avgVibeColor = getCustomVibeIconColor();
+
+    const setSettingValue = (title: string, value: boolean | number) => {
+        setSettings(prev => prev.map(setting => setting.title === title ? { ...setting, value } : setting));
+    };
+
+    useEffect(() => {
+        const loadStateAndColors = async () => {
+            try {
+                // 1. Fetch colors
+                const data = await metadataService.getPreferencesOptions();
+                if (data && data.vibe_colors) {
+                    setBackendColors(data.vibe_colors);
+                }
+            } catch (e) {
+                console.warn('Failed to load vibe colors for header bar:', e);
+            }
+
+            try {
+                // 2. Load saved parameters
+                const saved = await SecureStore.getItemAsync('parameters_state');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.selectedGroup !== undefined) setSelectedGroup(parsed.selectedGroup);
+                    if (parsed.vibeMethod !== undefined) setVibeMethod(parsed.vibeMethod);
+                    if (parsed.genres !== undefined) setGenres(parsed.genres);
+                    if (parsed.paletteVibes !== undefined) setPaletteVibes(parsed.paletteVibes);
+                    if (parsed.moodLabel !== undefined) setMoodLabel(parsed.moodLabel);
+                    if (parsed.settings !== undefined) {
+                        setSettings(prev => {
+                            const updated = prev.map(s => {
+                                const savedSetting = parsed.settings.find((ps: any) => ps.title === s.title);
+                                return savedSetting ? { ...s, value: savedSetting.value } : s;
+                            });
+                            cachedParametersState = {
+                                selectedGroup: parsed.selectedGroup,
+                                vibeMethod: parsed.vibeMethod,
+                                genres: parsed.genres,
+                                paletteVibes: parsed.paletteVibes,
+                                moodLabel: parsed.moodLabel,
+                                settings: updated
+                            };
+                            return updated;
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn('Failed to load parameters state:', e);
+            } finally {
+                setIsLoaded(true);
+            }
+        };
+        loadStateAndColors();
+    }, []);
+
+    useEffect(() => {
+        if (!isLoaded) return;
+
+        const state = {
+            selectedGroup,
+            vibeMethod,
+            genres,
+            paletteVibes,
+            moodLabel,
+            settings
+        };
+        cachedParametersState = state; // Sync memory cache
+        SecureStore.setItemAsync('parameters_state', JSON.stringify(state)).catch(err => {
+            console.warn('Error saving parameters state:', err);
+        });
+    }, [selectedGroup, vibeMethod, genres, paletteVibes, moodLabel, settings, isLoaded]);
+
+    useEffect(() => {
+        const activeLikedVibes = vibeMethod === 'palette' ? paletteVibes : genres.liked;
+        const colors = activeLikedVibes.slice(0, 6).map(v => resolveVibeColor(v));
+        updateBackgroundHighlightColors(colors);
+    }, [genres.liked, paletteVibes, vibeMethod, backendColors]);
+
+    const handleMoodSelected = (vibes: string[], label: string) => {
+        setMoodLabel(label);
+        setPaletteVibes(vibes);
+    };
 
     const toggleGenre = (genre: string, type: 'liked' | 'disliked') => {
         setGenres(prev => {
@@ -70,6 +237,9 @@ export default function ParametersScreen() {
     };
 
     const handleFindMovie = () => {
+        const activeVibes = vibeMethod === 'palette' ? paletteVibes : genres.liked;
+        const activeHardNos = vibeMethod === 'palette' ? [] : genres.disliked;
+
         const payload = {
             host_id: "00000000-0000-0000-0000-000000000000",
             invite_code: "12345",
@@ -80,8 +250,8 @@ export default function ParametersScreen() {
                     user_id: "00000000-0000-0000-0000-000000000000",
                     user_name: 'Guest',
                     personal_vibe: {
-                        vibes: genres.liked,
-                        hard_nos: genres.disliked,
+                        vibes: activeVibes,
+                        hard_nos: activeHardNos,
                         max_runtime: settings.find(s => s.title === "Max runtime")?.value || 120,
                         allow_seen: settings.find(s => s.title === "Watched movies")?.value || false,
                         eras: []
@@ -89,8 +259,8 @@ export default function ParametersScreen() {
                 }
             ],
             final_preferences: {
-                vibes: genres.liked,
-                hard_nos: genres.disliked,
+                vibes: activeVibes,
+                hard_nos: activeHardNos,
                 max_runtime: settings.find(s => s.title === "Max runtime")?.value || 120,
                 allow_seen: settings.find(s => s.title === "Watched movies")?.value || false,
                 eras: []
@@ -99,7 +269,7 @@ export default function ParametersScreen() {
 
         const criteriaData = {
             preset: groups.find(g => g.id === selectedGroup)?.title || "Crowd",
-            genres: genres.liked,
+            genres: activeVibes,
             duration: `${settings.find(s => s.title === "Max runtime")?.value} min`,
             friendsAdded: 0,
         };
@@ -134,43 +304,59 @@ export default function ParametersScreen() {
     return (
         <View className="flex-1 bg-transparent pt-10">
             <SafeAreaView className="flex-1">
-                <View className="px-8 pt-4 mb-4 flex-row justify-between items-center">
-                    <MotiView
-                        from={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 300 }}
-                    >
-                        <Text className="font-outfit-bold text-[24px] tracking-tighter">{APP_NAME}®</Text>
-                    </MotiView>
+                <View className="px-2 pt-4 mb-2 flex-row justify-between items-center gap-2">
+                    <Text className="font-outfit-bold text-[24px] tracking-tighter pl-4">{APP_NAME}®</Text>
+
+                    <View className='flex-row items-center gap-x-2'>
+                        <TouchableOpacity
+                            onPress={() => router.push('/session-create')}
+                            className="rounded-full bg-white/[0.1] flex-row gap-x-1 items-center justify-center py-1 px-2"
+                        >
+                            <Plus color={ACCENT} size={16} strokeWidth={2.5} />
+                            <Text className="font-outfit-bold text-[14px] uppercase tracking-[2px] mt-0.5 mr-1">
+                                Create session
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => router.push('/session-join')}
+                            className="rounded-full bg-white/[0.1] flex-row gap-x-1 items-center justify-center py-1 px-2"
+                        >
+                            <Handshake color={ACCENT} size={16} strokeWidth={2} />
+                            <Text className="font-outfit-bold text-[14px] uppercase tracking-[2px] mt-0.5 mr-1">
+                                Join
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
-                <ScrollView contentContainerClassName="px-4 pb-[120px]" showsVerticalScrollIndicator={false}>
+                {/* Colored vibe indicators bar */}
+                <View style={{ height: 3, flexDirection: 'row' }}>
+                    {getVibeBarSegments(vibeMethod === 'palette' ? paletteVibes : genres.liked).map((seg, idx) => (
+                        <View
+                            key={idx}
+                            style={{
+                                flex: 1,
+                                height: '2',
+                                backgroundColor: seg.color,
+                                opacity: seg.opacity,
+                                // borderBottomLeftRadius: idx === 0 ? 5 : 0,
+                                // borderTopLeftRadius: idx === 0 ? 5 : 0,
+                                // borderBottomRightRadius: idx === 5 ? 5 : 0,
+                                // borderTopRightRadius: idx === 5 ? 5 : 0,
+                            }}
+                        />
+                    ))}
+                </View>
+
+                <ScrollView contentContainerClassName="px-2 pb-[120px] pt-2.5" showsVerticalScrollIndicator={false} scrollEnabled={scrollEnabled}>
                     <MotiView
                         from={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 200, duration: 600 }}
                         className="flex flex-col gap-3"
                     >
-                        <View className="flex-row gap-2">
-                            <TouchableOpacity
-                                onPress={() => router.push('/session-create')}
-                                className="flex-1 rounded-full bg-white/[0.1] flex-row gap-x-2 items-center justify-center py-5 px-4"
-                            >
-                                <Plus color={ACCENT} size={22} strokeWidth={2.5} />
-                                <Text className="font-outfit-bold text-[14px] uppercase tracking-[2px] mt-0.5 mr-3">
-                                    Create session
-                                </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => router.push('/session-join')}
-                                className="flex-2 rounded-full bg-white/[0.1] aspect-square flex-row items-center justify-center"
-                            >
-                                <Handshake color={ACCENT} size={22} strokeWidth={2} />
-                            </TouchableOpacity>
-                        </View>
                         <CollapsibleSection
                             title="Select group"
-                            subtitle="For whom?"
                             value={groups.find(g => g.id === selectedGroup)?.title || '-'}
                             icon={UsersRound}
                             defaultOpen={false}
@@ -186,30 +372,160 @@ export default function ParametersScreen() {
 
                         <CollapsibleSection
                             title="Select vibe"
-                            subtitle="Categories"
-                            value={genres.liked.length + genres.disliked.length}
+                            value={vibeMethod === 'palette' ? (moodLabel || '-') : (genres.liked.length + genres.disliked.length)}
                             icon={Film}
-                            defaultOpen={false}
+                            defaultOpen={true}
                         >
-                            <GenreSelection
-                                liked={genres.liked}
-                                disliked={genres.disliked}
-                                onToggleVibe={toggleGenre}
-                                label1="Include"
-                                label2="Exclude"
-                            />
+                            <Animated.View layout={LinearTransition} className="flex-row w-full mt-2">
+                                {/* Left Column: The selector view */}
+                                <Animated.View layout={LinearTransition} className="flex-[1.5] justify-start">
+                                    {vibeMethod === 'tags' ? (
+                                        <GenreSelection
+                                            liked={genres.liked}
+                                            disliked={genres.disliked}
+                                            onToggleVibe={toggleGenre}
+                                            label1="Include"
+                                            label2="Exclude"
+                                        />
+                                    ) : (
+                                        <MoodPalette
+                                            hideDetails={true}
+                                            onMoodSelected={handleMoodSelected}
+                                            onTouchStart={() => setScrollEnabled(false)}
+                                            onTouchEnd={() => setScrollEnabled(true)}
+                                        />
+                                    )}
+                                </Animated.View>
+
+                                {/* Right Column: Details & Mode selector stacked vertically */}
+                                <Animated.View layout={LinearTransition} className="flex-[1] flex-col justify-between pl-3">
+                                    {/* Top: Info display */}
+                                    <Animated.View layout={LinearTransition}>
+                                        {vibeMethod === 'palette' ? (() => {
+                                            const activeZone = MOOD_ZONES.find(zone => zone.label === moodLabel);
+                                            if (activeZone) {
+                                                return (
+                                                    <MotiView
+                                                        key={activeZone.id}
+                                                        from={{ opacity: 0, scale: 0.95 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        className="mb-4"
+                                                    >
+                                                        <View className="flex-row items-center gap-2 mb-2.5">
+                                                            <View
+                                                                style={{
+                                                                    width: 32,
+                                                                    height: 32,
+                                                                    borderRadius: 16,
+                                                                    backgroundColor: activeZone.color + '20',
+                                                                    borderWidth: 1,
+                                                                    borderColor: activeZone.color + '40',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'center',
+                                                                }}
+                                                            >
+                                                                <activeZone.icon color={activeZone.color} size={15} strokeWidth={2} />
+                                                            </View>
+                                                            <Text className="font-outfit-bold text-[13px] text-white uppercase tracking-wider">
+                                                                {activeZone.label}
+                                                            </Text>
+                                                        </View>
+                                                        <View className="flex-row flex-wrap gap-1">
+                                                            {activeZone.vibes.map(v => (
+                                                                <VibeBadge key={v} vibe={v} />
+                                                            ))}
+                                                        </View>
+                                                    </MotiView>
+                                                );
+                                            }
+                                            return (
+                                                <View className="mb-4">
+                                                    <View className="flex-row items-center gap-1 mb-2">
+                                                        <EllipsisVertical color="#ffffff" size={16} opacity={0.4} />
+                                                        <Text className="font-outfit-bold text-[13px] text-white/40 uppercase tracking-wider">
+                                                            no vibe chosen
+                                                        </Text>
+                                                    </View>
+                                                    <Text className="font-outfit text-[12px] text-white/30">
+                                                        Here the vibe tags will show
+                                                    </Text>
+                                                </View>
+                                            );
+                                        })() : (
+                                            <View className="mb-4">
+                                                <View className="flex-row items-center gap-2 mb-2.5">
+                                                    <View
+                                                        style={{
+                                                            width: 32,
+                                                            height: 32,
+                                                            backgroundColor: avgVibeColor + '15',
+                                                            borderColor: avgVibeColor + '40',
+                                                            borderWidth: 1,
+                                                        }}
+                                                        className="rounded-full items-center justify-center"
+                                                    >
+                                                        <Tag color={avgVibeColor} size={15} strokeWidth={2} />
+                                                    </View>
+                                                    <Text className="font-outfit-bold text-[13px] text-white uppercase tracking-wider">
+                                                        Custom Vibe
+                                                    </Text>
+                                                </View>
+                                                <View className="flex-row flex-wrap gap-1">
+                                                    {genres.liked.length > 0 ? (
+                                                        genres.liked.map(g => (
+                                                            <VibeBadge key={g} vibe={g} />
+                                                        ))
+                                                    ) : (
+                                                        <Text className="font-outfit text-[12px] text-white/30">
+                                                            No tags selected
+                                                        </Text>
+                                                    )}
+                                                </View>
+                                            </View>
+                                        )}
+                                    </Animated.View>
+
+                                    {/* Bottom: vertical stacked buttons */}
+                                    <Animated.View layout={LinearTransition} className="flex-col gap-1 mt-auto">
+                                        <TouchableOpacity
+                                            onPress={() => setVibeMethod('palette')}
+                                            className={`py-2 px-3 rounded-[14px] items-center justify-center border ${vibeMethod === 'palette'
+                                                ? 'bg-accent border-accent'
+                                                : 'bg-white/[0.03] border-white/[0.08] opacity-50'
+                                                }`}
+                                        >
+                                            <Text className={`font-outfit-bold text-[10px] tracking-[1px] uppercase ${vibeMethod === 'palette' ? 'text-black' : 'text-white/70'
+                                                }`}>
+                                                Mood Palette
+                                            </Text>
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity
+                                            onPress={() => setVibeMethod('tags')}
+                                            className={`py-2 px-3 rounded-[14px] items-center justify-center border ${vibeMethod === 'tags'
+                                                ? 'bg-accent border-accent'
+                                                : 'bg-white/[0.03] border-white/[0.08] opacity-50'
+                                                }`}
+                                        >
+                                            <Text className={`font-outfit-bold text-[10px] tracking-[1px] uppercase ${vibeMethod === 'tags' ? 'text-black' : 'text-white/70'
+                                                }`}>
+                                                Tag Selection
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </Animated.View>
+                                </Animated.View>
+                            </Animated.View>
                         </CollapsibleSection>
                         <CollapsibleSection
                             title="Settings"
-                            subtitle="final touches"
                             icon={Cog}
                             defaultOpen={true}
                         >
-                            <View className="flex-col gap-2">
+                            <View className="flex-col gap-1">
                                 {settings.map((setting, i) =>
                                     <TouchableOpacity
                                         key={setting.title}
-                                        className={`${FillStyles.pillBase} ${setting.value ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center justify-between gap-x-1 min-h-14 ${i === 0 ? FillStyles.pillFirst : ''} ${i === settings.length - 1 ? FillStyles.pillLast : ''}`}
+                                        className={`${FillStyles.pillBase} ${setting.value ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center justify-between gap-x-1 min-h-10 ${i === 0 ? FillStyles.pillFirst : ''} ${i === settings.length - 1 ? FillStyles.pillLast : ''}`}
                                         onPress={() => {
                                             if (typeof setting.value === 'boolean') {
                                                 setSettingValue(setting.title, !setting.value)
@@ -226,7 +542,7 @@ export default function ParametersScreen() {
                                         ) : (
                                             <View className="flex-row items-center gap-x-1 justify-end flex-1 pl-4">
                                                 <Slider
-                                                    style={{ flex: 1, minWidth: 100, height: 40 }}
+                                                    style={{ flex: 1, minWidth: 100, height: 30 }}
                                                     minimumValue={60}
                                                     maximumValue={240}
                                                     step={10}

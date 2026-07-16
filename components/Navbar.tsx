@@ -1,6 +1,6 @@
 import { BlurView } from "expo-blur";
 import { usePathname, useRouter } from "expo-router";
-import { Asterisk, Clapperboard, Cog, UsersRound } from "lucide-react-native";
+import { Asterisk, Clapperboard, PersonStanding, UserRound, UsersRound } from "lucide-react-native";
 import { MotiView } from "moti";
 import { StyleSheet, View } from "react-native";
 import TouchableOpacity from "./TouchableOpacity";
@@ -16,7 +16,7 @@ export default function Navbar() {
         { path: "/home", icon: Asterisk },
         { path: "/parameters", icon: Clapperboard },
         { path: "/friendboard", icon: UsersRound },
-        { path: "/settings", icon: Cog },
+        { path: "/profile", icon: PersonStanding },
     ];
 
     return (
@@ -27,33 +27,36 @@ export default function Navbar() {
                 transition={{ duration: 600, type: 'spring' }}
                 style={styles.navContainer}
             >
-                <BlurView
-                    intensity={50}
-                    tint="dark"
-                    style={styles.blurBackground}
-                    className="flex-row items-center justify-between px-1.5 py-2 rounded-full border border-white/[0.08] bg-black/60"
-                >
-                    {tabs.map((tab, index) => {
-                        const isActive = pathname === tab.path || (pathname === '/' && index === 0);
-                        const Icon = tab.icon;
+                <View className="rounded-full overflow-hidden border border-white/[0.08] bg-black/35">
+                    <BlurView
+                        intensity={65}
+                        tint="dark"
+                        experimentalBlurMethod="dimezisBlurView"
+                        style={StyleSheet.absoluteFill}
+                    />
+                    <View className="flex-row items-center justify-between px-1.5 py-2">
+                        {tabs.map((tab, index) => {
+                            const isActive = pathname === tab.path || (pathname === '/' && index === 0);
+                            const Icon = tab.icon;
 
-                        return (
-                            <TouchableOpacity
-                                key={index}
-                                onPress={() => {
-                                    router.push(tab.path as any);
-                                }}
-                                className={`items-center justify-center rounded-full h-[52px] mx-1 ${isActive ? 'w-[68px] bg-accent' : 'w-[52px]'}`}
-                            >
-                                <Icon
-                                    color={isActive ? "#000" : "#707080"}
-                                    size={isActive ? 26 : 22}
-                                    strokeWidth={isActive ? 2.5 : 1.8}
-                                />
-                            </TouchableOpacity>
-                        );
-                    })}
-                </BlurView>
+                            return (
+                                <TouchableOpacity
+                                    key={index}
+                                    onPress={() => {
+                                        router.push(tab.path as any);
+                                    }}
+                                    className={`items-center justify-center rounded-full h-[52px] mx-1 ${isActive ? 'w-[68px] bg-accent' : 'w-[52px]'}`}
+                                >
+                                    <Icon
+                                        color={isActive ? "#000" : "#707080"}
+                                        size={isActive ? 26 : 22}
+                                        strokeWidth={isActive ? 2.5 : 1.8}
+                                    />
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                </View>
             </MotiView>
         </View>
     );

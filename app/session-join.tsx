@@ -15,6 +15,7 @@ import TouchableOpacity from '../components/TouchableOpacity';
 import { FillStyles } from '../constants/themeStyles';
 import { sessionService } from '../services/sessionService';
 import { Colors } from '@/constants/theme';
+import { Toast } from '@/components/Toast';
 
 const ACCENT = Colors.dark.accent;
 
@@ -202,12 +203,39 @@ export default function SessionJoinScreen() {
     const router = useRouter();
     const [code, setCode] = useState<string[]>(Array(CODE_LENGTH).fill(''));
     const [isLoading, setIsLoading] = useState(false);
+    const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' | 'info' }>({
+        visible: false,
+        message: '',
+        type: 'info'
+    });
+
+    const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+        setToast({ visible: true, message, type });
+    };
+
     const inputRefs = useRef<(TextInput | null)[]>([]);
 
     const fullCode = code.join('');
 
     const handleChangeChar = (text: string, index: number) => {
-        const char = text.slice(-1).toUpperCase();
+        const cleanText = text.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+        
+        // Check if user pasted a code (length > 2, or length > 1 and not starting with the current char due to overwrite)
+        if (cleanText.length > 2 || (cleanText.length > 1 && cleanText[0] !== code[index])) {
+            const newCode = [...code];
+            let nextIndex = index;
+            for (let i = 0; i < cleanText.length && nextIndex < CODE_LENGTH; i++) {
+                newCode[nextIndex] = cleanText[i];
+                nextIndex++;
+            }
+            setCode(newCode);
+            const focusIndex = Math.min(nextIndex, CODE_LENGTH - 1);
+            inputRefs.current[focusIndex]?.focus();
+            return;
+        }
+
+        // Single character typed or deleted
+        const char = cleanText.slice(-1);
         const newCode = [...code];
         newCode[index] = char;
         setCode(newCode);
@@ -242,7 +270,7 @@ export default function SessionJoinScreen() {
             });
         } catch (error: any) {
             setIsLoading(false);
-            Alert.alert('Error', error.message);
+            showToast(error.message, 'error');
         }
     };
 
@@ -306,7 +334,7 @@ export default function SessionJoinScreen() {
                                         value={char}
                                         onChangeText={(t) => handleChangeChar(t, i)}
                                         onKeyPress={(e) => handleKeyPress(e, i)}
-                                        maxLength={2}
+                                        maxLength={CODE_LENGTH}
                                         autoCapitalize="characters"
                                         textAlign="center"
                                         className="font-outfit-bold text-[22px]"
@@ -346,6 +374,13 @@ export default function SessionJoinScreen() {
                     </MotiView>
                 </View>
             </SafeAreaView>
+
+            <Toast
+                visible={toast.visible}
+                message={toast.message}
+                type={toast.type}
+                onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+            />
         </View>
     );
 }

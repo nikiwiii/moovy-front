@@ -1,6 +1,6 @@
 import { FillStyles } from "@/constants/themeStyles";
 import { router } from "expo-router";
-import { ChevronRight, LogIn, LogOut, Settings as SettingsIcon, Smartphone, UserCircle2 } from "lucide-react-native";
+import { Bookmark, ChevronRight, LogIn, LogOut, Settings as SettingsIcon, Smartphone, UserCircle2 } from "lucide-react-native";
 import { MotiView } from "moti";
 import React, { useEffect, useState } from "react";
 import { ScrollView, View, Alert } from 'react-native';
@@ -8,6 +8,7 @@ import { AppText as Text } from '@/components/AppText';
 import TouchableOpacity from "@/components/TouchableOpacity";
 import { storageService } from "@/services/storageService";
 import { Colors } from "@/constants/theme";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 const ACCENT = Colors.dark.accent;
 
@@ -22,22 +23,17 @@ export default function Settings() {
         checkAuth();
     }, []);
 
+    const [logoutConfirmVisible, setLogoutConfirmVisible] = useState(false);
+
     const handleLogout = () => {
-        Alert.alert(
-            "Log out",
-            "Are you sure you want to log out?",
-            [
-                { text: "Cancel", style: "cancel" },
-                {
-                    text: "Yes",
-                    onPress: async () => {
-                        await storageService.logout();
-                        setIsLoggedIn(false);
-                        router.replace('/');
-                    }
-                }
-            ]
-        );
+        setLogoutConfirmVisible(true);
+    };
+
+    const confirmLogout = async () => {
+        setLogoutConfirmVisible(false);
+        await storageService.logout();
+        setIsLoggedIn(false);
+        router.replace('/');
     };
 
     const Arrow = (
@@ -62,8 +58,8 @@ export default function Settings() {
 
                     {!isLoggedIn && (
                         <TouchableOpacity
-                             onPress={() => router.push('/login')}
-                             className="bg-accent/10 rounded-[24px] flex-row items-center justify-between gap-x-3 min-h-20 p-5 border border-accent/20"
+                            onPress={() => router.push('/login')}
+                            className="bg-accent/10 rounded-[24px] flex-row items-center justify-between gap-x-3 min-h-20 p-5 border border-accent/20"
                         >
                             <View className="flex-row items-center gap-x-4">
                                 <View className="bg-accent/15 p-2.5 rounded-xl">
@@ -125,6 +121,16 @@ export default function Settings() {
                     )}
                 </View>
             </ScrollView>
+
+            <ConfirmDialog
+                visible={logoutConfirmVisible}
+                title="Log out"
+                message="Are you sure you want to log out of your account?"
+                confirmText="Log out"
+                isDestructive
+                onConfirm={confirmLogout}
+                onCancel={() => setLogoutConfirmVisible(false)}
+            />
         </View>
     );
 }

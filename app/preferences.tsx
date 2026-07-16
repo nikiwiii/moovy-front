@@ -2,7 +2,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Calendar, Check, Film, Plus, Star, X } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, ScrollView, TextInput, View, ActivityIndicator, Alert } from 'react-native';
+import { SafeAreaView, ScrollView, TextInput, View, ActivityIndicator, Alert, Image } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import CollapsibleSection from '../components/CollapsibleSection';
@@ -12,6 +12,7 @@ import { defaultVibes } from '../constants/vibes';
 import { FillStyles } from '../constants/themeStyles';
 import { storageService } from '../services/storageService';
 import { metadataService } from '../services/metadataService';
+import { Toast } from '@/components/Toast';
 
 const DEFAULT_ERAS = [
     'Golden Age of Hollywood',
@@ -27,6 +28,16 @@ export default function PreferencesScreen() {
     const isLocal = params.storageType === 'local';
 
     const [loading, setLoading] = useState(false);
+    const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' | 'info' }>({
+        visible: false,
+        message: '',
+        type: 'info'
+    });
+
+    const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+        setToast({ visible: true, message, type });
+    };
+
     const [preferences, setPreferences] = useState({
         vibes: { liked: [] as string[], disliked: [] as string[] },
         eras: [] as string[],
@@ -105,12 +116,70 @@ export default function PreferencesScreen() {
         loadPrefs();
     }, [isLocal]);
 
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searching, setSearching] = useState(false);
+    const [favouriteTmdbIds, setFavouriteTmdbIds] = useState<number[]>([]);
+
+    useEffect(() => {
+        const searchMovies = async () => {
+            const query = movieInput.trim();
+            if (query.length < 2) {
+                setSearchResults([]);
+                return;
+            }
+
+            setSearching(true);
+            try {
+                const token = await storageService.getToken();
+                const API_URL = process.env.EXPO_PUBLIC_API_URL;
+                const response = await fetch(`${API_URL}/movies/search?title=${encodeURIComponent(query)}&limit=5`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token || ''}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setSearchResults(data);
+                } else {
+                    setSearchResults([]);
+                }
+            } catch (error) {
+                console.error('Search failed:', error);
+                setSearchResults([]);
+            } finally {
+                setSearching(false);
+            }
+        };
+
+        const delayDebounceFn = setTimeout(() => {
+            searchMovies();
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [movieInput]);
+
+    const selectSearchedMovie = (movie: any) => {
+        const titleWithYear = movie.year ? `${movie.title} (${movie.year})` : movie.title;
+        if (!preferences.movies.includes(titleWithYear)) {
+            setPreferences(prev => ({ ...prev, movies: [...prev.movies, titleWithYear] }));
+            if (movie.tmdb_id) {
+                setFavouriteTmdbIds(prev => [...prev, movie.tmdb_id]);
+            }
+        }
+        setMovieInput('');
+        setSearchResults([]);
+    };
+
     const addMovie = () => {
         const val = movieInput.trim();
         if (val && !preferences.movies.includes(val)) {
             setPreferences(prev => ({ ...prev, movies: [...prev.movies, val] }));
         }
         setMovieInput('');
+        setSearchResults([]);
     };
 
     const removeMovie = (movie: string) => {
@@ -130,15 +199,15 @@ export default function PreferencesScreen() {
 
             if (isLocal) {
                 await storageService.saveLocalPreferences(payload);
-                Alert.alert("Success!", "Preferences saved successfully on your device.");
-                router.push('/parameters');
+                showToast("Preferences saved successfully on your device.", "success");
+                setTimeout(() => router.push('/parameters'), 1500);
             } else {
                 const token = await storageService.getToken();
                 const userId = await storageService.getUserId();
                 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
                 if (!token || !userId) {
-                    Alert.alert("Login error", "Please log in again to save preferences.");
+                    showToast("Please log in again to save preferences.", "error");
                     setLoading(false);
                     return;
                 }
@@ -153,8 +222,23 @@ export default function PreferencesScreen() {
                 });
 
                 if (response.ok) {
-                    Alert.alert("Success!", "Preferences saved successfully in the cloud.");
-                    router.push('/parameters');
+                    // Save vector taste profile if we have TMDB IDs
+                    if (favouriteTmdbIds.length > 0) {
+                        try {
+                            await fetch(`${API_URL}/preferences/favourite?user_id=${userId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify(favouriteTmdbIds),
+                            });
+                        } catch (e) {
+                            console.error('Failed to sync vector favourites:', e);
+                        }
+                    }
+                    showToast("Preferences saved successfully in the cloud.", "success");
+                    setTimeout(() => router.push('/parameters'), 1500);
                 } else {
                     const errorData = await response.json();
                     let errMsg = "There was a problem communicating with the server.";
@@ -178,12 +262,12 @@ export default function PreferencesScreen() {
                             errMsg = JSON.stringify(errorData);
                         }
                     }
-                    Alert.alert("Save error", errMsg);
+                    showToast(errMsg, "error");
                 }
             }
         } catch (error) {
             console.error('Save error:', error);
-            Alert.alert("Error", isLocal ? "Failed to save preferences locally." : "Failed to connect to the server.");
+            showToast(isLocal ? "Failed to save preferences locally." : "Failed to connect to the server.", "error");
         } finally {
             setLoading(false);
         }
@@ -232,7 +316,6 @@ export default function PreferencesScreen() {
                     >
                         <CollapsibleSection
                             title="My movie vibe"
-                            subtitle="Categories"
                             icon={Film}
                             defaultOpen={true}
                         >
@@ -273,7 +356,6 @@ export default function PreferencesScreen() {
 
                         <CollapsibleSection
                             title="Favorite movies"
-                            subtitle="Titles, Recommendation base"
                             value={preferences.movies.length}
                             icon={Star}
                             defaultOpen={false}
@@ -294,22 +376,71 @@ export default function PreferencesScreen() {
                                     </Animated.View>
                                 ))}
 
-                                <View className="flex-row gap-2.5 mt-1.5">
-                                    <TextInput
-                                        className={FillStyles.inputInline}
-                                        placeholder="E.g., Matrix (1999)"
-                                        placeholderTextColor="#ffffff30"
-                                        value={movieInput}
-                                        onChangeText={setMovieInput}
-                                        onSubmitEditing={addMovie}
-                                        returnKeyType="done"
-                                    />
-                                    <TouchableOpacity
-                                        className={`${FillStyles.inputIconBtn} bg-accent`}
-                                        onPress={addMovie}
-                                    >
-                                        <Plus color="#000" size={20} />
-                                    </TouchableOpacity>
+                                <View className="mt-1.5 gap-2">
+                                    <View className="flex-row gap-2.5">
+                                        <View style={{ flex: 1, position: 'relative', justifyContent: 'center' }}>
+                                            <TextInput
+                                                className={FillStyles.inputInline}
+                                                placeholder="E.g., Matrix (1999)"
+                                                placeholderTextColor="#ffffff30"
+                                                value={movieInput}
+                                                onChangeText={setMovieInput}
+                                                onSubmitEditing={addMovie}
+                                                returnKeyType="done"
+                                                style={{ paddingRight: 40, color: '#fff' }}
+                                            />
+                                            {searching && (
+                                                <ActivityIndicator
+                                                    size="small"
+                                                    color="#fff"
+                                                    style={{ position: 'absolute', right: 12 }}
+                                                />
+                                            )}
+                                        </View>
+                                        <TouchableOpacity
+                                            className={`${FillStyles.inputIconBtn} bg-accent`}
+                                            onPress={addMovie}
+                                        >
+                                            <Plus color="#000" size={20} />
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    {/* Search Results List (inline to prevent overflow clipping) */}
+                                    {searchResults.length > 0 && (
+                                        <View
+                                            className="bg-white/[0.03] rounded-3xl border border-white/[0.06] p-1 mt-1"
+                                        >
+                                            {searchResults.map((movie) => (
+                                                <TouchableOpacity
+                                                    key={movie.movie_id}
+                                                    onPress={() => selectSearchedMovie(movie)}
+                                                    className="flex-row items-center p-2 rounded-[10px] active:bg-white/[0.06]"
+                                                    style={{ gap: 10 }}
+                                                >
+                                                    {movie.poster_path ? (
+                                                        <Image
+                                                            source={{ uri: movie.poster_path.startsWith('http') ? movie.poster_path : `https://image.tmdb.org/t/p/w92${movie.poster_path}` }}
+                                                            style={{ width: 36, height: 50, borderRadius: 6 }}
+                                                        />
+                                                    ) : (
+                                                        <View style={{ width: 28, height: 40, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' }}>
+                                                            <Film size={14} color="#707080" />
+                                                        </View>
+                                                    )}
+                                                    <View style={{ flex: 1 }}>
+                                                        <Text className="font-outfit-bold text-[14px] text-white" numberOfLines={1}>
+                                                            {movie.title}
+                                                        </Text>
+                                                        {movie.year && (
+                                                            <Text className="font-outfit text-[11px] text-white/40 mt-0.5">
+                                                                {movie.year}
+                                                            </Text>
+                                                        )}
+                                                    </View>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+                                    )}
                                 </View>
                             </Animated.View>
                         </CollapsibleSection>
@@ -338,6 +469,13 @@ export default function PreferencesScreen() {
                     </TouchableOpacity>
                 </MotiView>
             </SafeAreaView>
+
+            <Toast
+                visible={toast.visible}
+                message={toast.message}
+                type={toast.type}
+                onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+            />
         </View>
     );
 }

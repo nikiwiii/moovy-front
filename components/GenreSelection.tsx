@@ -6,11 +6,12 @@ import { AppText as Text } from '@/components/AppText';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import MiniCollapsibleSection from './MiniCollapsibleSection';
 import TouchableOpacity from './TouchableOpacity';
-import { defaultVibes } from '../constants/vibes';
+import { defaultVibes, getVibeColor } from '../constants/vibes';
 import { storageService } from '../services/storageService';
 import { metadataService } from '../services/metadataService';
 import { Colors } from '@/constants/theme';
 import { FillStyles } from '@/constants/themeStyles';
+import VibeBars from './VibeBars';
 
 const ACCENT = Colors.dark.accent;
 
@@ -26,15 +27,21 @@ interface GenreSelectionProps {
 export default function VibeSelection({ liked, disliked, onToggleVibe, label1, label2, options }: GenreSelectionProps) {
     const [modalState, setModalState] = useState<'liked' | 'disliked' | ''>('');
     const [internalVibes, setInternalVibes] = useState<string[]>(defaultVibes);
+    const [backendColors, setBackendColors] = useState<Record<string, string>>({});
 
     useEffect(() => {
-        if (options && options.length > 0) return;
-
         const fetchVibes = async () => {
             try {
                 const data = await metadataService.getPreferencesOptions();
-                if (data && Array.isArray(data.vibes) && data.vibes.length > 0) {
-                    setInternalVibes(data.vibes);
+                if (data) {
+                    if (data.vibe_colors) {
+                        setBackendColors(data.vibe_colors);
+                    }
+                    if (!options || options.length === 0) {
+                        if (Array.isArray(data.vibes) && data.vibes.length > 0) {
+                            setInternalVibes(data.vibes);
+                        }
+                    }
                 }
             } catch (error) {
                 console.warn('Failed to fetch vibes from backend, using local fallbacks:', error);
@@ -43,11 +50,16 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
         fetchVibes();
     }, [options]);
 
+    const resolveVibeColor = (vibe: string): string => {
+        const uppercaseVibe = vibe.toUpperCase();
+        return backendColors[uppercaseVibe] || getVibeColor(vibe);
+    };
+
     const vibesToUse = options && options.length > 0 ? options : internalVibes;
 
 
     return (
-        <View className="flex-col gap-2">
+        <View className="flex-col gap-1">
             <MiniCollapsibleSection
                 title={label1 + ":"}
                 value={liked.length}
@@ -57,14 +69,31 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
                 className="rounded-b-[10px]"
             >
                 <View className="flex-col gap-2">
-                    {liked.map(vibe => (
-                        <View className={`${FillStyles.pillBase} ${FillStyles.pillInactive} flex flex-row justify-between items-center py-1`} key={vibe}>
-                            <Text className="font-outfit text-[14px]">{vibe.replace("_", " ")}</Text>
-                            <TouchableOpacity onPress={() => onToggleVibe(vibe, 'liked')}>
-                                <X size={18} color="#707080" />
-                            </TouchableOpacity>
-                        </View>
-                    ))}
+                    {liked.map(vibe => {
+                        const vibeColor = resolveVibeColor(vibe);
+                        return (
+                            <View
+                                style={{
+                                    backgroundColor: vibeColor + '15',
+                                    borderColor: vibeColor + '40',
+                                    borderWidth: 1,
+                                    borderRadius: 12,
+                                }}
+                                className="py-2.5 px-4 flex flex-row justify-between items-center"
+                                key={vibe}
+                            >
+                                <View className="flex-row items-center gap-2.5">
+                                    <VibeBars color={vibeColor} />
+                                    <Text className="font-outfit text-[14px] text-white">
+                                        {vibe.replace("_", " ")}
+                                    </Text>
+                                </View>
+                                <TouchableOpacity onPress={() => onToggleVibe(vibe, 'liked')}>
+                                    <X size={16} color={vibeColor + 'bb'} />
+                                </TouchableOpacity>
+                            </View>
+                        );
+                    })}
                 </View>
             </MiniCollapsibleSection>
             <MiniCollapsibleSection
@@ -76,14 +105,32 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
                 className="rounded-t-[10px]"
             >
                 <View className="flex-col gap-2">
-                    {disliked.map(vibe => (
-                        <View className="flex flex-row justify-between items-center py-1" key={vibe}>
-                            <Text className="font-outfit text-[14px]">{vibe.replace("_", " ")}</Text>
-                            <TouchableOpacity onPress={() => onToggleVibe(vibe, 'disliked')}>
-                                <X size={18} color="#707080" />
-                            </TouchableOpacity>
-                        </View>
-                    ))}
+                    {disliked.map(vibe => {
+                        const vibeColor = resolveVibeColor(vibe);
+                        const dislikeColor = '#EF476F';
+                        return (
+                            <View
+                                style={{
+                                    backgroundColor: dislikeColor + '15',
+                                    borderColor: dislikeColor + '35',
+                                    borderWidth: 1,
+                                    borderRadius: 12,
+                                }}
+                                className="py-2.5 px-4 flex flex-row justify-between items-center"
+                                key={vibe}
+                            >
+                                <View className="flex-row items-center gap-2.5">
+                                    <VibeBars color={vibeColor} opacityMultiplier={0.6} />
+                                    <Text className="font-outfit text-[14px] text-white/65" style={{ textDecorationLine: 'line-through', textDecorationColor: dislikeColor + '80' }}>
+                                        {vibe.replace("_", " ")}
+                                    </Text>
+                                </View>
+                                <TouchableOpacity onPress={() => onToggleVibe(vibe, 'disliked')}>
+                                    <X size={16} color={dislikeColor + 'bb'} />
+                                </TouchableOpacity>
+                            </View>
+                        );
+                    })}
                 </View>
             </MiniCollapsibleSection>
 
@@ -100,13 +147,40 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
                                 .map(vibe => {
                                     const currentArray = modalState === 'liked' ? liked : disliked;
                                     const isActive = currentArray.includes(vibe);
+                                    const vibeColor = resolveVibeColor(vibe);
+                                    const selectColor = modalState === 'liked' ? vibeColor : '#EF476F';
                                     return (
                                         <TouchableOpacity
                                             key={vibe}
-                                            className="flex-row items-center gap-3"
                                             onPress={() => modalState && onToggleVibe(vibe, modalState)}
+                                            style={
+                                                isActive
+                                                    ? {
+                                                        backgroundColor: selectColor + '20',
+                                                        borderColor: selectColor + '60',
+                                                        borderWidth: 1,
+                                                        borderRadius: 10,
+                                                    }
+                                                    : {
+                                                        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                                                        borderColor: 'rgba(255, 255, 255, 0.08)',
+                                                        borderWidth: 1,
+                                                        borderRadius: 10,
+                                                    }
+                                            }
+                                            className="py-2 px-3.5 flex-row items-center gap-2"
                                         >
-                                            <Text className={`font-outfit text-[13px] ${FillStyles.pillBase} ${isActive ? FillStyles.pillActiver : FillStyles.pillInactive}`}>{vibe.replace("_", " ")}</Text>
+                                            <VibeBars color={vibeColor} opacityMultiplier={isActive ? 1 : 0.4} />
+                                            <Text
+                                                className="font-outfit text-[13px]"
+                                                style={{
+                                                    color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.6)',
+                                                    textDecorationLine: (modalState === 'disliked' && isActive) ? 'line-through' : 'none',
+                                                    textDecorationColor: selectColor + 'aa'
+                                                }}
+                                            >
+                                                {vibe.replace("_", " ")}
+                                            </Text>
                                         </TouchableOpacity>
                                     );
                                 })}

@@ -64,11 +64,29 @@ export const storageService = {
     }
   },
 
+  async saveUserEmail(email: string) {
+    try {
+      await SecureStore.setItemAsync('user_email', email);
+    } catch (error) {
+      console.error('Error saving user email:', error);
+    }
+  },
+
+  async getUserEmail() {
+    try {
+      return await SecureStore.getItemAsync('user_email');
+    } catch (error) {
+      console.error('Error getting user email:', error);
+      return null;
+    }
+  },
+
   async logout() {
     try {
       await Promise.all([
         SecureStore.deleteItemAsync(TOKEN_KEY),
-        SecureStore.deleteItemAsync(USER_ID_KEY)
+        SecureStore.deleteItemAsync(USER_ID_KEY),
+        SecureStore.deleteItemAsync('user_email')
       ]);
     } catch (error) {
       console.error('Error during logout:', error);
