@@ -336,7 +336,7 @@ export default function ParametersScreen() {
                             key={idx}
                             style={{
                                 flex: 1,
-                                height: '100%',
+                                height: '2',
                                 backgroundColor: seg.color,
                                 opacity: seg.opacity,
                                 // borderBottomLeftRadius: idx === 0 ? 5 : 0,

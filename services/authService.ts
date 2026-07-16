@@ -10,6 +10,15 @@ function extractErrorMessage(data: any, fallback: string): string {
   return JSON.stringify(data.detail);
 }
 
+async function parseResponse(response: Response) {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { detail: text || `Server error (${response.status}: ${response.statusText || 'Internal Error'})` };
+  }
+}
+
 export const authService = {
   async login(email: string, password: string) {
     try {
@@ -21,7 +30,7 @@ export const authService = {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       if (!response.ok) {
         throw new Error(extractErrorMessage(data, 'Login error'));
@@ -44,7 +53,7 @@ export const authService = {
         body: JSON.stringify({ email, password, confirm_password: confirmPassword }),
       });
 
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       if (!response.ok) {
         throw new Error(extractErrorMessage(data, 'Registration error'));

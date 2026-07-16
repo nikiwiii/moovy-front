@@ -44,6 +44,15 @@ function extractErrorMsg(data: any, defaultMsg: string): string {
     return defaultMsg;
 }
 
+async function parseResponse(response: Response) {
+    const text = await response.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return { detail: text || `Server error (${response.status}: ${response.statusText || 'Internal Error'})` };
+    }
+}
+
 export const ratingService = {
     async rateMovie(movieId: string, status: 'LOVE' | 'LIKE' | 'DISLIKE' | 'HATE' | 'WATCHED' | 'WATCHLIST'): Promise<any> {
         const headers = await getHeaders();
@@ -53,7 +62,7 @@ export const ratingService = {
             body: JSON.stringify({ movie_id: movieId, status }),
         });
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
             throw new Error(extractErrorMsg(data, 'Error rating movie'));
         }
@@ -68,7 +77,7 @@ export const ratingService = {
             body: JSON.stringify({ movie_id: movieId, status }),
         });
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
             throw new Error(extractErrorMsg(data, 'Error removing rating'));
         }
@@ -82,7 +91,7 @@ export const ratingService = {
             headers,
         });
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
             throw new Error(extractErrorMsg(data, 'Error fetching watchlist'));
         }
@@ -96,7 +105,7 @@ export const ratingService = {
             headers,
         });
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
             throw new Error(extractErrorMsg(data, 'Error fetching history'));
         }

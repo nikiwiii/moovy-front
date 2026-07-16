@@ -27,12 +27,18 @@ export const metadataService = {
                 headers,
             });
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.detail || 'Błąd pobierania metadanych z serwera');
+            const text = await response.text();
+            let data: any;
+            try {
+                data = JSON.parse(text);
+            } catch {
+                data = { detail: text || `Server error (${response.status}: ${response.statusText || 'Internal Error'})` };
             }
 
-            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.detail || 'Błąd pobierania metadanych z serwera');
+            }
+
             if (data && data.vibe_colors) {
                 const normalizedColors = setBackendVibeColors(data.vibe_colors);
                 data.vibe_colors = normalizedColors;
