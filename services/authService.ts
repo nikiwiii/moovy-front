@@ -1,3 +1,5 @@
+import { storageService } from './storageService';
+
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
 console.log('[authService] API_URL:', API_URL);
 
@@ -19,6 +21,34 @@ async function parseResponse(response: Response) {
   }
 }
 
+export async function apiFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const token = await storageService.getToken();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string> || {}),
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  let response = await fetch(url, { ...options, headers });
+
+  if (response.status === 401 && !url.includes('/auth/refresh') && !url.includes('/auth/login')) {
+    try {
+      const refreshed = await authService.refreshToken();
+      if (refreshed && refreshed.access_token) {
+        headers['Authorization'] = `Bearer ${refreshed.access_token}`;
+        response = await fetch(url, { ...options, headers });
+      }
+    } catch (refreshErr) {
+      console.warn('[apiFetch] Token refresh failed, logging out:', refreshErr);
+      await storageService.logout();
+    }
+  }
+
+  return response;
+}
+
 export const authService = {
   async login(email: string, password: string) {
     try {
@@ -34,6 +64,13 @@ export const authService = {
 
       if (!response.ok) {
         throw new Error(extractErrorMessage(data, 'Login error'));
+      }
+
+      if (data.access_token) {
+        await storageService.saveToken(data.access_token);
+      }
+      if (data.refresh_token) {
+        await storageService.saveRefreshToken(data.refresh_token);
       }
 
       return data;
@@ -59,10 +96,73 @@ export const authService = {
         throw new Error(extractErrorMessage(data, 'Registration error'));
       }
 
+      if (data.access_token) {
+        await storageService.saveToken(data.access_token);
+      }
+      if (data.refresh_token) {
+        await storageService.saveRefreshToken(data.refresh_token);
+      }
+
       return data;
     } catch (error: any) {
       console.error('[authService] register error:', error, 'URL was:', `${API_URL}/auth/register`);
       throw new Error(error.message || 'Server connection error');
     }
   },
+
+  async refreshToken() {
+    try {
+      const storedRefreshToken = await storageService.getRefreshToken();
+      if (!storedRefreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const response = await fetch(`${API_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refresh_token: storedRefreshToken }),
+      });
+
+      const data = await parseResponse(response);
+
+      if (!response.ok) {
+        throw new Error(extractErrorMessage(data, 'Session expired. Please log in again.'));
+      }
+
+      if (data.access_token) {
+        await storageService.saveToken(data.access_token);
+      }
+      if (data.refresh_token) {
+        await storageService.saveRefreshToken(data.refresh_token);
+      }
+
+      return data;
+    } catch (error: any) {
+      console.error('[authService] refreshToken error:', error);
+      throw error;
+    }
+  },
+
+  async deleteAccount(refreshToken: string) {
+    try {
+      const response = await apiFetch(`${API_URL}/auth/delete`, {
+        method: 'DELETE',
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+
+      const data = await parseResponse(response);
+
+      if (!response.ok) {
+        throw new Error(extractErrorMessage(data, 'Failed to delete account'));
+      }
+
+      return data;
+    } catch (error: any) {
+      console.error('[authService] deleteAccount error:', error);
+      throw new Error(error.message || 'Server connection error');
+    }
+  },
 };
+

@@ -148,12 +148,12 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
     const defaultData: MovieViewProps = {
         movie_id: "1",
         tmdb_id: 1,
-        title: "The Lord of the Rings: The Return of the King",
-        year: 2003,
-        rating: 8.9,
-        description: "The Lord of the Rings: The Return of the King is a 2003 epic fantasy adventure film directed by Peter Jackson. The film is the third installment in the Lord of the Rings trilogy and follows Frodo Baggins as he and Samwise Gamgee begin the final stage of their quest to destroy the One Ring.",
-        genres: ["Fantasy", "Adventure", "Action"],
-        duration: "201 minutes"
+        title: "",
+        year: 0,
+        rating: 0.0,
+        description: "",
+        genres: [],
+        duration: "0 minutes"
     };
 
     const data = movieData || defaultData;
@@ -244,7 +244,7 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
                 <View className="flex-col w-[62%] gap-2.5">
                     <View className="flex-col gap-0.5">
                         <Text className="text-[18px] font-outfit-bold leading-snug">
-                            {displayTitle} {displayYear && <Text className="text-[13px] font-outfit opacity-40">({displayYear})</Text>}
+                            {displayTitle} {displayYear !== 0 && <Text className="text-[13px] font-outfit opacity-40">({displayYear})</Text>}
                         </Text>
 
                         {/* Decreased/Smaller Genres Badges */}
@@ -289,7 +289,24 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
 
             {/* Ticket Perforation / Cutout Tear Line */}
             <View className="relative my-1">
-                <View className="border-t border-dashed border-white/20 w-full h-[1px]" />
+
+
+                {/* Colored vibe indicators bar at the bottom */}
+                {data.genres && data.genres.length > 0 && (
+                    <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1, flexDirection: 'row', opacity: 0.6 }}>
+                        {getVibeBarSegments(data.genres).map((seg, idx) => (
+                            <View
+                                key={idx}
+                                style={{
+                                    flex: 1,
+                                    height: '100%',
+                                    backgroundColor: seg.color,
+                                    opacity: seg.opacity,
+                                }}
+                            />
+                        ))}
+                    </View>
+                )}
                 {/* Left Cutout Notch */}
                 <View
                     style={{
@@ -321,14 +338,16 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
             </View>
 
             {/* Description & Collapsible section */}
-            <Animated.View layout={LinearTransition} className="flex-col gap-2">
-                <MiniCollapsibleSection
-                    title="Description / Storyline"
-                    defaultOpen={false}
-                >
-                    <Text className="text-[13px] font-outfit opacity-70 leading-[20px]">{displayDescription}</Text>
-                </MiniCollapsibleSection>
-            </Animated.View>
+            {displayDescription && (
+                <Animated.View layout={LinearTransition} className="flex-col gap-2">
+                    <MiniCollapsibleSection
+                        title="Description / Storyline"
+                        defaultOpen={false}
+                    >
+                        <Text className="text-[13px] font-outfit opacity-70 leading-[20px]">{displayDescription}</Text>
+                    </MiniCollapsibleSection>
+                </Animated.View>)
+            }
 
             {/* Ticket Stub Action Buttons */}
             {data.movie_id && (
@@ -380,23 +399,6 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
                         <Bookmark size={12} color={reaction === 'WATCHLIST' ? '#0d0b1a' : '#3b82f6'} fill={reaction === 'WATCHLIST' ? '#0d0b1a' : 'transparent'} />
                     </TouchableOpacity>
                 </Animated.View>
-            )}
-
-            {/* Colored vibe indicators bar at the bottom */}
-            {data.genres && data.genres.length > 0 && (
-                <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1.5, flexDirection: 'row' }}>
-                    {getVibeBarSegments(data.genres).map((seg, idx) => (
-                        <View
-                            key={idx}
-                            style={{
-                                flex: 1,
-                                height: '100%',
-                                backgroundColor: seg.color,
-                                opacity: seg.opacity,
-                            }}
-                        />
-                    ))}
-                </View>
             )}
         </Animated.View>
     );
