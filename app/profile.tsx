@@ -1,14 +1,18 @@
 import { useRouter } from 'expo-router';
-import { Cog, Bookmark, UserRound, LogIn, Star, Users } from 'lucide-react-native';
+import { Cog, Bookmark, UserRound, LogIn, Star, Users, Edit3, X, Check, Trash2, Camera, Search, SlidersHorizontal, ArrowUpDown } from 'lucide-react-native';
 import { MotiView } from 'moti';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
+import React, { useEffect, useState, useMemo } from 'react';
+import { ActivityIndicator, Modal, Pressable, RefreshControl, SafeAreaView, ScrollView, TextInput, Image, View } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
 import FilmView, { MovieViewProps } from '@/components/FilmView';
 import { ratingService, WatchlistMovie, RatingHistoryItem } from '@/services/ratingService';
+import { profileService, UserProfile } from '@/services/profileService';
 import { storageService } from '@/services/storageService';
 import { Colors } from '@/constants/theme';
 import TouchableOpacity from '@/components/TouchableOpacity';
+import Toast from '@/components/Toast';
+
+import * as ImagePicker from 'expo-image-picker';
 
 const ACCENT = Colors.dark.accent;
 
@@ -16,12 +20,35 @@ export default function ProfileScreen() {
     const router = useRouter();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [email, setEmail] = useState<string | null>(null);
+    const [profile, setProfile] = useState<UserProfile | null>(null);
     const [movies, setMovies] = useState<WatchlistMovie[]>([]);
     const [ratings, setRatings] = useState<RatingHistoryItem[]>([]);
     const [activeTab, setActiveTab] = useState<'watchlist' | 'ratings'>('watchlist');
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Search, Filter & Sort states
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState<string>('ALL'); // ALL, LOVE, LIKE, DISLIKE, HATE, WATCHED
+    const [sortBy, setSortBy] = useState<'default' | 'title_asc' | 'title_desc'>('default');
+
+    // Edit Profile Modal states
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    const [editNickname, setEditNickname] = useState('');
+    const [editPicture, setEditPicture] = useState('');
+    const [savingProfile, setSavingProfile] = useState(false);
+
+    const [toast, setToast] = useState<{
+        visible: boolean;
+        message: string;
+        type: 'success' | 'error' | 'info';
+        title?: string;
+    }>({ visible: false, message: '', type: 'info' });
+
+    const showToast = (message: string, type: 'success' | 'error' | 'info', title?: string) => {
+        setToast({ visible: true, message, type, title });
+    };
 
     const checkAuthAndFetch = async (showLoader = true) => {
         if (showLoader) setLoading(true);
@@ -34,14 +61,19 @@ export default function ProfileScreen() {
                 const userEmail = await storageService.getUserEmail();
                 setEmail(userEmail);
 
-                // Fetch both watchlist and rating history in parallel
-                const [watchlistData, historyData] = await Promise.all([
+                // Fetch profile, watchlist, and rating history in parallel
+                const [userProf, watchlistData, historyData] = await Promise.all([
+                    profileService.getProfile().catch(e => {
+                        console.error('Error fetching profile:', e);
+                        return null;
+                    }),
                     ratingService.getWatchlist(),
                     ratingService.getHistory()
                 ]);
 
+                if (userProf) setProfile(userProf);
                 setMovies(watchlistData);
-                setRatings(historyData);
+                setRatings(historyData.filter(item => item.status !== 'WATCHLIST'));
             }
             setError(null);
         } catch (err: any) {
@@ -62,10 +94,126 @@ export default function ProfileScreen() {
         checkAuthAndFetch(false);
     };
 
-    const username = email ? email.split('@')[0] : 'moovy user';
+    const filteredMovies = useMemo(() => {
+        let list = [...movies];
+        if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase().trim();
+            list = list.filter(m => m.title.toLowerCase().includes(q));
+        }
+        if (sortBy === 'title_asc') {
+            list.sort((a, b) => a.title.localeCompare(b.title));
+        } else if (sortBy === 'title_desc') {
+            list.sort((a, b) => b.title.localeCompare(a.title));
+        }
+        return list;
+    }, [movies, searchQuery, sortBy]);
+
+    const filteredRatings = useMemo(() => {
+        let list = [...ratings];
+        if (statusFilter !== 'ALL') {
+            list = list.filter(r => r.status.toUpperCase() === statusFilter);
+        }
+        if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase().trim();
+            list = list.filter(r => r.title.toLowerCase().includes(q));
+        }
+        if (sortBy === 'title_asc') {
+            list.sort((a, b) => a.title.localeCompare(b.title));
+        } else if (sortBy === 'title_desc') {
+            list.sort((a, b) => b.title.localeCompare(a.title));
+        }
+        return list;
+    }, [ratings, searchQuery, statusFilter, sortBy]);
+
+    const cycleSort = () => {
+        if (sortBy === 'default') setSortBy('title_asc');
+        else if (sortBy === 'title_asc') setSortBy('title_desc');
+        else setSortBy('default');
+    };
+
+    const handleOpenEditModal = () => {
+        setEditNickname(profile?.nickname || (email ? email.split('@')[0] : ''));
+        setEditPicture(profile?.profile_picture || '');
+        setIsEditModalVisible(true);
+    };
+
+    const handlePickImage = async () => {
+        try {
+            const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (!permissionResult.granted) {
+                showToast('Permission to access photo gallery is required', 'error', 'Permission Denied');
+                return;
+            }
+
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ['images'],
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 0.7,
+                base64: true,
+            });
+
+            if (!result.canceled && result.assets && result.assets[0]) {
+                const asset = result.assets[0];
+                if (asset.base64) {
+                    setEditPicture(`data:image/jpeg;base64,${asset.base64}`);
+                } else if (asset.uri) {
+                    setEditPicture(asset.uri);
+                }
+            }
+        } catch (err: any) {
+            console.error('Error picking image:', err);
+            showToast('Failed to pick image from gallery', 'error', 'Error');
+        }
+    };
+
+    const handleSaveProfile = async () => {
+        setSavingProfile(true);
+        try {
+            if (editNickname.trim() && editNickname !== profile?.nickname) {
+                await profileService.updateNickname(editNickname.trim());
+            }
+
+            if (editPicture !== profile?.profile_picture) {
+                if (editPicture) {
+                    await profileService.updateProfilePicture(editPicture);
+                } else {
+                    await profileService.deleteProfilePicture();
+                }
+            }
+
+            showToast('Profile updated successfully', 'success', 'Saved');
+            setIsEditModalVisible(false);
+            checkAuthAndFetch(false);
+        } catch (err: any) {
+            showToast(err.message || 'Failed to update profile', 'error', 'Error');
+        } finally {
+            setSavingProfile(false);
+        }
+    };
+
+    const username = profile?.nickname || (email ? email.split('@')[0] : 'moovy user');
+    const avatarUri = profile?.profile_picture
+        ? (profile.profile_picture.startsWith('http') || profile.profile_picture.startsWith('data:')
+            ? profile.profile_picture
+            : `data:image/png;base64,${profile.profile_picture}`)
+        : null;
+
+    const modalAvatarUri = editPicture
+        ? (editPicture.startsWith('http') || editPicture.startsWith('data:')
+            ? editPicture
+            : `data:image/png;base64,${editPicture}`)
+        : null;
 
     return (
         <View className="flex-1 bg-transparent pt-10">
+            <Toast
+                visible={toast.visible}
+                message={toast.message}
+                type={toast.type}
+                title={toast.title}
+                onClose={() => setToast((prev) => ({ ...prev, visible: false }))}
+            />
             <SafeAreaView className="flex-1">
                 {/* Header */}
                 <MotiView
@@ -97,9 +245,9 @@ export default function ProfileScreen() {
                             <View className="bg-accent/15 p-4 rounded-full mb-5">
                                 <UserRound color={ACCENT} size={36} />
                             </View>
-                            <Text className="font-outfit-bold text-[20px] mb-2 text-center text-white">Join the Movie Night Cloud</Text>
+                            <Text className="font-outfit-bold text-[20px] mb-2 text-center text-white">Join Moovy!</Text>
                             <Text className="font-outfit text-[13px] opacity-35 text-center mb-8 px-4 leading-[20px]">
-                                Log in to sync your personal vibe, build a watchlist of movies to see later, and matching tastes with your friends!
+                                this app is real fucking good
                             </Text>
                             <TouchableOpacity
                                 onPress={() => router.push('/login')}
@@ -124,14 +272,26 @@ export default function ProfileScreen() {
                             className="gap-y-3"
                         >
                             {/* Profile card */}
-                            <View className="bg-white/[0.04] border border-white/[0.08] p-5 rounded-2xl flex-row items-center gap-x-4">
-                                <View className="w-14 h-14 rounded-full bg-accent/15 items-center justify-center border border-accent/25">
-                                    <UserRound color={ACCENT} size={26} strokeWidth={2} />
+                            <View className="bg-white/[0.04] border border-white/[0.08] p-5 rounded-2xl flex-row items-center justify-between gap-x-4">
+                                <View className="flex-row items-center gap-x-4 flex-1">
+                                    {avatarUri ? (
+                                        <Image source={{ uri: avatarUri }} className="w-14 h-14 rounded-full border border-accent/40" />
+                                    ) : (
+                                        <View className="w-14 h-14 rounded-full bg-accent/15 items-center justify-center border border-accent/25">
+                                            <UserRound color={ACCENT} size={26} strokeWidth={2} />
+                                        </View>
+                                    )}
+                                    <View className="flex-1">
+                                        <Text className="font-outfit-bold text-[18px] text-white capitalize">{username}</Text>
+                                        <Text className="font-outfit text-[12px] opacity-35 mt-0.5">{email}</Text>
+                                    </View>
                                 </View>
-                                <View className="flex-1">
-                                    <Text className="font-outfit-bold text-[18px] text-white capitalize">{username}</Text>
-                                    <Text className="font-outfit text-[12px] opacity-35 mt-0.5">{email}</Text>
-                                </View>
+                                <TouchableOpacity
+                                    onPress={handleOpenEditModal}
+                                    className="p-2.5 rounded-xl bg-white/[0.06] border border-white/[0.08]"
+                                >
+                                    <Edit3 color={ACCENT} size={18} />
+                                </TouchableOpacity>
                             </View>
 
                             {/* Stats & Nav Cards */}
@@ -157,7 +317,7 @@ export default function ProfileScreen() {
                                 >
                                     <Star color={ACCENT} size={20} fill={activeTab === 'ratings' ? `${ACCENT}33` : "transparent"} className="mb-1" />
                                     <Text className="font-outfit-bold text-[22px] text-white">{ratings.length}</Text>
-                                    <Text className="font-outfit text-[10px] opacity-35 uppercase tracking-[1px] mt-0.5">Ratings</Text>
+                                    <Text className="font-outfit text-[10px] uppercase tracking-[1px] mt-0.5" style={{ opacity: 0.35 }}>Ratings</Text>
                                 </TouchableOpacity>
 
                                 <TouchableOpacity
@@ -165,24 +325,66 @@ export default function ProfileScreen() {
                                     className="flex-1 bg-white/[0.02] border border-white/[0.06] p-4 rounded-2xl items-center opacity-60 active:opacity-100"
                                 >
                                     <Users color={ACCENT} size={20} className="mb-1" />
-                                    <Text className="font-outfit-bold text-[22px] text-white">8</Text>
+                                    <Text className="font-outfit-bold text-[22px] text-white">∞</Text>
                                     <Text className="font-outfit text-[10px] opacity-35 uppercase tracking-[1px] mt-0.5">Friends</Text>
                                 </TouchableOpacity>
                             </View>
 
                             {/* Section content */}
-                            <View className="gap-y-4">
-                                <View>
-                                    <Text className="font-outfit-bold text-[20px]">
-                                        {activeTab === 'watchlist' ? 'My Watchlist' : 'My Ratings'}
-                                    </Text>
-                                    <Text className="font-outfit text-[12px] opacity-30 mt-0.5">
-                                        {activeTab === 'watchlist'
-                                            ? 'Your saved movies to watch later'
-                                            : 'Movies you have rated'
-                                        }
-                                    </Text>
+                            <View className="gap-y-3">
+
+                                {/* Search Bar & Sort Button */}
+                                <View className="flex-row gap-x-2 items-center">
+                                    <View className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-2xl flex-row items-center px-3 py-2">
+                                        <Search color="#707080" size={16} className="mr-2" />
+                                        <TextInput
+                                            className="flex-1 text-white font-outfit text-[13px] p-1.5"
+                                            placeholder="Search movies..."
+                                            placeholderTextColor="#ffffff30"
+                                            value={searchQuery}
+                                            onChangeText={setSearchQuery}
+                                        />
+                                        {searchQuery ? (
+                                            <TouchableOpacity onPress={() => setSearchQuery('')} className="p-1">
+                                                <X color="#ffffff60" size={14} />
+                                            </TouchableOpacity>
+                                        ) : null}
+                                    </View>
+
+                                    <TouchableOpacity
+                                        onPress={cycleSort}
+                                        className={`px-3 h-full rounded-2xl flex-row items-center gap-x-1.5 border ${sortBy !== 'default'
+                                            ? 'bg-accent/15 border-accent'
+                                            : 'bg-white/[0.04] border-white/[0.08]'
+                                            }`}
+                                    >
+                                        <ArrowUpDown color={sortBy !== 'default' ? ACCENT : "#707080"} size={16} />
+                                        <Text className={`font-outfit-bold text-[11px] uppercase tracking-wider`} style={{ color: sortBy !== 'default' ? ACCENT : '#ffffff99' }}>
+                                            {sortBy === 'title_asc' ? 'A-Z' : sortBy === 'title_desc' ? 'Z-A' : 'Sort'}
+                                        </Text>
+                                    </TouchableOpacity>
                                 </View>
+
+                                {/* Ratings Status Filter Chips */}
+                                {activeTab === 'ratings' && (
+                                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row py-1">
+                                        {['ALL', 'LOVE', 'LIKE', 'DISLIKE', 'HATE'].map((st) => (
+                                            <TouchableOpacity
+                                                key={st}
+                                                onPress={() => setStatusFilter(st)}
+                                                className={`px-3.5 py-1.5 rounded-full border mr-2 ${statusFilter === st
+                                                    ? 'bg-accent border-accent'
+                                                    : 'bg-white/[0.03] border-white/[0.08]'
+                                                    }`}
+                                            >
+                                                <Text className={`font-outfit-bold text-[11px] uppercase tracking-wider ${statusFilter === st ? 'text-black' : 'text-white/60'
+                                                    }`}>
+                                                    {st}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </ScrollView>
+                                )}
 
                                 {error ? (
                                     <View className="py-8 items-center">
@@ -195,16 +397,18 @@ export default function ProfileScreen() {
                                         </TouchableOpacity>
                                     </View>
                                 ) : activeTab === 'watchlist' ? (
-                                    movies.length === 0 ? (
+                                    filteredMovies.length === 0 ? (
                                         <View className="bg-white/[0.02] border border-white/[0.05] p-8 rounded-3xl items-center">
                                             <Bookmark color="#707080" size={24} className="mb-3 opacity-60" />
-                                            <Text className="font-outfit-semi text-[14px] text-white/80">Watchlist is empty</Text>
+                                            <Text className="font-outfit-semi text-[14px] text-white/80">
+                                                {searchQuery ? 'No matching movies found' : 'Watchlist is empty'}
+                                            </Text>
                                             <Text className="font-outfit text-[11px] opacity-30 text-center mt-1 leading-[18px]">
-                                                Films you save will show up here.
+                                                {searchQuery ? 'Try clearing your search query' : 'Films you save will show up here.'}
                                             </Text>
                                         </View>
                                     ) : (
-                                        movies.map((item) => {
+                                        filteredMovies.map((item) => {
                                             const mappedMovie: MovieViewProps = {
                                                 movie_id: item.movie_id,
                                                 title: item.title,
@@ -218,16 +422,21 @@ export default function ProfileScreen() {
                                         })
                                     )
                                 ) : (
-                                    ratings.length === 0 ? (
+                                    filteredRatings.length === 0 ? (
                                         <View className="bg-white/[0.02] border border-white/[0.05] p-8 rounded-3xl items-center">
                                             <Star color="#707080" size={24} className="mb-3 opacity-60" />
-                                            <Text className="font-outfit-semi text-[14px] text-white/80">No rated movies</Text>
+                                            <Text className="font-outfit-semi text-[14px] text-white/80">
+                                                {searchQuery || statusFilter !== 'ALL' ? 'No matching ratings found' : 'No rated movies'}
+                                            </Text>
                                             <Text className="font-outfit text-[11px] opacity-30 text-center mt-1 leading-[18px]">
-                                                Movies you rate Love, Like, Dislike, or Hate will show up here.
+                                                {searchQuery || statusFilter !== 'ALL'
+                                                    ? 'Try changing your search or status filter'
+                                                    : 'Movies you rate Love, Like, Dislike, or Hate will show up here.'
+                                                }
                                             </Text>
                                         </View>
                                     ) : (
-                                        ratings.map((item) => {
+                                        filteredRatings.map((item) => {
                                             const mappedMovie: MovieViewProps = {
                                                 movie_id: item.movie_id,
                                                 title: item.title,
@@ -244,6 +453,105 @@ export default function ProfileScreen() {
                     </ScrollView>
                 )}
             </SafeAreaView>
+
+            {/* Edit Profile Modal */}
+            <Modal
+                visible={isEditModalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setIsEditModalVisible(false)}
+            >
+                <Pressable
+                    className="flex-1 justify-end bg-black/70"
+                    onPress={() => setIsEditModalVisible(false)}
+                >
+                    <Pressable
+                        onPress={(e) => e.stopPropagation()}
+                        className="bg-[#141226] border-t border-white/10 p-6 rounded-t-[32px] gap-y-5"
+                    >
+                        <View className="flex-row justify-between items-center">
+                            <Text className="font-outfit-bold text-[20px] text-white">Edit Profile</Text>
+                            <TouchableOpacity
+                                onPress={() => setIsEditModalVisible(false)}
+                                className="p-2 rounded-full bg-white/5 border border-white/10"
+                            >
+                                <X color="#fff" size={18} />
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Avatar preview & gallery picker */}
+                        <View className="items-center my-2 gap-y-3">
+                            <TouchableOpacity onPress={handlePickImage} className="relative">
+                                {modalAvatarUri ? (
+                                    <Image source={{ uri: modalAvatarUri }} className="w-24 h-24 rounded-full border-2 border-accent" />
+                                ) : (
+                                    <View className="w-24 h-24 rounded-full bg-accent/15 items-center justify-center border-2 border-accent/30">
+                                        <UserRound color={ACCENT} size={42} />
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+
+                            <View className="flex-row gap-x-2">
+                                <TouchableOpacity
+                                    onPress={handlePickImage}
+                                    className="px-4 py-2 rounded-full bg-accent/15 border border-accent/30 flex-row items-center gap-x-1.5"
+                                >
+                                    <Camera color={ACCENT} size={15} />
+                                    <Text style={{ color: ACCENT }} className="font-outfit-bold text-[12px] uppercase tracking-wider">
+                                        Choose Photo
+                                    </Text>
+                                </TouchableOpacity>
+
+                                {editPicture ? (
+                                    <TouchableOpacity
+                                        onPress={() => setEditPicture('')}
+                                        className="px-3 py-2 rounded-full bg-red-500/10 border border-red-500/20 flex-row items-center gap-x-1.5"
+                                    >
+                                        <Trash2 color="#ef4444" size={15} />
+                                        <Text className="font-outfit-semi text-red-400 text-[12px]">Remove</Text>
+                                    </TouchableOpacity>
+                                ) : null}
+                            </View>
+                        </View>
+
+                        {/* Nickname input */}
+                        <View className="gap-y-1.5">
+                            <Text className="font-outfit text-[12px] opacity-40 uppercase tracking-[1px]">Nickname</Text>
+                            <TextInput
+                                className="bg-white/[0.06] border border-white/[0.12] rounded-2xl p-4 text-white font-outfit text-[15px]"
+                                placeholder="Enter nickname"
+                                placeholderTextColor="#ffffff40"
+                                value={editNickname}
+                                onChangeText={setEditNickname}
+                            />
+                        </View>
+
+                        {/* Save / Cancel actions */}
+                        <View className="flex-row gap-x-3 pt-2">
+                            <TouchableOpacity
+                                onPress={() => setIsEditModalVisible(false)}
+                                className="flex-1 py-4 rounded-2xl bg-white/5 border border-white/10 items-center"
+                            >
+                                <Text className="font-outfit-semi text-white text-[14px]">Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={handleSaveProfile}
+                                disabled={savingProfile}
+                                className="flex-1 py-4 rounded-2xl bg-accent items-center flex-row justify-center gap-x-2"
+                            >
+                                {savingProfile ? (
+                                    <ActivityIndicator color="#000" />
+                                ) : (
+                                    <>
+                                        <Check color="#000" size={18} strokeWidth={2.5} />
+                                        <Text className="font-outfit-bold text-black text-[14px] uppercase tracking-wider">Save</Text>
+                                    </>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    </Pressable>
+                </Pressable>
+            </Modal>
         </View>
     );
 }

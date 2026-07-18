@@ -64,6 +64,23 @@ export const storageService = {
     }
   },
 
+  async saveRefreshToken(token: string) {
+    try {
+      await SecureStore.setItemAsync('refresh_token', token);
+    } catch (error) {
+      console.error('Error saving refresh token:', error);
+    }
+  },
+
+  async getRefreshToken() {
+    try {
+      return await SecureStore.getItemAsync('refresh_token');
+    } catch (error) {
+      console.error('Error getting refresh token:', error);
+      return null;
+    }
+  },
+
   async saveUserEmail(email: string) {
     try {
       await SecureStore.setItemAsync('user_email', email);
@@ -85,6 +102,7 @@ export const storageService = {
     try {
       await Promise.all([
         SecureStore.deleteItemAsync(TOKEN_KEY),
+        SecureStore.deleteItemAsync('refresh_token'),
         SecureStore.deleteItemAsync(USER_ID_KEY),
         SecureStore.deleteItemAsync('user_email')
       ]);

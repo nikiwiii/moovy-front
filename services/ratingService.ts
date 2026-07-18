@@ -1,3 +1,4 @@
+import { apiFetch } from './authService';
 import { storageService } from './storageService';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
@@ -16,14 +17,6 @@ export interface RatingHistoryItem {
     title: string;
     poster_path: string;
     status: string;
-}
-
-async function getHeaders(): Promise<Record<string, string>> {
-    const token = await storageService.getToken();
-    return {
-        'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-    };
 }
 
 function extractErrorMsg(data: any, defaultMsg: string): string {
@@ -55,10 +48,8 @@ async function parseResponse(response: Response) {
 
 export const ratingService = {
     async rateMovie(movieId: string, status: 'LOVE' | 'LIKE' | 'DISLIKE' | 'HATE' | 'WATCHED' | 'WATCHLIST'): Promise<any> {
-        const headers = await getHeaders();
-        const response = await fetch(`${API_URL}/rating/rate`, {
+        const response = await apiFetch(`${API_URL}/rating/rate`, {
             method: 'POST',
-            headers,
             body: JSON.stringify({ movie_id: movieId, status }),
         });
 
@@ -70,10 +61,8 @@ export const ratingService = {
     },
 
     async unrateMovie(movieId: string, status: string): Promise<any> {
-        const headers = await getHeaders();
-        const response = await fetch(`${API_URL}/rating/rate`, {
+        const response = await apiFetch(`${API_URL}/rating/rate`, {
             method: 'DELETE',
-            headers,
             body: JSON.stringify({ movie_id: movieId, status }),
         });
 
@@ -85,10 +74,8 @@ export const ratingService = {
     },
 
     async getWatchlist(): Promise<WatchlistMovie[]> {
-        const headers = await getHeaders();
-        const response = await fetch(`${API_URL}/rating/watchlist`, {
+        const response = await apiFetch(`${API_URL}/rating/watchlist`, {
             method: 'GET',
-            headers,
         });
 
         const data = await parseResponse(response);
@@ -99,10 +86,8 @@ export const ratingService = {
     },
 
     async getHistory(): Promise<RatingHistoryItem[]> {
-        const headers = await getHeaders();
-        const response = await fetch(`${API_URL}/rating/history`, {
+        const response = await apiFetch(`${API_URL}/rating/history`, {
             method: 'GET',
-            headers,
         });
 
         const data = await parseResponse(response);

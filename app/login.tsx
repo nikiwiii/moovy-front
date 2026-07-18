@@ -75,6 +75,9 @@ export default function LoginScreen() {
 
                 if (result.access_token) {
                     await storageService.saveToken(result.access_token);
+                    if (result.refresh_token) {
+                        await storageService.saveRefreshToken(result.refresh_token);
+                    }
                     if (result.user_id) {
                         await storageService.saveUserId(result.user_id);
                     }
