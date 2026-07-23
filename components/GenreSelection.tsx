@@ -22,9 +22,10 @@ interface GenreSelectionProps {
     label1: string;
     label2: string;
     options?: string[];
+    revealed?: boolean;
 }
 
-export default function VibeSelection({ liked, disliked, onToggleVibe, label1, label2, options }: GenreSelectionProps) {
+export default function VibeSelection({ liked, disliked, onToggleVibe, label1, label2, options, revealed }: GenreSelectionProps) {
     const [modalState, setModalState] = useState<'liked' | 'disliked' | ''>('');
     const [internalVibes, setInternalVibes] = useState<string[]>(defaultVibes);
     const [backendColors, setBackendColors] = useState<Record<string, string>>({});
@@ -63,7 +64,7 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
             <MiniCollapsibleSection
                 title={label1 + ":"}
                 value={liked.length}
-                defaultOpen={false}
+                defaultOpen={revealed}
                 rightIcon={<Plus size={14} color={ACCENT} />}
                 onRightIconPress={() => setModalState('liked')}
                 className="rounded-b-[10px]"
@@ -99,7 +100,7 @@ export default function VibeSelection({ liked, disliked, onToggleVibe, label1, l
             <MiniCollapsibleSection
                 title={label2 + ":"}
                 value={disliked.length}
-                defaultOpen={false}
+                defaultOpen={revealed}
                 rightIcon={<Plus size={14} color={ACCENT} />}
                 onRightIconPress={() => setModalState('disliked')}
                 className="rounded-t-[10px]"

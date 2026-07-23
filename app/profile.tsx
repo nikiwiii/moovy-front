@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Cog, Bookmark, UserRound, LogIn, Star, Users, Edit3, X, Check, Trash2, Camera, Search, SlidersHorizontal, ArrowUpDown } from 'lucide-react-native';
+import { Cog, Bookmark, UserRound, LogIn, Star, Users, Edit3, X, Check, Trash2, Camera, Search, SlidersHorizontal, ArrowUpDown, Heart } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useEffect, useState, useMemo } from 'react';
 import { ActivityIndicator, Modal, Pressable, RefreshControl, SafeAreaView, ScrollView, TextInput, Image, View } from 'react-native';
@@ -223,12 +223,20 @@ export default function ProfileScreen() {
                     className="px-6 pt-5 pb-3 flex-row justify-between items-center"
                 >
                     <Text className="font-outfit-bold text-[24px]">My Space</Text>
-                    <TouchableOpacity
-                        onPress={() => router.push('/settings' as any)}
-                        className="w-10 h-10 rounded-full bg-white/[0.06] items-center justify-center border border-white/[0.08]"
-                    >
-                        <Cog color="#fff" size={20} />
-                    </TouchableOpacity>
+                    <View className="flex-row items-center gap-x-2.5">
+                        <TouchableOpacity
+                            onPress={() => router.push('/favourites' as any)}
+                            className="w-10 h-10 rounded-full bg-white/[0.06] items-center justify-center border border-white/[0.08]"
+                        >
+                            <Heart color="#fff" size={20} />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => router.push('/settings' as any)}
+                            className="w-10 h-10 rounded-full bg-white/[0.06] items-center justify-center border border-white/[0.08]"
+                        >
+                            <Cog color="#fff" size={20} />
+                        </TouchableOpacity>
+                    </View>
                 </MotiView>
 
                 {loading ? (
@@ -240,11 +248,8 @@ export default function ProfileScreen() {
                         <MotiView
                             from={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="bg-white/[0.04] border border-white/[0.08] p-8 rounded-[32px] items-center"
+                            className="items-center"
                         >
-                            <View className="bg-accent/15 p-4 rounded-full mb-5">
-                                <UserRound color={ACCENT} size={36} />
-                            </View>
                             <Text className="font-outfit-bold text-[20px] mb-2 text-center text-white">Join Moovy!</Text>
                             <Text className="font-outfit text-[13px] opacity-35 text-center mb-8 px-4 leading-[20px]">
                                 this app is real fucking good
@@ -253,7 +258,6 @@ export default function ProfileScreen() {
                                 onPress={() => router.push('/login')}
                                 className="bg-accent py-4 px-8 rounded-2xl flex-row justify-center items-center w-full"
                             >
-                                <LogIn color="#000" size={18} strokeWidth={2.5} className="mr-2" />
                                 <Text className="font-outfit-bold text-black text-[15px] uppercase tracking-wider">Log In or Sign Up</Text>
                             </TouchableOpacity>
                         </MotiView>

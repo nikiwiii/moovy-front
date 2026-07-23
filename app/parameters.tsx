@@ -15,7 +15,7 @@ import GenreSelection from '../components/GenreSelection';
 import GroupSelector from '../components/GroupSelector';
 import TouchableOpacity from '../components/TouchableOpacity';
 import VibeBars from '../components/VibeBars';
-import MoodPalette, { MOOD_ZONES } from '../components/MoodPalette';
+import MoodPalette, { MOOD_ZONES, TAG_TERRITORIES } from '../components/MoodPalette';
 import { FillStyles } from '../constants/themeStyles';
 import { Colors } from '@/constants/theme';
 import { updateBackgroundHighlightColors } from '../components/AnimatedBackground';
@@ -376,145 +376,108 @@ export default function ParametersScreen() {
                             icon={Film}
                             defaultOpen={true}
                         >
-                            <Animated.View layout={LinearTransition} className="flex-row w-full mt-2">
-                                {/* Left Column: The selector view */}
-                                <Animated.View layout={LinearTransition} className="flex-[1.5] justify-start">
-                                    {vibeMethod === 'tags' ? (
-                                        <GenreSelection
-                                            liked={genres.liked}
-                                            disliked={genres.disliked}
-                                            onToggleVibe={toggleGenre}
-                                            label1="Include"
-                                            label2="Exclude"
-                                        />
-                                    ) : (
+                            <View className="flex-col gap-3 mt-2">
+                                {/* Mode Switcher Tabs (Full Width) */}
+                                <View className="flex-row bg-white/[0.04] p-1 rounded-2xl border border-white/[0.08]">
+                                    <TouchableOpacity
+                                        onPress={() => setVibeMethod('palette')}
+                                        className={`flex-1 py-2 px-3 rounded-xl items-center justify-center border transition-all ${vibeMethod === 'palette'
+                                            ? 'bg-accent border-accent'
+                                            : 'bg-transparent border-transparent opacity-60'
+                                            }`}
+                                    >
+                                        <Text className={`font-outfit-bold text-[11px] tracking-[1px] uppercase ${vibeMethod === 'palette' ? 'text-black' : 'text-white'
+                                            }`}>
+                                            Mood Palette
+                                        </Text>
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        onPress={() => setVibeMethod('tags')}
+                                        className={`flex-1 py-2 px-3 rounded-xl items-center justify-center border transition-all ${vibeMethod === 'tags'
+                                            ? 'bg-accent border-accent'
+                                            : 'bg-transparent border-transparent opacity-60'
+                                            }`}
+                                    >
+                                        <Text className={`font-outfit-bold text-[11px] tracking-[1px] uppercase ${vibeMethod === 'tags' ? 'text-black' : 'text-white'
+                                            }`}>
+                                            Tag Selection
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+
+                                {/* Full Width Selection Content */}
+                                {vibeMethod === 'tags' ? (
+                                    <GenreSelection
+                                        liked={genres.liked}
+                                        disliked={genres.disliked}
+                                        onToggleVibe={toggleGenre}
+                                        label1="Include"
+                                        label2="Exclude"
+                                    />
+                                ) : (
+                                    <View className="gap-3">
                                         <MoodPalette
                                             hideDetails={true}
                                             onMoodSelected={handleMoodSelected}
                                             onTouchStart={() => setScrollEnabled(false)}
                                             onTouchEnd={() => setScrollEnabled(true)}
                                         />
-                                    )}
-                                </Animated.View>
 
-                                {/* Right Column: Details & Mode selector stacked vertically */}
-                                <Animated.View layout={LinearTransition} className="flex-[1] flex-col justify-between pl-3">
-                                    {/* Top: Info display */}
-                                    <Animated.View layout={LinearTransition}>
-                                        {vibeMethod === 'palette' ? (() => {
-                                            const activeZone = MOOD_ZONES.find(zone => zone.label === moodLabel);
-                                            if (activeZone) {
+                                        {/* Selected Vibe Info Display (Full Width Below Palette) */}
+                                        {(() => {
+                                            const activeTerritory = TAG_TERRITORIES.find(t => t.label === moodLabel || t.vibe === paletteVibes[0]);
+                                            if (activeTerritory || paletteVibes.length > 0) {
+                                                const displayColor = activeTerritory?.color || ACCENT;
+                                                const IconComponent = activeTerritory?.icon || Sparkles;
                                                 return (
                                                     <MotiView
-                                                        key={activeZone.id}
-                                                        from={{ opacity: 0, scale: 0.95 }}
-                                                        animate={{ opacity: 1, scale: 1 }}
-                                                        className="mb-4"
+                                                        key={activeTerritory?.id || 'palette-active'}
+                                                        from={{ opacity: 0, translateY: 6 }}
+                                                        animate={{ opacity: 1, translateY: 0 }}
+                                                        className="bg-white/[0.04] border border-white/[0.08] p-3.5 rounded-2xl gap-y-2"
                                                     >
-                                                        <View className="flex-row items-center gap-2 mb-2.5">
-                                                            <View
-                                                                style={{
-                                                                    width: 32,
-                                                                    height: 32,
-                                                                    borderRadius: 16,
-                                                                    backgroundColor: activeZone.color + '20',
-                                                                    borderWidth: 1,
-                                                                    borderColor: activeZone.color + '40',
-                                                                    alignItems: 'center',
-                                                                    justifyContent: 'center',
-                                                                }}
-                                                            >
-                                                                <activeZone.icon color={activeZone.color} size={15} strokeWidth={2} />
+                                                        <View className="flex-row items-center justify-between">
+                                                            <View className="flex-row items-center gap-2">
+                                                                <View
+                                                                    style={{
+                                                                        width: 32,
+                                                                        height: 32,
+                                                                        borderRadius: 16,
+                                                                        backgroundColor: displayColor + '20',
+                                                                        borderWidth: 1,
+                                                                        borderColor: displayColor + '40',
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'center',
+                                                                    }}
+                                                                >
+                                                                    <IconComponent color={displayColor} size={15} strokeWidth={2} />
+                                                                </View>
+                                                                <Text className="font-outfit-bold text-[14px] text-white uppercase tracking-wider">
+                                                                    {activeTerritory?.label || moodLabel || 'Palette Vibe'}
+                                                                </Text>
                                                             </View>
-                                                            <Text className="font-outfit-bold text-[13px] text-white uppercase tracking-wider">
-                                                                {activeZone.label}
-                                                            </Text>
+
+                                                            {activeTerritory && (
+                                                                <Text style={{ color: ACCENT }} className="font-outfit text-[11px] font-outfit-semi">
+                                                                    {activeTerritory.description}
+                                                                </Text>
+                                                            )}
                                                         </View>
-                                                        <View className="flex-row flex-wrap gap-1">
-                                                            {activeZone.vibes.map(v => (
+
+                                                        <View className="flex-row flex-wrap gap-1.5 pt-1.5 border-t border-white/[0.06]">
+                                                            {paletteVibes.map(v => (
                                                                 <VibeBadge key={v} vibe={v} />
                                                             ))}
                                                         </View>
                                                     </MotiView>
                                                 );
                                             }
-                                            return (
-                                                <View className="mb-4">
-                                                    <View className="flex-row items-center gap-1 mb-2">
-                                                        <EllipsisVertical color="#ffffff" size={16} opacity={0.4} />
-                                                        <Text className="font-outfit-bold text-[13px] text-white/40 uppercase tracking-wider">
-                                                            no vibe chosen
-                                                        </Text>
-                                                    </View>
-                                                    <Text className="font-outfit text-[12px] text-white/30">
-                                                        Here the vibe tags will show
-                                                    </Text>
-                                                </View>
-                                            );
-                                        })() : (
-                                            <View className="mb-4">
-                                                <View className="flex-row items-center gap-2 mb-2.5">
-                                                    <View
-                                                        style={{
-                                                            width: 32,
-                                                            height: 32,
-                                                            backgroundColor: avgVibeColor + '15',
-                                                            borderColor: avgVibeColor + '40',
-                                                            borderWidth: 1,
-                                                        }}
-                                                        className="rounded-full items-center justify-center"
-                                                    >
-                                                        <Tag color={avgVibeColor} size={15} strokeWidth={2} />
-                                                    </View>
-                                                    <Text className="font-outfit-bold text-[13px] text-white uppercase tracking-wider">
-                                                        Custom Vibe
-                                                    </Text>
-                                                </View>
-                                                <View className="flex-row flex-wrap gap-1">
-                                                    {genres.liked.length > 0 ? (
-                                                        genres.liked.map(g => (
-                                                            <VibeBadge key={g} vibe={g} />
-                                                        ))
-                                                    ) : (
-                                                        <Text className="font-outfit text-[12px] text-white/30">
-                                                            No tags selected
-                                                        </Text>
-                                                    )}
-                                                </View>
-                                            </View>
-                                        )}
-                                    </Animated.View>
-
-                                    {/* Bottom: vertical stacked buttons */}
-                                    <Animated.View layout={LinearTransition} className="flex-col gap-1 mt-auto">
-                                        <TouchableOpacity
-                                            onPress={() => setVibeMethod('palette')}
-                                            className={`py-2 px-3 rounded-[14px] items-center justify-center border ${vibeMethod === 'palette'
-                                                ? 'bg-accent border-accent'
-                                                : 'bg-white/[0.03] border-white/[0.08] opacity-50'
-                                                }`}
-                                        >
-                                            <Text className={`font-outfit-bold text-[10px] tracking-[1px] uppercase ${vibeMethod === 'palette' ? 'text-black' : 'text-white/70'
-                                                }`}>
-                                                Mood Palette
-                                            </Text>
-                                        </TouchableOpacity>
-
-                                        <TouchableOpacity
-                                            onPress={() => setVibeMethod('tags')}
-                                            className={`py-2 px-3 rounded-[14px] items-center justify-center border ${vibeMethod === 'tags'
-                                                ? 'bg-accent border-accent'
-                                                : 'bg-white/[0.03] border-white/[0.08] opacity-50'
-                                                }`}
-                                        >
-                                            <Text className={`font-outfit-bold text-[10px] tracking-[1px] uppercase ${vibeMethod === 'tags' ? 'text-black' : 'text-white/70'
-                                                }`}>
-                                                Tag Selection
-                                            </Text>
-                                        </TouchableOpacity>
-                                    </Animated.View>
-                                </Animated.View>
-                            </Animated.View>
+                                            return null;
+                                        })()}
+                                    </View>
+                                )}
+                            </View>
                         </CollapsibleSection>
                         <CollapsibleSection
                             title="Settings"

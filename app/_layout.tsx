@@ -29,7 +29,7 @@ global.fetch = async (input, init) => {
             if (!urlStr.includes('/auth/login') && !urlStr.includes('/auth/register')) {
                 console.warn('[fetch interceptor] 401 Unauthorized received. Logging out...');
                 await storageService.logout();
-                
+
                 if (sessionExpiredCallback) {
                     sessionExpiredCallback();
                 } else {
@@ -71,7 +71,7 @@ export default function RootLayout() {
         );
     }
 
-    const showNavbar = !['/', '/home', '/preferences', '/login', '/session-create', '/session-join', '/session-lobby'].includes(pathname);
+    const showNavbar = !['/', '/home', '/preferences', '/favourites', '/login', '/session-create', '/session-join', '/session-lobby'].includes(pathname);
 
     return (
         <View style={{ flex: 1, backgroundColor: '#030108' }} className="text-white">
@@ -87,10 +87,9 @@ export default function RootLayout() {
 
             <ConfirmDialog
                 visible={showExpiredDialog}
-                title="Sesja wygasła"
-                message="Twoja sesja logowania wygasła. Zaloguj się ponownie, aby kontynuować."
-                confirmText="Zaloguj się"
-                cancelText="Pomiń"
+                title="Session expired"
+                message="Your login session has expired. Log in again to continue."
+                confirmText="Log in"
                 onConfirm={() => {
                     setShowExpiredDialog(false);
                     router.replace('/login');

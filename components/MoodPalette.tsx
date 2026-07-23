@@ -26,84 +26,133 @@ import {
     Waves,
     Skull,
     Swords,
+    Zap,
+    Users,
+    Compass,
     type LucideIcon,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/theme';
 
 const ACCENT = Colors.dark.accent;
 
-/* ─── Mood Zone Definitions ─────────────────────────────────────────── */
+/* ─── Tag Territory Definition (Harmonious 3x4 Organic Spatial Grid) ─────── */
 
-export interface MoodZone {
+export interface TagTerritory {
     id: string;
+    vibe: string;
     label: string;
     icon: LucideIcon;
-    vibes: string[];
     color: string;
-    x: [number, number];  // normalized range [0..1]
-    y: [number, number];
+    x: number; // normalized [0..1]: 0.14 = Slow, 0.38 = Moderate, 0.62 = High, 0.86 = Max
+    y: number; // normalized [0..1]: 0.22 = Light, 0.50 = Warm/Dramatic, 0.78 = Dark/Intense
+    description: string;
 }
 
-export const MOOD_ZONES: MoodZone[] = [
+export const TAG_TERRITORIES: TagTerritory[] = [
+    // ── Row 1: Light & Fun (Y = 0.22) ──────────────────────────
     {
-        id: 'chill', label: 'Cozy Chill', icon: Sofa,
-        vibes: ['PIZZA_CHILL', 'FAMILY_FUN'],
-        color: '#60D394', x: [0, 0.35], y: [0, 0.35],
+        id: 'pizza_chill', vibe: 'PIZZA_CHILL', label: 'Pizza Chill', icon: Sofa,
+        color: '#60D394', x: 0.14, y: 0.22, description: 'Relaxed, easygoing & cozy'
     },
     {
-        id: 'comedy', label: 'Laugh Riot', icon: Laugh,
-        vibes: ['LAUGH_RIOT', 'GUILTY_PLEASURE'],
-        color: '#FFD166', x: [0.35, 0.65], y: [0, 0.35],
+        id: 'family_fun', vibe: 'FAMILY_FUN', label: 'Family Fun', icon: Users,
+        color: '#38BDF8', x: 0.38, y: 0.22, description: 'Heartwarming & fun for all ages'
     },
     {
-        id: 'inspiring', label: 'Inspiring', icon: Sparkles,
-        vibes: ['INSPIRING', 'EPIC_JOURNEY'],
-        color: '#F9A826', x: [0.65, 1], y: [0, 0.35],
+        id: 'laugh_riot', vibe: 'LAUGH_RIOT', label: 'Laugh Riot', icon: Laugh,
+        color: '#FFD166', x: 0.62, y: 0.22, description: 'Hilarious, high-energy comedy'
     },
     {
-        id: 'romance', label: 'Date Night', icon: Heart,
-        vibes: ['DATE_NIGHT', 'DEEP_FEELS'],
-        color: '#EF476F', x: [0, 0.35], y: [0.35, 0.65],
+        id: 'guilty_pleasure', vibe: 'GUILTY_PLEASURE', label: 'Guilty Pleasure', icon: Zap,
+        color: '#F97316', x: 0.86, y: 0.22, description: 'Wild, entertaining & unpretentious'
+    },
+
+    // ── Row 2: Warm, Emotional & Cinematic (Y = 0.50) ───────────
+    {
+        id: 'date_night', vibe: 'DATE_NIGHT', label: 'Date Night', icon: Heart,
+        color: '#EF476F', x: 0.14, y: 0.50, description: 'Romantic, charming & warm'
     },
     {
-        id: 'mindbender', label: 'Mind Bender', icon: Brain,
-        vibes: ['MIND_BENDER', 'AMBITIOUS'],
-        color: '#9B5DE5', x: [0.35, 0.65], y: [0.35, 0.65],
+        id: 'inspiring', vibe: 'INSPIRING', label: 'Inspiring', icon: Sparkles,
+        color: '#EAB308', x: 0.38, y: 0.50, description: 'Uplifting & motivational'
     },
     {
-        id: 'adrenaline', label: 'Adrenaline', icon: Flame,
-        vibes: ['ADRENALINE', 'EPIC_JOURNEY'],
-        color: '#FF6B35', x: [0.65, 1], y: [0.35, 0.65],
+        id: 'ambitious', vibe: 'AMBITIOUS', label: 'Ambitious', icon: Compass,
+        color: '#A855F7', x: 0.62, y: 0.50, description: 'Bold, visionary & deep'
     },
     {
-        id: 'deepfeels', label: 'Deep Feels', icon: Waves,
-        vibes: ['DEEP_FEELS', 'AMBITIOUS'],
-        color: '#457B9D', x: [0, 0.35], y: [0.65, 1],
+        id: 'epic_journey', vibe: 'EPIC_JOURNEY', label: 'Epic Journey', icon: Swords,
+        color: '#EA580C', x: 0.86, y: 0.50, description: 'Grand adventure & world-building'
+    },
+
+    // ── Row 3: Deep, Dark & Intense (Y = 0.78) ────────────────
+    {
+        id: 'deep_feels', vibe: 'DEEP_FEELS', label: 'Deep Feels', icon: Waves,
+        color: '#6366F1', x: 0.14, y: 0.78, description: 'Emotional, dramatic & poignant'
     },
     {
-        id: 'horror', label: 'Spine Chilling', icon: Skull,
-        vibes: ['SPINE_CHILLING'],
-        color: '#2D6A4F', x: [0.35, 0.65], y: [0.65, 1],
+        id: 'mind_bender', vibe: 'MIND_BENDER', label: 'Mind Bender', icon: Brain,
+        color: '#7E22CE', x: 0.38, y: 0.78, description: 'Complex, cerebral & twisty'
     },
     {
-        id: 'thriller', label: 'Dark Thriller', icon: Swords,
-        vibes: ['SPINE_CHILLING', 'ADRENALINE', 'MIND_BENDER'],
-        color: '#6A040F', x: [0.65, 1], y: [0.65, 1],
+        id: 'spine_chilling', vibe: 'SPINE_CHILLING', label: 'Spine Chilling', icon: Skull,
+        color: '#15803D', x: 0.62, y: 0.78, description: 'Terrifying, dark & eerie'
+    },
+    {
+        id: 'adrenaline', vibe: 'ADRENALINE', label: 'Adrenaline', icon: Flame,
+        color: '#DC2626', x: 0.86, y: 0.78, description: 'High-octane action & non-stop thrill'
     },
 ];
 
-function getZoneAtPosition(nx: number, ny: number): MoodZone {
-    const cx = Math.max(0, Math.min(1, nx));
-    const cy = Math.max(0, Math.min(1, ny));
-    for (const zone of MOOD_ZONES) {
-        if (cx >= zone.x[0] && cx < zone.x[1] && cy >= zone.y[0] && cy < zone.y[1]) {
-            return zone;
-        }
-    }
-    return MOOD_ZONES[4]; // fallback: center
+export const MOOD_ZONES = TAG_TERRITORIES.map(t => ({
+    id: t.id,
+    label: t.label,
+    icon: t.icon,
+    vibes: [t.vibe],
+    color: t.color,
+    x: [Math.max(0, t.x - 0.12), Math.min(1, t.x + 0.12)] as [number, number],
+    y: [Math.max(0, t.y - 0.14), Math.min(1, t.y + 0.14)] as [number, number],
+}));
+
+export interface TerritorySelectionResult {
+    primaryTerritory: TagTerritory;
+    nearbyTerritories: TagTerritory[];
+    allVibes: string[];
+    tempo: number; // 0..100
+    tone: number;  // 0..100
 }
 
-/* ─── Component ─────────────────────────────────────────────────────── */
+export function evaluateSpatialPosition(nx: number, ny: number): TerritorySelectionResult {
+    const cx = Math.max(0, Math.min(1, nx));
+    const cy = Math.max(0, Math.min(1, ny));
+
+    // Calculate distance to each territory node
+    const distances = TAG_TERRITORIES.map(t => {
+        const dx = cx - t.x;
+        const dy = cy - t.y;
+        return { territory: t, dist: Math.sqrt(dx * dx + dy * dy) };
+    });
+
+    distances.sort((a, b) => a.dist - b.dist);
+
+    const primary = distances[0].territory;
+    const PROXIMITY_THRESHOLD = 0.28;
+    const nearby = distances
+        .slice(1)
+        .filter(d => d.dist <= PROXIMITY_THRESHOLD)
+        .slice(0, 2)
+        .map(d => d.territory);
+
+    const allVibes = [primary.vibe, ...nearby.map(n => n.vibe)];
+
+    return {
+        primaryTerritory: primary,
+        nearbyTerritories: nearby,
+        allVibes,
+        tempo: Math.round(cx * 100),
+        tone: Math.round(cy * 100),
+    };
+}
 
 export interface MoodPaletteProps {
     onMoodSelected: (vibes: string[], label: string) => void;
@@ -113,7 +162,7 @@ export interface MoodPaletteProps {
 }
 
 export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, hideDetails = false }: MoodPaletteProps) {
-    const [currentZone, setCurrentZone] = useState<MoodZone | null>(null);
+    const [selection, setSelection] = useState<TerritorySelectionResult | null>(null);
     const [isActive, setIsActive] = useState(false);
 
     const cursorX = useSharedValue(-100);
@@ -123,16 +172,16 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
 
     const [paletteLayout, setPaletteLayout] = useState({ width: 0, height: 0 });
 
-    const updateZone = useCallback((nx: number, ny: number) => {
-        const zone = getZoneAtPosition(nx, ny);
-        setCurrentZone(zone);
+    const updatePosition = useCallback((nx: number, ny: number) => {
+        const res = evaluateSpatialPosition(nx, ny);
+        setSelection(res);
     }, []);
 
     const confirmSelection = useCallback(() => {
-        if (currentZone) {
-            onMoodSelected(currentZone.vibes, currentZone.label);
+        if (selection) {
+            onMoodSelected(selection.allVibes, selection.primaryTerritory.label);
         }
-    }, [currentZone, onMoodSelected]);
+    }, [selection, onMoodSelected]);
 
     const beginTouch = useCallback(() => {
         setIsActive(true);
@@ -152,19 +201,19 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
             cursorScale.value = withSpring(1, { damping: 12, stiffness: 200 });
             cursorOpacity.value = withSpring(1, { damping: 15 });
             runOnJS(beginTouch)();
-            if (paletteLayout.width > 0) {
+            if (paletteLayout.width > 0 && paletteLayout.height > 0) {
                 const nx = e.x / paletteLayout.width;
                 const ny = e.y / paletteLayout.height;
-                runOnJS(updateZone)(nx, ny);
+                runOnJS(updatePosition)(nx, ny);
             }
         })
         .onUpdate((e) => {
             cursorX.value = e.x;
             cursorY.value = e.y;
-            if (paletteLayout.width > 0) {
+            if (paletteLayout.width > 0 && paletteLayout.height > 0) {
                 const nx = Math.max(0, Math.min(1, e.x / paletteLayout.width));
                 const ny = Math.max(0, Math.min(1, e.y / paletteLayout.height));
-                runOnJS(updateZone)(nx, ny);
+                runOnJS(updatePosition)(nx, ny);
             }
         })
         .onEnd(() => {
@@ -191,21 +240,23 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
 
     const glowStyle = useAnimatedStyle(() => ({
         transform: [
-            { translateX: cursorX.value - 30 },
-            { translateY: cursorY.value - 30 },
-            { scale: cursorScale.value * 1.2 },
+            { translateX: cursorX.value - 36 },
+            { translateY: cursorY.value - 36 },
+            { scale: cursorScale.value * 1.4 },
         ],
-        opacity: cursorOpacity.value * 0.4,
+        opacity: cursorOpacity.value * 0.5,
     }));
+
+    const primaryColor = selection?.primaryTerritory.color ?? ACCENT;
 
     return (
         <View className="gap-3">
-            {/* The gradient canvas */}
+            {/* The 2D Spatial Canvas */}
             <GestureHandlerRootView style={{ flex: 1 }}>
                 <GestureDetector gesture={panGesture}>
                     <View
-                        className="rounded-[14px] overflow-hidden border border-white/[0.08]"
-                        style={{ height: 230 }}
+                        className="rounded-[20px] overflow-hidden border border-white/[0.12] bg-[#09071a] relative"
+                        style={{ height: 280 }}
                         onLayout={(e) => {
                             setPaletteLayout({
                                 width: e.nativeEvent.layout.width,
@@ -213,87 +264,98 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
                             });
                         }}
                     >
-                        {/* Multi-layer gradient background */}
+                        {/* Multi-tone ambient gradients for 4 quadrants */}
                         <LinearGradient
-                            colors={['#60D394', '#FFD166', '#F9A826']}
+                            colors={['#60D39433', '#FFD16625', '#FF6B3530']}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
-                            style={[StyleSheet.absoluteFill, { opacity: 0.7 }]}
+                            style={[StyleSheet.absoluteFill, { opacity: 0.8 }]}
                         />
                         <LinearGradient
-                            colors={['transparent', '#050210']}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 0, y: 1 }}
+                            colors={['#EF476F25', '#7E22CE35', '#DC262640']}
+                            start={{ x: 0, y: 1 }}
+                            end={{ x: 1, y: 1 }}
                             style={StyleSheet.absoluteFill}
                         />
                         <LinearGradient
-                            colors={['#EF476F22', '#9B5DE544', '#FF6B3533']}
-                            start={{ x: 0, y: 0.5 }}
-                            end={{ x: 1, y: 0.5 }}
+                            colors={['#09071a10', '#050210f0']}
+                            start={{ x: 0.5, y: 0.3 }}
+                            end={{ x: 0.5, y: 1 }}
                             style={StyleSheet.absoluteFill}
-                        />
-                        <LinearGradient
-                            colors={['#6A040F55', 'transparent']}
-                            start={{ x: 1, y: 1 }}
-                            end={{ x: 0, y: 0 }}
-                            style={[StyleSheet.absoluteFill, { opacity: 0.6 }]}
                         />
 
-                        {/* ── Axis labels on the field ── */}
-                        {/* Top edge: X axis */}
+                        {/* Subtle Grid Dividing Lines */}
+                        <View style={styles.gridLineHorizontal1} pointerEvents="none" />
+                        <View style={styles.gridLineHorizontal2} pointerEvents="none" />
+                        <View style={styles.gridLineVertical1} pointerEvents="none" />
+                        <View style={styles.gridLineVertical2} pointerEvents="none" />
+                        <View style={styles.gridLineVertical3} pointerEvents="none" />
+
+                        {/* Axis Header Bar */}
                         <View style={styles.axisRow} pointerEvents="none">
-                            <Text style={styles.axisLabel}>calm</Text>
+                            <Text style={styles.axisLabel}>Slow Tempo</Text>
                             <View style={styles.axisLine} />
-                            <Text style={styles.axisLabel}>intense</Text>
-                        </View>
-                        {/* Left edge: Y label "light" */}
-                        <View style={[styles.axisVertical, { top: 16 }]} pointerEvents="none">
-                            <Text style={styles.axisLabelVertical}>light</Text>
-                        </View>
-                        {/* Vertical line between light and dark */}
-                        <View style={styles.axisVerticalLine} pointerEvents="none" />
-                        {/* Left edge: Y label "dark" */}
-                        <View style={[styles.axisVertical, { bottom: 16 }]} pointerEvents="none">
-                            <Text style={styles.axisLabelVertical}>dark</Text>
+                            <Text style={styles.axisLabel}>Fast Tempo</Text>
                         </View>
 
-                        {/* Zone Lucide icons */}
-                        {MOOD_ZONES.map((zone) => {
-                            // Shift visual positions of icons away from the edges to prevent collision with axis labels
-                            let cx = 50;
-                            if (zone.x[0] === 0) cx = 23; // Column 1
-                            else if (zone.x[1] === 1) cx = 77; // Column 3
+                        {/* Axis Side Labels */}
+                        <View style={[styles.axisVertical, { top: 24 }]} pointerEvents="none">
+                            <Text style={styles.axisLabelVertical}>Light</Text>
+                        </View>
+                        <View style={[styles.axisVertical, { bottom: 24 }]} pointerEvents="none">
+                            <Text style={styles.axisLabelVertical}>Dark</Text>
+                        </View>
 
-                            let cy = 50;
-                            if (zone.y[0] === 0) cy = 26; // Row 1 (Light)
-                            else if (zone.y[1] === 1) cy = 74; // Row 3 (Dark)
+                        {/* Render Glassmorphic Tag Territory Badges at exact grid coordinates */}
+                        {TAG_TERRITORIES.map((territory) => {
+                            const isPrimary = selection?.primaryTerritory.id === territory.id;
+                            const isNearby = selection?.nearbyTerritories.some(n => n.id === territory.id);
+                            const IconComponent = territory.icon;
 
-                            const IconComp = zone.icon;
-                            const isHighlighted = currentZone?.id === zone.id;
+                            const posX = territory.x * 100;
+                            const posY = territory.y * 100;
+
                             return (
                                 <View
-                                    key={zone.id}
+                                    key={territory.id}
                                     style={{
                                         position: 'absolute',
-                                        left: `${cx}%`,
-                                        top: `${cy}%`,
-                                        transform: [{ translateX: -18 }, { translateY: -18 }],
-                                        width: 36,
-                                        height: 36,
-                                        borderRadius: 18,
-                                        backgroundColor: isHighlighted ? `${zone.color}35` : 'rgba(255,255,255,0.03)',
-                                        borderWidth: 1,
-                                        borderColor: isHighlighted ? `${zone.color}70` : 'rgba(255,255,255,0.07)',
+                                        left: `${posX}%`,
+                                        top: `${posY}%`,
+                                        width: 100,
+                                        height: 40,
+                                        transform: [{ translateX: -50 }, { translateY: -20 }],
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        opacity: isHighlighted ? 1 : 0.55,
+                                        zIndex: isPrimary ? 25 : isNearby ? 15 : 5,
                                     }}
+                                    pointerEvents="none"
                                 >
-                                    <IconComp
-                                        color={isHighlighted ? '#fff' : zone.color}
-                                        size={isHighlighted ? 18 : 15}
-                                        strokeWidth={isHighlighted ? 2.5 : 1.5}
-                                    />
+                                    <View
+                                        style={{
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: 3,
+                                        }}
+                                    >
+                                        <IconComponent
+                                            color={isPrimary || isNearby ? territory.color : `${territory.color}60`}
+                                            size={isPrimary ? 14 : 12}
+                                            strokeWidth={isPrimary ? 2.5 : 1.8}
+                                        />
+                                        <Text
+                                            style={{
+                                                fontSize: isPrimary ? 11 : 9.5,
+                                                color: isPrimary ? '#FFFFFF' : isNearby ? territory.color : `${territory.color}60`,
+                                                fontFamily: isPrimary ? 'Outfit_700Bold' : 'Outfit_400Regular',
+                                                textAlign: 'center',
+                                            }}
+                                            numberOfLines={1}
+                                        >
+                                            {territory.label}
+                                        </Text>
+                                    </View>
                                 </View>
                             );
                         })}
@@ -304,16 +366,16 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
                                 glowStyle,
                                 {
                                     position: 'absolute',
-                                    width: 60,
-                                    height: 60,
-                                    borderRadius: 30,
-                                    backgroundColor: currentZone?.color ?? ACCENT,
+                                    width: 72,
+                                    height: 72,
+                                    borderRadius: 36,
+                                    backgroundColor: primaryColor,
                                 },
                             ]}
                             pointerEvents="none"
                         />
 
-                        {/* Cursor */}
+                        {/* Animated Touch Cursor */}
                         <Animated.View
                             style={[
                                 cursorStyle,
@@ -323,8 +385,8 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
                                     height: 36,
                                     borderRadius: 18,
                                     borderWidth: 2,
-                                    borderColor: '#ffffffcc',
-                                    backgroundColor: (currentZone?.color ?? ACCENT) + '30',
+                                    borderColor: '#ffffffed',
+                                    backgroundColor: `${primaryColor}50`,
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                 },
@@ -333,31 +395,31 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
                         >
                             <View
                                 style={{
-                                    width: 6,
-                                    height: 6,
-                                    borderRadius: 3,
+                                    width: 8,
+                                    height: 8,
+                                    borderRadius: 4,
                                     backgroundColor: '#fff',
                                 }}
                             />
                         </Animated.View>
 
-                        {/* Touch hint when inactive */}
-                        {!isActive && !currentZone && (
+                        {/* Touch hint overlay when inactive */}
+                        {!isActive && !selection && (
                             <MotiView
                                 from={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                transition={{ duration: 600, delay: 300 }}
+                                transition={{ duration: 600, delay: 200 }}
                                 style={StyleSheet.absoluteFill}
                                 className="items-center justify-center pointer-events-none"
                             >
                                 <BlurView
-                                    intensity={25}
+                                    intensity={30}
                                     tint="dark"
                                     experimentalBlurMethod="dimezisBlurView"
-                                    className="rounded-full overflow-hidden border border-white/[0.08] mx-5 py-2.5 bg-black/35"
+                                    className="rounded-full overflow-hidden border border-white/[0.12] mx-6 py-2.5 px-5 bg-black/50"
                                 >
-                                    <Text className="font-outfit-bold text-[10px] text-white/80 uppercase tracking-[2px] text-center">
-                                        Touch & drag to choose the mood
+                                    <Text className="font-outfit-bold text-[10px] text-white/90 uppercase tracking-[2px] text-center">
+                                        Drag anywhere to change tags
                                     </Text>
                                 </BlurView>
                             </MotiView>
@@ -366,43 +428,76 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
                 </GestureDetector>
             </GestureHandlerRootView>
 
-            {/* Selected mood display */}
-            {!hideDetails && currentZone && (
+            {/* Selected Territory Details Card */}
+            {!hideDetails && selection && (
                 <MotiView
-                    key={currentZone.id}
+                    key={selection.primaryTerritory.id}
                     from={{ opacity: 0, translateY: 8, scale: 0.97 }}
                     animate={{ opacity: 1, translateY: 0, scale: 1 }}
                     transition={{ type: 'spring', damping: 16, stiffness: 140 }}
-                    className="rounded-[20px] overflow-hidden border border-white/[0.08] bg-white/[0.04]"
+                    className="rounded-[20px] overflow-hidden border border-white/[0.08] bg-white/[0.04] p-4 gap-y-3"
                 >
-                    <View className="flex-row items-center gap-3 px-5 py-4">
+                    <View className="flex-row items-center gap-3">
                         <View
                             style={{
-                                width: 44,
-                                height: 44,
-                                borderRadius: 22,
-                                backgroundColor: currentZone.color + '20',
+                                width: 42,
+                                height: 42,
+                                borderRadius: 21,
+                                backgroundColor: `${selection.primaryTerritory.color}25`,
                                 borderWidth: 1,
-                                borderColor: currentZone.color + '40',
+                                borderColor: `${selection.primaryTerritory.color}50`,
                                 alignItems: 'center',
                                 justifyContent: 'center',
                             }}
                         >
-                            <currentZone.icon color={currentZone.color} size={22} strokeWidth={1.5} />
+                            <selection.primaryTerritory.icon
+                                color={selection.primaryTerritory.color}
+                                size={20}
+                                strokeWidth={2}
+                            />
                         </View>
+
                         <View className="flex-1">
                             <Text className="font-outfit-bold text-[16px] text-white">
-                                {currentZone.label}
+                                {selection.primaryTerritory.label}
                             </Text>
-                            <Text className="font-outfit text-[11px] opacity-40 mt-0.5">
-                                {currentZone.vibes.map(v => v.replace('_', ' ').toLowerCase()).join(' · ')}
+                            <Text className="font-outfit text-[12px] opacity-40 mt-0.5">
+                                {selection.primaryTerritory.description}
                             </Text>
                         </View>
-                        <View
-                            style={{ backgroundColor: currentZone.color }}
-                            className="w-2.5 h-2.5 rounded-full"
-                        />
+
+                        <View className="items-end">
+                            <Text className="font-outfit-bold text-[11px] text-accent uppercase tracking-wider">
+                                {selection.tempo > 75 ? 'Max' : selection.tempo > 50 ? 'High' : selection.tempo > 25 ? 'Moderate' : 'Chill'} Tempo
+                            </Text>
+                            <Text className="font-outfit text-[10px] opacity-35 mt-0.5">
+                                {selection.tone > 66 ? 'Dark' : selection.tone > 33 ? 'Dramatic' : 'Light'} Tone
+                            </Text>
+                        </View>
                     </View>
+
+                    {/* Nearby territories */}
+                    {selection.nearbyTerritories.length > 0 && (
+                        <View className="flex-row items-center gap-x-2 pt-1 border-t border-white/[0.06]">
+                            <Text className="font-outfit text-[11px] opacity-35 uppercase tracking-wider">
+                                Proximity Vibes:
+                            </Text>
+                            <View className="flex-row gap-x-1.5 flex-wrap">
+                                {selection.nearbyTerritories.map(n => (
+                                    <View
+                                        key={n.id}
+                                        style={{ backgroundColor: `${n.color}15`, borderColor: `${n.color}35` }}
+                                        className="px-2 py-0.5 rounded-full border flex-row items-center gap-x-1"
+                                    >
+                                        <View style={{ backgroundColor: n.color }} className="w-1.5 h-1.5 rounded-full" />
+                                        <Text className="font-outfit-bold text-[10px] text-white/70">
+                                            {n.label}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
+                        </View>
+                    )}
                 </MotiView>
             )}
         </View>
@@ -412,9 +507,9 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
 const styles = StyleSheet.create({
     axisRow: {
         position: 'absolute',
-        top: 8,
-        left: 20,
-        right: 20,
+        top: 6,
+        left: 24,
+        right: 24,
         flexDirection: 'row',
         alignItems: 'center',
         zIndex: 10,
@@ -422,16 +517,16 @@ const styles = StyleSheet.create({
     axisLabel: {
         fontFamily: 'Outfit_700Bold',
         fontSize: 9,
-        color: 'rgba(255,255,255,0.45)',
+        color: 'rgba(255,255,255,0.40)',
         textTransform: 'uppercase',
-        letterSpacing: 2,
+        letterSpacing: 1.5,
     },
     axisLabelVertical: {
         fontFamily: 'Outfit_700Bold',
         fontSize: 9,
-        color: 'rgba(255,255,255,0.45)',
+        color: 'rgba(255,255,255,0.40)',
         textTransform: 'uppercase',
-        letterSpacing: 2,
+        letterSpacing: 1.5,
         transform: [{ rotate: '-90deg' }],
         textAlign: 'center',
         width: 40,
@@ -439,7 +534,7 @@ const styles = StyleSheet.create({
     axisLine: {
         flex: 1,
         height: 1,
-        backgroundColor: 'rgba(255,255,255,0.08)',
+        backgroundColor: 'rgba(255,255,255,0.06)',
         marginHorizontal: 12,
     },
     axisVertical: {
@@ -447,18 +542,53 @@ const styles = StyleSheet.create({
         zIndex: 10,
         left: 0,
         height: 40,
-        width: 24,
+        width: 20,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    axisVerticalLine: {
+    gridLineHorizontal1: {
         position: 'absolute',
-        left: 12,
-        top: 60,
-        bottom: 60,
+        top: '36%',
+        left: 20,
+        right: 20,
+        height: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.04)',
+        zIndex: 1,
+    },
+    gridLineHorizontal2: {
+        position: 'absolute',
+        top: '64%',
+        left: 20,
+        right: 20,
+        height: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.04)',
+        zIndex: 1,
+    },
+    gridLineVertical1: {
+        position: 'absolute',
+        left: '26%',
+        top: 24,
+        bottom: 24,
         width: 1,
-        backgroundColor: 'rgba(255,255,255,0.08)',
-        zIndex: 10,
+        backgroundColor: 'rgba(255, 255, 255, 0.04)',
+        zIndex: 1,
+    },
+    gridLineVertical2: {
+        position: 'absolute',
+        left: '50%',
+        top: 24,
+        bottom: 24,
+        width: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.04)',
+        zIndex: 1,
+    },
+    gridLineVertical3: {
+        position: 'absolute',
+        left: '74%',
+        top: 24,
+        bottom: 24,
+        width: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.04)',
+        zIndex: 1,
     },
 });
-
