@@ -22,31 +22,7 @@ async function parseResponse(response: Response) {
 }
 
 export async function apiFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  const token = await storageService.getToken();
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(options.headers as Record<string, string> || {}),
-  };
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  let response = await fetch(url, { ...options, headers });
-
-  if (response.status === 401 && !url.includes('/auth/refresh') && !url.includes('/auth/login')) {
-    try {
-      const refreshed = await authService.refreshToken();
-      if (refreshed && refreshed.access_token) {
-        headers['Authorization'] = `Bearer ${refreshed.access_token}`;
-        response = await fetch(url, { ...options, headers });
-      }
-    } catch (refreshErr) {
-      console.warn('[apiFetch] Token refresh failed, logging out:', refreshErr);
-      await storageService.logout();
-    }
-  }
-
-  return response;
+  return fetch(url, options);
 }
 
 export const authService = {
@@ -71,6 +47,9 @@ export const authService = {
       }
       if (data.refresh_token) {
         await storageService.saveRefreshToken(data.refresh_token);
+      }
+      if (data.user_id) {
+        await storageService.saveUserId(data.user_id);
       }
 
       return data;
@@ -147,8 +126,11 @@ export const authService = {
 
   async deleteAccount(refreshToken: string) {
     try {
-      const response = await apiFetch(`${API_URL}/auth/delete`, {
+      const response = await fetch(`${API_URL}/auth/delete`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ refresh_token: refreshToken }),
       });
 

@@ -17,30 +17,109 @@ import { storageService } from '../services/storageService';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 let sessionExpiredCallback: (() => void) | null = null;
+let refreshTokenPromise: Promise<string | null> | null = null;
 
-// Intercept global fetch to handle expired/invalid tokens (401 Unauthorized)
 const originalFetch = global.fetch;
-global.fetch = async (input, init) => {
-    try {
-        const response = await originalFetch(input, init);
-        if (response.status === 401) {
-            const urlStr = typeof input === 'string' ? input : (input instanceof Request ? input.url : '');
-            // Only trigger logout/redirect for endpoints other than login and registration
-            if (!urlStr.includes('/auth/login') && !urlStr.includes('/auth/register')) {
-                console.warn('[fetch interceptor] 401 Unauthorized received. Logging out...');
-                await storageService.logout();
 
-                if (sessionExpiredCallback) {
-                    sessionExpiredCallback();
-                } else {
-                    router.replace('/');
-                }
+async function executeTokenRefresh(): Promise<string | null> {
+    if (refreshTokenPromise) {
+        return refreshTokenPromise;
+    }
+
+    refreshTokenPromise = (async () => {
+        try {
+            const refreshToken = await storageService.getRefreshToken();
+            if (!refreshToken) {
+                return null;
+            }
+
+            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
+            const response = await originalFetch(`${API_URL}/auth/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ refresh_token: refreshToken }),
+            });
+
+            if (!response.ok) {
+                return null;
+            }
+
+            const text = await response.text();
+            let data: any;
+            try {
+                data = JSON.parse(text);
+            } catch {
+                return null;
+            }
+
+            if (data.access_token && data.refresh_token) {
+                await storageService.saveToken(data.access_token);
+                await storageService.saveRefreshToken(data.refresh_token);
+                return data.access_token;
+            }
+            return null;
+        } catch (error) {
+            console.error('[httpInterceptor] Background refresh error:', error);
+            return null;
+        } finally {
+            refreshTokenPromise = null;
+        }
+    })();
+
+    return refreshTokenPromise;
+}
+
+// Global HTTP Interceptor
+global.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    const urlStr = typeof input === 'string'
+        ? input
+        : (input instanceof Request ? input.url : String(input));
+
+    let options: RequestInit = init || {};
+    const isAuthEndpoint = urlStr.includes('/auth/login') || urlStr.includes('/auth/register') || urlStr.includes('/auth/refresh');
+
+    // Automatically add Authorization header if token exists and not already set
+    if (!isAuthEndpoint) {
+        const token = await storageService.getToken();
+        if (token) {
+            const headers = new Headers(options.headers || {});
+            if (!headers.has('Authorization')) {
+                headers.set('Authorization', `Bearer ${token}`);
+            }
+            options = { ...options, headers };
+        }
+    }
+
+    let response = await originalFetch(input, options);
+
+    // If API returns 401 Unauthorized, intercept and attempt refresh
+    if (response.status === 401 && !isAuthEndpoint) {
+        console.warn(`[httpInterceptor] 401 Unauthorized for ${urlStr}. Refreshing token...`);
+        const newAccessToken = await executeTokenRefresh();
+
+        if (newAccessToken) {
+            // Token refresh succeeded! Retry original request with new token
+            const headers = new Headers(options.headers || {});
+            headers.set('Authorization', `Bearer ${newAccessToken}`);
+            const newOptions = { ...options, headers };
+            console.log(`[httpInterceptor] Token refreshed successfully. Retrying ${urlStr}`);
+            response = await originalFetch(input, newOptions);
+        } else {
+            // Token refresh failed or refresh token expired -> Logout
+            console.warn('[httpInterceptor] Refresh token expired or invalid. Logging out...');
+            await storageService.logout();
+
+            if (sessionExpiredCallback) {
+                sessionExpiredCallback();
+            } else {
+                router.replace('/login');
             }
         }
-        return response;
-    } catch (error) {
-        throw error;
     }
+
+    return response;
 };
 
 const ACCENT = Colors.dark.accent;

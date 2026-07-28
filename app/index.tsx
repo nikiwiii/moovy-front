@@ -8,6 +8,7 @@ import Animated, { LinearTransition } from 'react-native-reanimated';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { FillStyles } from '../constants/themeStyles';
 import { storageService } from '../services/storageService';
+import { authService } from '../services/authService';
 import { Colors } from '@/constants/theme';
 import { APP_NAME } from '../constants/app';
 
@@ -21,42 +22,64 @@ export default function WelcomeScreen() {
     const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
     useEffect(() => {
-        const checkExistingPrefs = async () => {
-            const lp = await storageService.getLocalPreferences();
-            const token = await storageService.getToken();
-            const userId = await storageService.getUserId();
-            const API_URL = process.env.EXPO_PUBLIC_API_URL;
+        const checkExistingSession = async () => {
+            try {
+                const refreshToken = await storageService.getRefreshToken();
+                if (refreshToken) {
+                    try {
+                        const refreshed = await authService.refreshToken();
+                        if (refreshed && refreshed.access_token) {
+                            const userId = await storageService.getUserId();
+                            const token = refreshed.access_token;
+                            const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-            if (lp) {
-                router.replace('/home');
-                return;
-            }
+                            let hasPrefs = false;
+                            if (userId && API_URL) {
+                                try {
+                                    const response = await fetch(`${API_URL}/preferences/get?user_id=${userId}`, {
+                                        headers: {
+                                            'Authorization': `Bearer ${token}`
+                                        }
+                                    });
+                                    if (response.ok) {
+                                        const data = await response.json();
+                                        const hasData = data && (
+                                            (data.vibes && data.vibes.length > 0) ||
+                                            (data.hard_nos && data.hard_nos.length > 0) ||
+                                            (data.eras && data.eras.length > 0) ||
+                                            (data.movies && data.movies.length > 0)
+                                        );
+                                        if (hasData) {
+                                            hasPrefs = true;
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.error('Error fetching cloud preferences on startup:', e);
+                                }
+                            }
 
-            if (token && userId && API_URL) {
-                try {
-                    const response = await fetch(`${API_URL}/preferences/get?user_id=${userId}`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
+                            if (hasPrefs) {
+                                router.replace('/home');
+                            } else {
+                                router.push({ pathname: '/preferences', params: { storageType: 'cloud' } });
+                            }
+                            return;
                         }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        const hasData = data && (
-                            (data.vibes && data.vibes.length > 0) ||
-                            (data.hard_nos && data.hard_nos.length > 0) ||
-                            (data.eras && data.eras.length > 0) ||
-                            (data.movies && data.movies.length > 0)
-                        );
-                        if (hasData) {
-                            router.replace('/home');
-                        }
+                    } catch (refreshErr) {
+                        console.warn('[Startup] Session refresh failed, clearing tokens:', refreshErr);
+                        await storageService.logout();
                     }
-                } catch (e) {
-                    console.log('Skip server redirect on startup');
                 }
+
+                const lp = await storageService.getLocalPreferences();
+                if (lp) {
+                    router.replace('/home');
+                }
+            } catch (e) {
+                console.error('[Startup] Check session error:', e);
             }
         };
-        checkExistingPrefs();
+        checkExistingSession();
     }, []);
 
     return (
