@@ -88,8 +88,8 @@ export default function WelcomeScreen() {
                 {/* Header */}
                 <View className="px-8 pt-4">
                     <MotiView
-                        from={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
+                        from={{ opacity: 0, translateX: -20 }}
+                        animate={{ opacity: 1, translateX: 0 }}
                         transition={{ delay: 300 }}
                     >
                         <Text className="font-outfit-bold text-[24px] tracking-tighter">{APP_NAME}®</Text>
@@ -99,8 +99,8 @@ export default function WelcomeScreen() {
                 {/* Main Content */}
                 <View className="flex-1 px-8 justify-center">
                     <MotiView
-                        from={{ opacity: 0, y: 40 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        from={{ opacity: 0, translateY: 40 }}
+                        animate={{ opacity: 1, translateY: 0 }}
                         transition={{ type: 'timing', duration: 1000, delay: 500 }}
                         className="mb-12"
                     >

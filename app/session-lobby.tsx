@@ -107,7 +107,6 @@ function RecommendingOverlay() {
                         type: 'timing',
                         duration: 2000,
                         loop: true,
-                        repeatContainerStyle: { position: 'absolute' }
                     }}
                     style={{
                         position: 'absolute',
@@ -128,7 +127,6 @@ function RecommendingOverlay() {
                         duration: 2000,
                         delay: 700,
                         loop: true,
-                        repeatContainerStyle: { position: 'absolute' }
                     }}
                     style={{
                         position: 'absolute',
@@ -180,7 +178,6 @@ function RecommendingOverlay() {
                         duration: 1100,
                         loop: true,
                         easing: Easing.bezier(0.25, 1, 0.5, 1),
-                        repeatContainerStyle: { position: 'absolute' }
                     }}
                     style={{ position: 'absolute' }}
                 >
