@@ -407,7 +407,7 @@ export default function Moodboard({ onMoodSelected, onTouchStart, onTouchEnd, hi
                                     className="rounded-full overflow-hidden border border-white/[0.12] mx-6 py-2.5 px-5 bg-black/50"
                                 >
                                     <Text className="font-outfit-bold text-[10px] text-white/90 uppercase tracking-[2px] text-center">
-                                        Drag anywhere to select moodboard vibes
+                                        Drag anywhere to select the vibes
                                     </Text>
                                 </BlurView>
                             </MotiView>

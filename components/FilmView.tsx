@@ -216,10 +216,10 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
     return (
         <Animated.View
             layout={LinearTransition}
-            className="bg-white/[0.04] border border-white/[0.12] rounded-[24px] p-4 gap-y-2.5 overflow-hidden relative"
+            className="bg-white/[0.04] border border-white/[0.12] rounded-[24px] p-3 gap-y-2.5 overflow-hidden relative"
         >
             {/* Top Ticket Header Stub */}
-            <View className="flex-row justify-between items-center pb-2 border-b border-white/[0.08]">
+            {/* <View className="flex-row justify-between items-center pb-3 border-b border-white/[0.08]">
                 <View className="flex-row items-center gap-1.5">
                     <Ticket size={12} color={ACCENT} />
                     <Text className="font-outfit-bold text-[9px] uppercase tracking-[2px]" style={{ color: ACCENT }}>
@@ -229,25 +229,25 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
                 <Text className="font-mono text-[9px] text-white/30 tracking-[1.5px]">
                     TICKET{ticketNumber}
                 </Text>
-            </View>
+            </View> */}
 
             {/* Poster & Main Information */}
-            <Animated.View layout={LinearTransition} className="flex-row gap-3.5 pt-1">
+            <Animated.View layout={LinearTransition} className="flex-row gap-3.5">
                 <MotiView
                     from={{ opacity: 0, translateX: 30 }}
                     animate={{ opacity: 1, translateX: 0 }}
                     transition={{ type: 'timing', duration: 500 }}
-                    className="w-[38%] gap-y-2"
+                    className="w-[45%] gap-y-2"
                 >
                     <Image source={{ uri: url }} className="w-full aspect-[2/3] rounded-xl bg-white/[0.03] border border-white/[0.06]" />
                 </MotiView>
-                <View className="flex-col w-[62%] gap-2.5">
+                <View className="flex-col w-[55%] gap-2.5">
                     <View className="flex-col gap-0.5">
-                        <Text className="text-[18px] font-outfit-bold leading-snug">
+                        <Text className="text-[22px] font-outfit-bold leading-snug">
                             {displayTitle} {displayYear !== 0 && <Text className="text-[13px] font-outfit opacity-40">({displayYear})</Text>}
                         </Text>
 
-                        {/* Decreased/Smaller Genres Badges */}
+                        {/* Genres Badges */}
                         <View className="flex-row flex-wrap gap-1 mt-1">
                             {displayGenres.map((genre, i) => (
                                 <View
@@ -267,7 +267,7 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
                     </View>
 
                     {/* Score and Runtime Rings */}
-                    <View className="flex-row items-center gap-3 my-1">
+                    <View className="flex-row items-center gap-3 my-1 w-full">
                         {displayRating ? <RatingRing rating={displayRating} /> : null}
                         {displayDuration ? <DurationRing duration={displayDuration} /> : null}
                     </View>
@@ -311,7 +311,7 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
                 <View
                     style={{
                         position: 'absolute',
-                        left: -22,
+                        left: -16,
                         top: -8,
                         width: 16,
                         height: 16,
@@ -325,7 +325,7 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
                 <View
                     style={{
                         position: 'absolute',
-                        right: -22,
+                        right: -16,
                         top: -8,
                         width: 16,
                         height: 16,

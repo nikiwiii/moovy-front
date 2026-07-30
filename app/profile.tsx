@@ -9,6 +9,8 @@ import { ratingService, WatchlistMovie, RatingHistoryItem } from '@/services/rat
 import { profileService, UserProfile } from '@/services/profileService';
 import { storageService } from '@/services/storageService';
 import { Colors } from '@/constants/theme';
+import { getVibeColor } from '@/constants/vibes';
+import { LinearGradient } from 'expo-linear-gradient';
 import TouchableOpacity from '@/components/TouchableOpacity';
 import Toast from '@/components/Toast';
 
@@ -46,6 +48,8 @@ export default function ProfileScreen() {
         title?: string;
     }>({ visible: false, message: '', type: 'info' });
 
+    const [userVibes, setUserVibes] = useState<string[]>([]);
+
     const showToast = (message: string, type: 'success' | 'error' | 'info', title?: string) => {
         setToast({ visible: true, message, type, title });
     };
@@ -61,7 +65,10 @@ export default function ProfileScreen() {
                 const userEmail = await storageService.getUserEmail();
                 setEmail(userEmail);
 
-                // Fetch profile, watchlist, and rating history in parallel
+                const userId = await storageService.getUserId();
+                const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
+
+                // Fetch profile, watchlist, rating history and user preferences in parallel
                 const [userProf, watchlistData, historyData] = await Promise.all([
                     profileService.getProfile().catch(e => {
                         console.error('Error fetching profile:', e);
@@ -74,6 +81,31 @@ export default function ProfileScreen() {
                 if (userProf) setProfile(userProf);
                 setMovies(watchlistData);
                 setRatings(historyData.filter(item => item.status !== 'WATCHLIST'));
+
+                // Fetch user preferences for border styling
+                try {
+                    let prefVibes: string[] = [];
+                    if (token && userId && API_URL) {
+                        const res = await fetch(`${API_URL}/preferences/get?user_id=${userId}`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data?.vibes && Array.isArray(data.vibes)) {
+                                prefVibes = data.vibes;
+                            }
+                        }
+                    }
+                    if (prefVibes.length === 0) {
+                        const lp = await storageService.getLocalPreferences();
+                        if (lp?.vibes && Array.isArray(lp.vibes)) {
+                            prefVibes = lp.vibes;
+                        }
+                    }
+                    setUserVibes(prefVibes);
+                } catch (e) {
+                    console.error('Error fetching user preference vibes for profile:', e);
+                }
             }
             setError(null);
         } catch (err: any) {
@@ -84,6 +116,17 @@ export default function ProfileScreen() {
             setRefreshing(false);
         }
     };
+
+    const vibeBorderColors: [string, string, ...string[]] = useMemo(() => {
+        if (!userVibes || userVibes.length === 0) {
+            return [ACCENT, '#2699E0', '#F5C719', '#F06292'];
+        }
+        const colors = userVibes.map(v => getVibeColor(v));
+        if (colors.length === 1) {
+            return [colors[0], colors[0]];
+        }
+        return [colors[0], colors[1], ...colors.slice(2)];
+    }, [userVibes]);
 
     useEffect(() => {
         checkAuthAndFetch();
@@ -275,28 +318,35 @@ export default function ProfileScreen() {
                             transition={{ duration: 500 }}
                             className="gap-y-3"
                         >
-                            {/* Profile card */}
-                            <View className="bg-white/[0.04] border border-white/[0.08] p-5 rounded-2xl flex-row items-center justify-between gap-x-4">
-                                <View className="flex-row items-center gap-x-4 flex-1">
-                                    {avatarUri ? (
-                                        <Image source={{ uri: avatarUri }} className="w-14 h-14 rounded-full border border-accent/40" />
-                                    ) : (
-                                        <View className="w-14 h-14 rounded-full bg-accent/15 items-center justify-center border border-accent/25">
-                                            <UserRound color={ACCENT} size={26} strokeWidth={2} />
+                            {/* Profile card with vibe preference gradient border */}
+                            <LinearGradient
+                                colors={vibeBorderColors}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={{ padding: 1, borderRadius: 16 }}
+                            >
+                                <View className="bg-[#0c0a1d] p-[18px] rounded-[15px] flex-row items-center justify-between gap-x-4">
+                                    <View className="flex-row items-center gap-x-4 flex-1">
+                                        {avatarUri ? (
+                                            <Image source={{ uri: avatarUri }} className="w-[70px] h-[70px] rounded-full border border-accent/40" />
+                                        ) : (
+                                            <View className="w-[70px] h-[70px] rounded-full bg-accent/15 items-center justify-center border border-accent/25">
+                                                <UserRound color={ACCENT} size={26} strokeWidth={2} />
+                                            </View>
+                                        )}
+                                        <View className="flex-1">
+                                            <Text className="font-outfit-bold text-[18px] text-white capitalize">{username}</Text>
+                                            <Text className="font-outfit text-[12px] opacity-35 mt-0.5">{email}</Text>
                                         </View>
-                                    )}
-                                    <View className="flex-1">
-                                        <Text className="font-outfit-bold text-[18px] text-white capitalize">{username}</Text>
-                                        <Text className="font-outfit text-[12px] opacity-35 mt-0.5">{email}</Text>
                                     </View>
+                                    <TouchableOpacity
+                                        onPress={handleOpenEditModal}
+                                        className="p-2.5 rounded-xl bg-white/[0.06] border border-white/[0.08]"
+                                    >
+                                        <Edit3 color={ACCENT} size={18} />
+                                    </TouchableOpacity>
                                 </View>
-                                <TouchableOpacity
-                                    onPress={handleOpenEditModal}
-                                    className="p-2.5 rounded-xl bg-white/[0.06] border border-white/[0.08]"
-                                >
-                                    <Edit3 color={ACCENT} size={18} />
-                                </TouchableOpacity>
-                            </View>
+                            </LinearGradient>
 
                             {/* Stats & Nav Cards */}
                             <View className="flex-row gap-x-3">

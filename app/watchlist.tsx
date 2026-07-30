@@ -93,7 +93,7 @@ export default function WatchlistScreen() {
                             </View>
                             <Text className="font-outfit-bold text-[20px] mb-2 text-white/90">Your watchlist is empty</Text>
                             <Text className="font-outfit text-[13px] opacity-35 text-center px-6 leading-[20px]">
-                                Add films you want to see later to keep them here and customize your AI recommendations.
+                                Add films you want to see later to keep them here and customize your recommendations.
                             </Text>
                         </MotiView>
                     </ScrollView>
