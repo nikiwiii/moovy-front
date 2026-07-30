@@ -17,7 +17,6 @@ import {
     GestureHandlerRootView,
 } from 'react-native-gesture-handler';
 import {
-    Sofa,
     Laugh,
     Sparkles,
     Heart,
@@ -28,14 +27,14 @@ import {
     Swords,
     Zap,
     Users,
-    Compass,
+    Landmark,
     type LucideIcon,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/theme';
 
 const ACCENT = Colors.dark.accent;
 
-/* ─── Tag Territory Definition (Harmonious 3x4 Organic Spatial Grid) ─────── */
+/* ─── Tag Territory Definition (Harmonious 3x3/5 Spatial Grid) ─────── */
 
 export interface TagTerritory {
     id: string;
@@ -43,7 +42,7 @@ export interface TagTerritory {
     label: string;
     icon: LucideIcon;
     color: string;
-    x: number; // normalized [0..1]: 0.14 = Slow, 0.38 = Moderate, 0.62 = High, 0.86 = Max
+    x: number; // normalized [0..1]: 0.14 = Slow, 0.50 = Moderate, 0.86 = High
     y: number; // normalized [0..1]: 0.22 = Light, 0.50 = Warm/Dramatic, 0.78 = Dark/Intense
     description: string;
 }
@@ -51,56 +50,52 @@ export interface TagTerritory {
 export const TAG_TERRITORIES: TagTerritory[] = [
     // ── Row 1: Light & Fun (Y = 0.22) ──────────────────────────
     {
-        id: 'pizza_chill', vibe: 'PIZZA_CHILL', label: 'Pizza Chill', icon: Sofa,
-        color: '#60D394', x: 0.14, y: 0.22, description: 'Relaxed, easygoing & cozy'
-    },
-    {
         id: 'family_fun', vibe: 'FAMILY_FUN', label: 'Family Fun', icon: Users,
-        color: '#38BDF8', x: 0.38, y: 0.22, description: 'Heartwarming & fun for all ages'
+        color: '#2699E0', x: 0.18, y: 0.22, description: 'Heartwarming & fun for all ages'
     },
     {
         id: 'laugh_riot', vibe: 'LAUGH_RIOT', label: 'Laugh Riot', icon: Laugh,
-        color: '#FFD166', x: 0.62, y: 0.22, description: 'Hilarious, high-energy comedy'
+        color: '#F5C719', x: 0.50, y: 0.22, description: 'Hilarious, high-energy comedy'
     },
     {
         id: 'guilty_pleasure', vibe: 'GUILTY_PLEASURE', label: 'Guilty Pleasure', icon: Zap,
-        color: '#F97316', x: 0.86, y: 0.22, description: 'Wild, entertaining & unpretentious'
+        color: '#F06292', x: 0.82, y: 0.22, description: 'Wild, entertaining & unpretentious'
     },
 
-    // ── Row 2: Warm, Emotional & Cinematic (Y = 0.50) ───────────
+    // ── Row 2: Warm, Cinematic & Philosophical (Y = 0.50) ───────────
+    {
+        id: 'history_lesson', vibe: 'HISTORY_LESSON', label: 'History Lesson', icon: Landmark,
+        color: '#E3AC36', x: 0.14, y: 0.50, description: 'Fascinating period pieces & real stories'
+    },
+    {
+        id: 'existential', vibe: 'EXISTENTIAL', label: 'Existential', icon: Sparkles,
+        color: '#0B4B5C', x: 0.38, y: 0.50, description: 'Thought-provoking, philosophical & deep'
+    },
     {
         id: 'date_night', vibe: 'DATE_NIGHT', label: 'Date Night', icon: Heart,
-        color: '#EF476F', x: 0.14, y: 0.50, description: 'Romantic, charming & warm'
-    },
-    {
-        id: 'inspiring', vibe: 'INSPIRING', label: 'Inspiring', icon: Sparkles,
-        color: '#EAB308', x: 0.38, y: 0.50, description: 'Uplifting & motivational'
-    },
-    {
-        id: 'ambitious', vibe: 'AMBITIOUS', label: 'Ambitious', icon: Compass,
-        color: '#A855F7', x: 0.62, y: 0.50, description: 'Bold, visionary & deep'
+        color: '#C22E6C', x: 0.62, y: 0.50, description: 'Romantic, charming & warm'
     },
     {
         id: 'epic_journey', vibe: 'EPIC_JOURNEY', label: 'Epic Journey', icon: Swords,
-        color: '#EA580C', x: 0.86, y: 0.50, description: 'Grand adventure & world-building'
+        color: '#A17142', x: 0.86, y: 0.50, description: 'Grand adventure & world-building'
     },
 
     // ── Row 3: Deep, Dark & Intense (Y = 0.78) ────────────────
     {
         id: 'deep_feels', vibe: 'DEEP_FEELS', label: 'Deep Feels', icon: Waves,
-        color: '#6366F1', x: 0.14, y: 0.78, description: 'Emotional, dramatic & poignant'
+        color: '#3B5284', x: 0.14, y: 0.78, description: 'Emotional, dramatic & poignant'
     },
     {
         id: 'mind_bender', vibe: 'MIND_BENDER', label: 'Mind Bender', icon: Brain,
-        color: '#7E22CE', x: 0.38, y: 0.78, description: 'Complex, cerebral & twisty'
+        color: '#7029B8', x: 0.38, y: 0.78, description: 'Complex, cerebral & twisty'
     },
     {
         id: 'spine_chilling', vibe: 'SPINE_CHILLING', label: 'Spine Chilling', icon: Skull,
-        color: '#15803D', x: 0.62, y: 0.78, description: 'Terrifying, dark & eerie'
+        color: '#4E7259', x: 0.62, y: 0.78, description: 'Terrifying, dark & eerie'
     },
     {
         id: 'adrenaline', vibe: 'ADRENALINE', label: 'Adrenaline', icon: Flame,
-        color: '#DC2626', x: 0.86, y: 0.78, description: 'High-octane action & non-stop thrill'
+        color: '#DD1C1C', x: 0.86, y: 0.78, description: 'High-octane action & non-stop thrill'
     },
 ];
 
@@ -266,13 +261,13 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
                     >
                         {/* Multi-tone ambient gradients for 4 quadrants */}
                         <LinearGradient
-                            colors={['#60D39433', '#FFD16625', '#FF6B3530']}
+                            colors={['#2699E033', '#F5C71925', '#F0629230']}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                             style={[StyleSheet.absoluteFill, { opacity: 0.8 }]}
                         />
                         <LinearGradient
-                            colors={['#EF476F25', '#7E22CE35', '#DC262640']}
+                            colors={['#E3AC3625', '#0B4B5C35', '#C22E6C40']}
                             start={{ x: 0, y: 1 }}
                             end={{ x: 1, y: 1 }}
                             style={StyleSheet.absoluteFill}
@@ -284,12 +279,7 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
                             style={StyleSheet.absoluteFill}
                         />
 
-                        {/* Subtle Grid Dividing Lines */}
-                        <View style={styles.gridLineHorizontal1} pointerEvents="none" />
-                        <View style={styles.gridLineHorizontal2} pointerEvents="none" />
-                        <View style={styles.gridLineVertical1} pointerEvents="none" />
-                        <View style={styles.gridLineVertical2} pointerEvents="none" />
-                        <View style={styles.gridLineVertical3} pointerEvents="none" />
+
 
                         {/* Axis Header Bar */}
                         <View style={styles.axisRow} pointerEvents="none">
@@ -545,50 +535,5 @@ const styles = StyleSheet.create({
         width: 20,
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    gridLineHorizontal1: {
-        position: 'absolute',
-        top: '36%',
-        left: 20,
-        right: 20,
-        height: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.04)',
-        zIndex: 1,
-    },
-    gridLineHorizontal2: {
-        position: 'absolute',
-        top: '64%',
-        left: 20,
-        right: 20,
-        height: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.04)',
-        zIndex: 1,
-    },
-    gridLineVertical1: {
-        position: 'absolute',
-        left: '26%',
-        top: 24,
-        bottom: 24,
-        width: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.04)',
-        zIndex: 1,
-    },
-    gridLineVertical2: {
-        position: 'absolute',
-        left: '50%',
-        top: 24,
-        bottom: 24,
-        width: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.04)',
-        zIndex: 1,
-    },
-    gridLineVertical3: {
-        position: 'absolute',
-        left: '74%',
-        top: 24,
-        bottom: 24,
-        width: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.04)',
-        zIndex: 1,
     },
 });
