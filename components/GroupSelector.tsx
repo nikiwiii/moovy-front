@@ -180,7 +180,7 @@ export default function GroupSelector({ items, selectedId, onSelect }: GroupSele
                     />
                 </View>
             </View>
-            <Text className="font-outfit text-[15px] mb-2 mt-2 self-center opacity-50">*Hold for details</Text>
+            <Text className="font-outfit text-[13px] mb-2 mt-2 self-center opacity-30">*Hold for details</Text>
         </View>
     );
 }

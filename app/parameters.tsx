@@ -15,11 +15,12 @@ import GenreSelection from '../components/GenreSelection';
 import GroupSelector from '../components/GroupSelector';
 import TouchableOpacity from '../components/TouchableOpacity';
 import VibeBars from '../components/VibeBars';
-import MoodPalette, { MOOD_ZONES, TAG_TERRITORIES } from '../components/MoodPalette';
+import VibeBadge from '../components/VibeBadge';
+import Moodboard, { MOOD_ZONES, TAG_TERRITORIES } from '../components/Moodboard';
 import { FillStyles } from '../constants/themeStyles';
 import { Colors } from '@/constants/theme';
 import { updateBackgroundHighlightColors } from '../components/AnimatedBackground';
-import { APP_NAME } from '../constants/app';
+import MoovyLogo from '../components/MoovyLogo';
 
 const ACCENT = Colors.dark.accent;
 
@@ -72,7 +73,7 @@ export default function ParametersScreen() {
     const router = useRouter();
     const [selectedGroup, setSelectedGroup] = useState<string | null>(() => cachedParametersState?.selectedGroup ?? 'solo');
     const [scrollEnabled, setScrollEnabled] = useState(true);
-    const [vibeMethod, setVibeMethod] = useState<'tags' | 'palette'>(() => cachedParametersState?.vibeMethod ?? 'palette');
+    const [vibeMethod, setVibeMethod] = useState<'tags' | 'moodboard'>(() => (cachedParametersState?.vibeMethod as any) === 'tags' ? 'tags' : 'moodboard');
 
     const [backendColors, setBackendColors] = useState<Record<string, string>>({});
     const [isLoaded, setIsLoaded] = useState(false);
@@ -121,18 +122,6 @@ export default function ParametersScreen() {
             segments.push({ color, opacity });
         }
         return segments;
-    };
-
-    const VibeBadge = ({ vibe }: { vibe: string }) => {
-        const color = resolveVibeColor(vibe);
-        return (
-            <View className="bg-white/[0.03] rounded-[6px] flex-row items-center">
-                <VibeBars color={color} width={2} height={8} gap={1} marginRight={2} borderRadius={1} />
-                <Text className="font-outfit text-[9px] text-white/50 uppercase tracking-[1px] mt-0.5">
-                    {vibe.replace('_', ' ').toLowerCase()}
-                </Text>
-            </View>
-        );
     };
 
     const getCustomVibeIconColor = (): string => {
@@ -214,7 +203,7 @@ export default function ParametersScreen() {
     }, [selectedGroup, vibeMethod, genres, paletteVibes, moodLabel, settings, isLoaded]);
 
     useEffect(() => {
-        const activeLikedVibes = vibeMethod === 'palette' ? paletteVibes : genres.liked;
+        const activeLikedVibes = (vibeMethod as string) === 'moodboard' || (vibeMethod as string) === 'palette' ? paletteVibes : genres.liked;
         const colors = activeLikedVibes.slice(0, 6).map(v => resolveVibeColor(v));
         updateBackgroundHighlightColors(colors);
     }, [genres.liked, paletteVibes, vibeMethod, backendColors]);
@@ -237,8 +226,8 @@ export default function ParametersScreen() {
     };
 
     const handleFindMovie = () => {
-        const activeVibes = vibeMethod === 'palette' ? paletteVibes : genres.liked;
-        const activeHardNos = vibeMethod === 'palette' ? [] : genres.disliked;
+        const activeVibes = (vibeMethod as string) === 'moodboard' || (vibeMethod as string) === 'palette' ? paletteVibes : genres.liked;
+        const activeHardNos = (vibeMethod as string) === 'moodboard' || (vibeMethod as string) === 'palette' ? [] : genres.disliked;
 
         const payload = {
             host_id: "00000000-0000-0000-0000-000000000000",
@@ -305,8 +294,9 @@ export default function ParametersScreen() {
         <View className="flex-1 bg-transparent pt-10">
             <SafeAreaView className="flex-1">
                 <View className="px-2 pt-4 mb-2 flex-row justify-between items-center gap-2">
-                    <Text className="font-outfit-bold text-[24px] tracking-tighter pl-4">{APP_NAME}®</Text>
-
+                    <View className="pl-2">
+                        <MoovyLogo width={32} height={32} color="#FFFFFF" />
+                    </View>
                     <View className='flex-row items-center gap-x-2'>
                         <TouchableOpacity
                             onPress={() => router.push('/session-create')}
@@ -331,7 +321,7 @@ export default function ParametersScreen() {
 
                 {/* Colored vibe indicators bar */}
                 <View style={{ height: 3, flexDirection: 'row' }}>
-                    {getVibeBarSegments(vibeMethod === 'palette' ? paletteVibes : genres.liked).map((seg, idx) => (
+                    {getVibeBarSegments(vibeMethod === 'moodboard' ? paletteVibes : genres.liked).map((seg, idx) => (
                         <View
                             key={idx}
                             style={{
@@ -339,10 +329,6 @@ export default function ParametersScreen() {
                                 height: 2,
                                 backgroundColor: seg.color,
                                 opacity: seg.opacity,
-                                // borderBottomLeftRadius: idx === 0 ? 5 : 0,
-                                // borderTopLeftRadius: idx === 0 ? 5 : 0,
-                                // borderBottomRightRadius: idx === 5 ? 5 : 0,
-                                // borderTopRightRadius: idx === 5 ? 5 : 0,
                             }}
                         />
                     ))}
@@ -372,7 +358,7 @@ export default function ParametersScreen() {
 
                         <CollapsibleSection
                             title="Select vibe"
-                            value={vibeMethod === 'palette' ? (moodLabel || '-') : (genres.liked.length + genres.disliked.length)}
+                            value={vibeMethod === 'moodboard' ? (moodLabel || '-') : (genres.liked.length + genres.disliked.length)}
                             icon={Film}
                             defaultOpen={true}
                         >
@@ -380,15 +366,15 @@ export default function ParametersScreen() {
                                 {/* Mode Switcher Tabs (Full Width) */}
                                 <View className="flex-row bg-white/[0.04] p-1 rounded-2xl border border-white/[0.08]">
                                     <TouchableOpacity
-                                        onPress={() => setVibeMethod('palette')}
-                                        className={`flex-1 py-2 px-3 rounded-xl items-center justify-center border transition-all ${vibeMethod === 'palette'
+                                        onPress={() => setVibeMethod('moodboard')}
+                                        className={`flex-1 py-2 px-3 rounded-xl items-center justify-center border transition-all ${vibeMethod === 'moodboard'
                                             ? 'bg-accent border-accent'
                                             : 'bg-transparent border-transparent opacity-60'
                                             }`}
                                     >
-                                        <Text className={`font-outfit-bold text-[11px] tracking-[1px] uppercase ${vibeMethod === 'palette' ? 'text-black' : 'text-white'
+                                        <Text className={`font-outfit-bold text-[11px] tracking-[1px] uppercase ${vibeMethod === 'moodboard' ? 'text-black' : 'text-white'
                                             }`}>
-                                            Mood Palette
+                                            Moodboard
                                         </Text>
                                     </TouchableOpacity>
 
@@ -417,7 +403,7 @@ export default function ParametersScreen() {
                                     />
                                 ) : (
                                     <View className="gap-3">
-                                        <MoodPalette
+                                        <Moodboard
                                             hideDetails={true}
                                             onMoodSelected={handleMoodSelected}
                                             onTouchStart={() => setScrollEnabled(false)}

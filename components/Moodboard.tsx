@@ -149,14 +149,14 @@ export function evaluateSpatialPosition(nx: number, ny: number): TerritorySelect
     };
 }
 
-export interface MoodPaletteProps {
+export interface MoodboardProps {
     onMoodSelected: (vibes: string[], label: string) => void;
     onTouchStart?: () => void;
     onTouchEnd?: () => void;
     hideDetails?: boolean;
 }
 
-export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, hideDetails = false }: MoodPaletteProps) {
+export default function Moodboard({ onMoodSelected, onTouchStart, onTouchEnd, hideDetails = false }: MoodboardProps) {
     const [selection, setSelection] = useState<TerritorySelectionResult | null>(null);
     const [isActive, setIsActive] = useState(false);
 
@@ -250,7 +250,7 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
             <GestureHandlerRootView style={{ flex: 1 }}>
                 <GestureDetector gesture={panGesture}>
                     <View
-                        className="rounded-[20px] overflow-hidden border border-white/[0.12] bg-[#09071a] relative"
+                        className="rounded-[14px] overflow-hidden border border-white/[0.12] bg-[#09071a] relative"
                         style={{ height: 280 }}
                         onLayout={(e) => {
                             setPaletteLayout({
@@ -278,8 +278,6 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
                             end={{ x: 0.5, y: 1 }}
                             style={StyleSheet.absoluteFill}
                         />
-
-
 
                         {/* Axis Header Bar */}
                         <View style={styles.axisRow} pointerEvents="none">
@@ -409,7 +407,7 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
                                     className="rounded-full overflow-hidden border border-white/[0.12] mx-6 py-2.5 px-5 bg-black/50"
                                 >
                                     <Text className="font-outfit-bold text-[10px] text-white/90 uppercase tracking-[2px] text-center">
-                                        Drag anywhere to change tags
+                                        Drag anywhere to select moodboard vibes
                                     </Text>
                                 </BlurView>
                             </MotiView>
@@ -493,6 +491,8 @@ export default function MoodPalette({ onMoodSelected, onTouchStart, onTouchEnd, 
         </View>
     );
 }
+
+
 
 const styles = StyleSheet.create({
     axisRow: {

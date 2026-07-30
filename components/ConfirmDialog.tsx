@@ -37,9 +37,9 @@ export function ConfirmDialog({
                 {visible && (
                     <View style={StyleSheet.absoluteFill} className="items-center justify-center bg-black/60 px-6 z-50">
                         {/* Backdrop tap to close */}
-                        <TouchableOpacity 
-                            style={StyleSheet.absoluteFill} 
-                            activeOpacity={1} 
+                        <TouchableOpacity
+                            style={StyleSheet.absoluteFill}
+                            activeOpacity={1}
                             onPress={onCancel}
                         />
 
@@ -58,7 +58,7 @@ export function ConfirmDialog({
                                     experimentalBlurMethod="dimezisBlurView"
                                     style={StyleSheet.absoluteFill}
                                 />
-                                
+
                                 <View className="p-6">
                                     <Text className="font-outfit-bold text-[18px] mb-2 text-white text-center">
                                         {title}
@@ -81,9 +81,8 @@ export function ConfirmDialog({
                                         {/* Confirm Button */}
                                         <TouchableOpacity
                                             onPress={onConfirm}
-                                            className={`flex-1 py-3 rounded-full items-center justify-center ${
-                                                isDestructive ? 'bg-red-500' : 'bg-accent'
-                                            }`}
+                                            className={`flex-1 py-3 rounded-full items-center justify-center ${isDestructive ? 'bg-red-500' : 'bg-accent'
+                                                }`}
                                         >
                                             <Text className={`font-outfit-bold text-[13px] ${isDestructive ? 'text-white' : 'text-black'}`}>
                                                 {confirmText}

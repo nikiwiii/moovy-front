@@ -7,6 +7,7 @@ import { AppText as Text } from '@/components/AppText';
 import TouchableOpacity from '../components/TouchableOpacity';
 import { Colors } from '@/constants/theme';
 import { APP_NAME } from '../constants/app';
+import MoovyLogo from '../components/MoovyLogo';
 
 const { width, height } = Dimensions.get('window');
 const ACCENT = Colors.dark.accent;
@@ -18,14 +19,10 @@ export default function HomeScreen() {
         <View className="flex-1 bg-transparent pt-10">
             <SafeAreaView className="flex-1">
                 {/* Header */}
-                <View className="px-8 pt-4">
-                    <MotiView
-                        from={{ opacity: 0, translateX: -20 }}
-                        animate={{ opacity: 1, translateX: 0 }}
-                        transition={{ delay: 300 }}
-                    >
-                        <Text className="font-outfit-bold text-[24px] tracking-tighter">{APP_NAME}®</Text>
-                    </MotiView>
+                <View className="px-2 pt-4 mb-2 flex-row justify-between items-center gap-2">
+                    <View className="pl-2">
+                        <MoovyLogo width={32} height={32} color="#FFFFFF" />
+                    </View>
                 </View>
 
                 {/* Main Content */}
@@ -113,7 +110,7 @@ export default function HomeScreen() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 1500 }}
                     >
-                        <Text className="font-outfit text-[10px] uppercase tracking-[2px] opacity-30">{APP_NAME} © 2026</Text>
+                        <Text className="font-outfit text-[10px] uppercase tracking-[2px] opacity-30">{APP_NAME} © {new Date().getFullYear()}</Text>
                         <Text className="font-outfit text-[10px] text-white/40 mt-1 max-w-[150px]">
                             we'll find your{'\n'}perfect screening
                         </Text>

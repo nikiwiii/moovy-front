@@ -7,6 +7,7 @@ import { StyleSheet, View } from 'react-native';
 import { Toast } from '@/components/Toast';
 import Animated, {
     Easing,
+    runOnJS,
     useAnimatedStyle,
     useSharedValue,
     withDelay,
@@ -19,28 +20,27 @@ import { Colors } from '@/constants/theme';
 import { storageService } from '@/services/storageService';
 import { getVibeColor } from '@/constants/vibes';
 import Svg, { Circle } from 'react-native-svg';
+import MoovyLogo from '@/components/MoovyLogo';
 
 const ACCENT = Colors.dark.accent;
 
 const HINTS = [
     'Analyzing your movie taste...',
     'Looking for cinematic gems...',
-    'Adjusting the vibe...',
-    'Consulting with AI...',
     'Almost ready...',
 ];
 
-function PulsingDot({ delay }: { delay: number }) {
-    const scale = useSharedValue(0.6);
+function AnimatedVibeBar({ color, delay }: { color: string; delay: number }) {
+    const scaleY = useSharedValue(0.35);
     const opacity = useSharedValue(0.3);
 
     useEffect(() => {
-        scale.value = withDelay(
+        scaleY.value = withDelay(
             delay,
             withRepeat(
                 withSequence(
-                    withTiming(1.3, { duration: 600, easing: Easing.out(Easing.sin) }),
-                    withTiming(0.6, { duration: 600, easing: Easing.in(Easing.sin) }),
+                    withTiming(1.0, { duration: 500, easing: Easing.bezier(0.25, 1, 0.5, 1) }),
+                    withTiming(0.35, { duration: 500, easing: Easing.bezier(0.25, 1, 0.5, 1) }),
                 ),
                 -1,
             ),
@@ -49,16 +49,16 @@ function PulsingDot({ delay }: { delay: number }) {
             delay,
             withRepeat(
                 withSequence(
-                    withTiming(1, { duration: 600 }),
-                    withTiming(0.3, { duration: 600 }),
+                    withTiming(1.0, { duration: 500 }),
+                    withTiming(0.3, { duration: 500 }),
                 ),
                 -1,
             ),
         );
     }, []);
 
-    const style = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ scaleY: scaleY.value }],
         opacity: opacity.value,
     }));
 
@@ -66,14 +66,55 @@ function PulsingDot({ delay }: { delay: number }) {
         <Animated.View
             style={[
                 {
-                    width: 8,
-                    height: 8,
-                    borderRadius: 4,
-                    backgroundColor: ACCENT,
+                    width: 6,
+                    height: 40,
+                    borderRadius: 2,
+                    backgroundColor: color,
                 },
-                style,
+                animatedStyle,
             ]}
         />
+    );
+}
+
+function VibeLoadingBars({ colors }: { colors: string[] }) {
+    const defaultColors = [ACCENT, '#2699E0', '#F5C719', '#F06292'];
+    const displayColors = colors.length > 0
+        ? (colors.length >= 4 ? colors.slice(0, 4) : Array.from({ length: 4 }, (_, i) => colors[i % colors.length]))
+        : defaultColors;
+
+    const delays = [0, 200, 350, 500];
+
+    return (
+        <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center', justifyContent: 'center', marginTop: 20, height: 40 }}>
+            {displayColors.map((color, i) => (
+                <AnimatedVibeBar key={i} color={color} delay={delays[i]} />
+            ))}
+        </View>
+    );
+}
+
+function PulsingLogo() {
+    const scale = useSharedValue(0.82);
+
+    useEffect(() => {
+        scale.value = withRepeat(
+            withSequence(
+                withTiming(1.18, { duration: 1000, easing: Easing.bezier(0.25, 1, 0.5, 1) }),
+                withTiming(0.82, { duration: 1000, easing: Easing.bezier(0.25, 1, 0.5, 1) }),
+            ),
+            -1,
+        );
+    }, []);
+
+    const style = useAnimatedStyle(() => ({
+        transform: [{ scale: scale.value }],
+    }));
+
+    return (
+        <Animated.View style={style}>
+            <MoovyLogo width={30} height={30} color={ACCENT} />
+        </Animated.View>
     );
 }
 
@@ -81,10 +122,23 @@ function RotatingRing({ colors }: { colors: string[] }) {
     const rotate = useSharedValue(0);
 
     useEffect(() => {
-        rotate.value = withRepeat(
-            withTiming(360, { duration: 2800, easing: Easing.linear }),
-            -1,
-        );
+        let isMounted = true;
+        const step = () => {
+            if (!isMounted) return;
+            rotate.value = withTiming(
+                rotate.value + 90,
+                { duration: 1000, easing: Easing.bezier(0.25, 1, 0.5, 1) },
+                (finished) => {
+                    if (finished && isMounted) {
+                        runOnJS(step)();
+                    }
+                }
+            );
+        };
+        step();
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     const style = useAnimatedStyle(() => ({
@@ -97,7 +151,7 @@ function RotatingRing({ colors }: { colors: string[] }) {
     const radius = center - strokeWidth;
     const circumference = 2 * Math.PI * radius;
 
-    const displayColors = colors.length > 0 ? colors : [ACCENT];
+    const displayColors = colors.length > 0 ? colors : [ACCENT, '#2699E0', '#F5C719', '#F06292'];
     const N = displayColors.length;
     const segmentLength = circumference / N;
 
@@ -214,8 +268,8 @@ export default function LoadingScreen() {
                         else if (Array.isArray(detail))
                             errMsg = detail
                                 .map((e: any) => {
-                                     const field = e?.loc ? `${e.loc.slice(1).join('.')}: ` : '';
-                                     return `${field}${e.msg || JSON.stringify(e)}`;
+                                    const field = e?.loc ? `${e.loc.slice(1).join('.')}: ` : '';
+                                    return `${field}${e.msg || JSON.stringify(e)}`;
                                 })
                                 .join('\n');
                         else if (detail) errMsg = JSON.stringify(detail);
@@ -248,11 +302,11 @@ export default function LoadingScreen() {
     return (
         <View style={StyleSheet.absoluteFill} className="flex-1 items-center justify-center">
             {/* Background blur overlay */}
-            <BlurView 
-                intensity={18} 
-                tint="dark" 
-                experimentalBlurMethod="dimezisBlurView" 
-                style={StyleSheet.absoluteFill} 
+            <BlurView
+                intensity={18}
+                tint="dark"
+                experimentalBlurMethod="dimezisBlurView"
+                style={StyleSheet.absoluteFill}
             />
 
             {/* Glow behind spinner */}
@@ -285,16 +339,12 @@ export default function LoadingScreen() {
                         justifyContent: 'center',
                     }}
                 >
-                    <Sparkles color={ACCENT} size={26} strokeWidth={1.5} />
+                    <PulsingLogo />
                 </View>
             </View>
 
-            {/* Dots */}
-            <View style={{ flexDirection: 'row', gap: 8, marginTop: 36 }}>
-                <PulsingDot delay={0} />
-                <PulsingDot delay={220} />
-                <PulsingDot delay={440} />
-            </View>
+            {/* 4 Animated Vibe Bars */}
+            <VibeLoadingBars colors={vibeColorsList} />
 
             {/* Hint text */}
             <MotiView

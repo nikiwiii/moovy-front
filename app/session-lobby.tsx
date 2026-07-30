@@ -9,8 +9,9 @@ import {
     ActivityIndicator, Alert, SafeAreaView, ScrollView, View, Dimensions,
 } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
+import Svg, { Circle } from 'react-native-svg';
 import Animated, {
-    Easing, FadeIn, FadeOut, LinearTransition,
+    Easing, FadeIn, FadeOut, LinearTransition, runOnJS, withDelay,
     useAnimatedStyle, useSharedValue, withRepeat, withTiming, withSequence,
 } from 'react-native-reanimated';
 import TouchableOpacity from '../components/TouchableOpacity';
@@ -21,12 +22,16 @@ import {
     sessionService, SessionResponse, SessionPreferences, SessionMember,
 } from '../services/sessionService';
 import { storageService } from '../services/storageService';
+import MoovyLogo from '../components/MoovyLogo';
+import Moodboard, { TAG_TERRITORIES } from '../components/Moodboard';
 import Slider from '@react-native-community/slider';
 import FilmView, { MovieViewProps } from '@/components/FilmView';
 import { Colors } from '@/constants/theme';
+import { getVibeColor } from '@/constants/vibes';
 import StatusBadge from '@/components/StatusBadge';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Toast } from '@/components/Toast';
+import VibeBadge from '@/components/VibeBadge';
 
 const ACCENT = Colors.dark.accent;
 
@@ -39,7 +44,7 @@ function MemberCard({ member, isHost }: { member: SessionMember; isHost: boolean
         <Animated.View
             entering={FadeIn.duration(400)}
             layout={LinearTransition}
-            className={`${FillStyles.pillBase} ${isReady ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center gap-3 py-3.5 px-4 rounded-[24px]`}
+            className={`${FillStyles.pillBase} ${isReady ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center gap-3 py-3.5 px-4 !rounded-[14px]`}
         >
             <View className={`w-9 h-9 rounded-full items-center justify-center ${isReady ? 'bg-accent/15' : 'bg-white/[0.06]'}`}>
                 {isHost ? (
@@ -66,130 +71,207 @@ function MemberCard({ member, isHost }: { member: SessionMember; isHost: boolean
 }
 
 /* ─── Recommending animation overlay ─────────────────────────────────── */
-function RecommendingOverlay() {
-    const dotRotation = useSharedValue(0);
-    const reelRotation = useSharedValue(0);
+function SessionPulsingLogo() {
+    const scale = useSharedValue(0.82);
 
     useEffect(() => {
-        dotRotation.value = withRepeat(
-            withTiming(360, { duration: 3000, easing: Easing.linear }),
+        scale.value = withRepeat(
+            withSequence(
+                withTiming(1.18, { duration: 1000, easing: Easing.bezier(0.25, 1, 0.5, 1) }),
+                withTiming(0.82, { duration: 1000, easing: Easing.bezier(0.25, 1, 0.5, 1) }),
+            ),
             -1,
-            false
-        );
-        reelRotation.value = withRepeat(
-            withTiming(360, { duration: 7000, easing: Easing.linear }),
-            -1,
-            false
         );
     }, []);
 
-    const dotStyle = useAnimatedStyle(() => ({
-        transform: [{ rotate: `${dotRotation.value}deg` }],
+    const style = useAnimatedStyle(() => ({
+        transform: [{ scale: scale.value }],
     }));
 
-    const reelStyle = useAnimatedStyle(() => ({
-        transform: [{ rotate: `${reelRotation.value}deg` }],
+    return (
+        <Animated.View style={style}>
+            <MoovyLogo width={30} height={30} color={ACCENT} />
+        </Animated.View>
+    );
+}
+
+function SessionRotatingRing({ colors }: { colors: string[] }) {
+    const rotate = useSharedValue(0);
+
+    useEffect(() => {
+        let isMounted = true;
+        const step = () => {
+            if (!isMounted) return;
+            rotate.value = withTiming(
+                rotate.value + 90,
+                { duration: 1000, easing: Easing.bezier(0.25, 1, 0.5, 1) },
+                (finished) => {
+                    if (finished && isMounted) {
+                        runOnJS(step)();
+                    }
+                }
+            );
+        };
+        step();
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    const style = useAnimatedStyle(() => ({
+        transform: [{ rotate: `${rotate.value}deg` }],
     }));
 
+    const size = 100;
+    const strokeWidth = 3;
+    const center = size / 2;
+    const radius = center - strokeWidth;
+    const circumference = 2 * Math.PI * radius;
+
+    const displayColors = colors.length > 0 ? colors : [ACCENT, '#2699E0', '#F5C719', '#F06292'];
+    const N = displayColors.length;
+    const segmentLength = circumference / N;
+
+    return (
+        <Animated.View style={[{ width: size, height: size, position: 'absolute' }, style]}>
+            <Svg width={size} height={size}>
+                {displayColors.map((color, i) => {
+                    const strokeDasharray = `${segmentLength} ${circumference}`;
+                    const strokeDashoffset = -i * segmentLength;
+                    return (
+                        <Circle
+                            key={i}
+                            cx={center}
+                            cy={center}
+                            r={radius}
+                            stroke={color}
+                            strokeWidth={strokeWidth}
+                            strokeDasharray={strokeDasharray}
+                            strokeDashoffset={strokeDashoffset}
+                            strokeLinecap="round"
+                            fill="transparent"
+                        />
+                    );
+                })}
+            </Svg>
+        </Animated.View>
+    );
+}
+
+function SessionAnimatedVibeBar({ color, delay }: { color: string; delay: number }) {
+    const scaleY = useSharedValue(0.35);
+    const opacity = useSharedValue(0.3);
+
+    useEffect(() => {
+        scaleY.value = withDelay(
+            delay,
+            withRepeat(
+                withSequence(
+                    withTiming(1.0, { duration: 500, easing: Easing.bezier(0.25, 1, 0.5, 1) }),
+                    withTiming(0.35, { duration: 500, easing: Easing.bezier(0.25, 1, 0.5, 1) }),
+                ),
+                -1,
+            ),
+        );
+        opacity.value = withDelay(
+            delay,
+            withRepeat(
+                withSequence(
+                    withTiming(1.0, { duration: 500 }),
+                    withTiming(0.3, { duration: 500 }),
+                ),
+                -1,
+            ),
+        );
+    }, []);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ scaleY: scaleY.value }],
+        opacity: opacity.value,
+    }));
+
+    return (
+        <Animated.View
+            style={[
+                {
+                    width: 6,
+                    height: 40,
+                    borderRadius: 2,
+                    backgroundColor: color,
+                },
+                animatedStyle,
+            ]}
+        />
+    );
+}
+
+function SessionVibeLoadingBars({ colors }: { colors: string[] }) {
+    const defaultColors = [ACCENT, '#2699E0', '#F5C719', '#F06292'];
+    const displayColors = colors.length > 0
+        ? (colors.length >= 4 ? colors.slice(0, 4) : Array.from({ length: 4 }, (_, i) => colors[i % colors.length]))
+        : defaultColors;
+
+    const delays = [0, 200, 350, 500];
+
+    return (
+        <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center', justifyContent: 'center', marginTop: 20, height: 40 }}>
+            {displayColors.map((color, i) => (
+                <SessionAnimatedVibeBar key={i} color={color} delay={delays[i]} />
+            ))}
+        </View>
+    );
+}
+
+function RecommendingOverlay({ colors = [] }: { colors?: string[] }) {
     return (
         <MotiView
             from={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: 'timing', duration: 500 }}
-            className="items-center w-full"
+            className="items-center w-full py-8"
         >
-            <View className="relative w-32 h-32 items-center justify-center">
-                {/* Outer pulsing ring 1 */}
-                <MotiView
-                    from={{ scale: 0.7, opacity: 0.6 }}
-                    animate={{ scale: 1.4, opacity: 0 }}
-                    transition={{
-                        type: 'timing',
-                        duration: 2000,
-                        loop: true,
-                    }}
-                    style={{
-                        position: 'absolute',
-                        width: 80,
-                        height: 80,
-                        borderRadius: 40,
-                        borderWidth: 1.5,
-                        borderColor: `${ACCENT}40`,
-                    }}
-                />
+            {/* Glow behind spinner */}
+            <MotiView
+                from={{ opacity: 0.00, scale: 0.8 }}
+                animate={{ opacity: 0.02, scale: 1.1 }}
+                transition={{ loop: true, type: 'timing', duration: 1800 }}
+                style={{
+                    position: 'absolute',
+                    width: 200,
+                    height: 200,
+                    borderRadius: 100,
+                    backgroundColor: ACCENT,
+                    opacity: 0.12,
+                }}
+            />
 
-                {/* Inner pulsing ring 2 */}
-                <MotiView
-                    from={{ scale: 0.5, opacity: 0.8 }}
-                    animate={{ scale: 1.1, opacity: 0 }}
-                    transition={{
-                        type: 'timing',
-                        duration: 2000,
-                        delay: 700,
-                        loop: true,
-                    }}
+            {/* Spinner ring */}
+            <View style={{ width: 100, height: 100, alignItems: 'center', justifyContent: 'center' }}>
+                <SessionRotatingRing colors={colors} />
+                <View
                     style={{
-                        position: 'absolute',
-                        width: 80,
-                        height: 80,
-                        borderRadius: 40,
+                        width: 64,
+                        height: 64,
+                        borderRadius: 32,
+                        backgroundColor: `${ACCENT}18`,
                         borderWidth: 1,
-                        borderColor: `${ACCENT}60`,
+                        borderColor: `${ACCENT}30`,
+                        alignItems: 'center',
+                        justifyContent: 'center',
                     }}
-                />
-
-                {/* Orbiting dot */}
-                <Animated.View
-                    style={[
-                        dotStyle,
-                        {
-                            position: 'absolute',
-                            width: 86,
-                            height: 86,
-                            justifyContent: 'flex-start',
-                            alignItems: 'center',
-                        }
-                    ]}
                 >
-                    <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: ACCENT }} />
-                </Animated.View>
-
-                {/* Central glowing background */}
-                <View className="absolute w-[60px] h-[60px] rounded-full bg-accent/5 border border-accent/20 items-center justify-center shadow-lg shadow-accent/25" />
-
-                {/* Rotating film reel in background */}
-                <Animated.View
-                    style={[
-                        reelStyle,
-                        { position: 'absolute' }
-                    ]}
-                >
-                    <Film color={ACCENT} size={50} strokeWidth={1.2} style={{ opacity: 0.18 }} />
-                </Animated.View>
-
-                {/* Tilting & Pulsing clapperboard in foreground */}
-                <MotiView
-                    animate={{
-                        rotate: ['-10deg', '10deg'],
-                        scale: [0.92, 1.08]
-                    }}
-                    transition={{
-                        type: 'timing',
-                        duration: 1100,
-                        loop: true,
-                        easing: Easing.bezier(0.25, 1, 0.5, 1),
-                    }}
-                    style={{ position: 'absolute' }}
-                >
-                    <Clapperboard color={ACCENT} size={30} strokeWidth={1.8} />
-                </MotiView>
+                    <SessionPulsingLogo />
+                </View>
             </View>
 
-            <Text className="font-outfit-bold text-[18px] mb-1.5 tracking-tight text-white">
-                AI is choosing a movie
+            {/* 4 Animated Vibe Bars */}
+            <SessionVibeLoadingBars colors={colors} />
+
+            <Text className="font-outfit-bold text-[18px] mt-4 mb-1.5 tracking-tight text-white text-center">
+                Choosing a movie
             </Text>
             <Text className="font-outfit text-[13px] opacity-40 text-center px-8">
-                Mixing your group preferences to find the perfect match...
+                Mixing your preferences...
             </Text>
         </MotiView>
     );
@@ -223,12 +305,21 @@ export default function SessionLobbyScreen() {
 
     // Preferences state for the current user
     const [prefsSubmitted, setPrefsSubmitted] = useState(false);
+    const [vibeMethod, setVibeMethod] = useState<'moodboard' | 'tags'>('moodboard');
+    const [moodboardVibes, setMoodboardVibes] = useState<string[]>([]);
+    const [moodLabel, setMoodLabel] = useState<string | null>(null);
     const [genres, setGenres] = useState({ liked: [] as string[], disliked: [] as string[] });
     const [maxRuntime, setMaxRuntime] = useState(240);
     const [allowSeen, setAllowSeen] = useState(false);
     const [submittingPrefs, setSubmittingPrefs] = useState(false);
+    const [scrollEnabled, setScrollEnabled] = useState(true);
 
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    const handleMoodSelected = (vibes: string[], label: string) => {
+        setMoodLabel(label);
+        setMoodboardVibes(vibes);
+    };
 
     // Load user id
     useEffect(() => {
@@ -278,9 +369,12 @@ export default function SessionLobbyScreen() {
     const handleSubmitPreferences = async () => {
         setSubmittingPrefs(true);
         try {
+            const activeVibes = vibeMethod === 'moodboard' ? moodboardVibes : genres.liked;
+            const activeHardNos = vibeMethod === 'moodboard' ? [] : genres.disliked;
+
             const prefs: SessionPreferences = {
-                vibes: genres.liked,
-                hard_nos: genres.disliked,
+                vibes: activeVibes,
+                hard_nos: activeHardNos,
                 max_runtime: maxRuntime,
                 allow_seen: allowSeen,
                 eras: [],
@@ -368,7 +462,23 @@ export default function SessionLobbyScreen() {
     if (loading) {
         return (
             <View className="flex-1 bg-transparent items-center justify-center">
-                <ActivityIndicator color={ACCENT} size="large" />
+                <View style={{ width: 100, height: 100, alignItems: 'center', justifyContent: 'center' }}>
+                    <SessionRotatingRing colors={[]} />
+                    <View
+                        style={{
+                            width: 64,
+                            height: 64,
+                            borderRadius: 32,
+                            backgroundColor: `${ACCENT}18`,
+                            borderWidth: 1,
+                            borderColor: `${ACCENT}30`,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <SessionPulsingLogo />
+                    </View>
+                </View>
             </View>
         );
     }
@@ -402,7 +512,7 @@ export default function SessionLobbyScreen() {
                     <StatusBadge accent={ACCENT} status={session.status} />
                 </MotiView>
 
-                <ScrollView contentContainerClassName="px-4 pb-[120px]" showsVerticalScrollIndicator={false}>
+                <ScrollView contentContainerClassName="px-4 pb-[120px]" showsVerticalScrollIndicator={false} scrollEnabled={scrollEnabled}>
                     <MotiView
                         from={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -412,7 +522,7 @@ export default function SessionLobbyScreen() {
                         {/* Session info header */}
                         <View className="px-2 mb-2">
                             <View className="flex-row items-center gap-2 mb-2">
-                                <Text style={{ color: `${ACCENT}99` }} className="font-outfit text-[11px] uppercase tracking-[3px]">Movie session</Text>
+                                <Text style={{ color: `${ACCENT}99` }} className="font-outfit text-[11px] uppercase tracking-[3px]">Moovy session</Text>
                             </View>
                             <View className="flex-row items-center gap-3">
                                 {session.meeting_type === 'RANDKA' ? <Heart color={ACCENT} size={24} fill={`${ACCENT}33`} strokeWidth={2.5} /> :
@@ -456,13 +566,106 @@ export default function SessionLobbyScreen() {
                                     icon={Film}
                                     defaultOpen={true}
                                 >
-                                    <GenreSelection
-                                        liked={genres.liked}
-                                        disliked={genres.disliked}
-                                        onToggleVibe={toggleGenre}
-                                        label1="Include"
-                                        label2="Exclude"
-                                    />
+                                    <View className="flex-col gap-3 mt-2">
+                                        {/* Mode Switcher Tabs */}
+                                        <View className="flex-row bg-white/[0.04] p-1 rounded-2xl border border-white/[0.08]">
+                                            <TouchableOpacity
+                                                onPress={() => setVibeMethod('moodboard')}
+                                                className={`flex-1 py-2 px-3 rounded-xl items-center justify-center border transition-all ${vibeMethod === 'moodboard'
+                                                    ? 'bg-accent border-accent'
+                                                    : 'bg-transparent border-transparent opacity-60'
+                                                    }`}
+                                            >
+                                                <Text className={`font-outfit-bold text-[11px] tracking-[1px] uppercase ${vibeMethod === 'moodboard' ? 'text-black' : 'text-white'
+                                                    }`}>
+                                                    Moodboard
+                                                </Text>
+                                            </TouchableOpacity>
+
+                                            <TouchableOpacity
+                                                onPress={() => setVibeMethod('tags')}
+                                                className={`flex-1 py-2 px-3 rounded-xl items-center justify-center border transition-all ${vibeMethod === 'tags'
+                                                    ? 'bg-accent border-accent'
+                                                    : 'bg-transparent border-transparent opacity-60'
+                                                    }`}
+                                            >
+                                                <Text className={`font-outfit-bold text-[11px] tracking-[1px] uppercase ${vibeMethod === 'tags' ? 'text-black' : 'text-white'
+                                                    }`}>
+                                                    Tag Selection
+                                                </Text>
+                                            </TouchableOpacity>
+                                        </View>
+
+                                        {vibeMethod === 'tags' ? (
+                                            <GenreSelection
+                                                liked={genres.liked}
+                                                disliked={genres.disliked}
+                                                onToggleVibe={toggleGenre}
+                                                label1="Include"
+                                                label2="Exclude"
+                                            />
+                                        ) : (
+                                            <View className="gap-3">
+                                                <Moodboard
+                                                    hideDetails={true}
+                                                    onMoodSelected={handleMoodSelected}
+                                                    onTouchStart={() => setScrollEnabled(false)}
+                                                    onTouchEnd={() => setScrollEnabled(true)}
+                                                />
+                                                {/* Selected Vibe Info Display (Full Width Below Palette) */}
+                                                {(() => {
+                                                    const activeTerritory = TAG_TERRITORIES.find(t => t.label === moodLabel || t.vibe === moodboardVibes[0]);
+                                                    if (activeTerritory || moodboardVibes.length > 0) {
+                                                        const displayColor = activeTerritory?.color || ACCENT;
+                                                        const IconComponent = activeTerritory?.icon || Sparkles;
+                                                        return (
+                                                            <MotiView
+                                                                key={activeTerritory?.id || 'moodboard-active'}
+                                                                from={{ opacity: 0, translateY: 6 }}
+                                                                animate={{ opacity: 1, translateY: 0 }}
+                                                                className="bg-white/[0.04] border border-white/[0.08] p-3.5 rounded-2xl gap-y-2"
+                                                            >
+                                                                <View className="flex-row items-center justify-between">
+                                                                    <View className="flex-row items-center gap-2">
+                                                                        <View
+                                                                            style={{
+                                                                                width: 32,
+                                                                                height: 32,
+                                                                                borderRadius: 16,
+                                                                                backgroundColor: displayColor + '20',
+                                                                                borderWidth: 1,
+                                                                                borderColor: displayColor + '40',
+                                                                                alignItems: 'center',
+                                                                                justifyContent: 'center',
+                                                                            }}
+                                                                        >
+                                                                            <IconComponent color={displayColor} size={15} strokeWidth={2} />
+                                                                        </View>
+                                                                        <Text className="font-outfit-bold text-[14px] text-white uppercase tracking-wider">
+                                                                            {activeTerritory?.label || moodLabel || 'Palette Vibe'}
+                                                                        </Text>
+                                                                    </View>
+
+                                                                    {activeTerritory && (
+                                                                        <Text style={{ color: ACCENT }} className="font-outfit text-[11px] font-outfit-semi">
+                                                                            {activeTerritory.description}
+                                                                        </Text>
+                                                                    )}
+                                                                </View>
+
+                                                                <View className="flex-row flex-wrap gap-1.5 pt-1.5 border-t border-white/[0.06]">
+                                                                    {moodboardVibes.map(v => (
+                                                                        <VibeBadge key={v} vibe={v} />
+                                                                    ))}
+                                                                </View>
+                                                            </MotiView>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })()}
+                                            </View>
+                                        )}
+                                    </View>
                                 </CollapsibleSection>
 
                                 <CollapsibleSection title="Settings" icon={Cog}>
@@ -596,13 +799,13 @@ export default function SessionLobbyScreen() {
                             >
                                 <View className="gap-3">
                                     {moviesData.map((movie, index) => (
-                                        <FilmView 
-                                            key={index} 
-                                            movieData={movie} 
+                                        <FilmView
+                                            key={index}
+                                            movieData={movie}
                                             groupName={
                                                 session.meeting_type === 'RANDKA' ? 'Rendezvous' :
-                                                session.meeting_type === 'EKIPA' ? 'Crowd' :
-                                                session.meeting_type === 'RODZINA' ? 'Family' : 'Solo'
+                                                    session.meeting_type === 'EKIPA' ? 'Crowd' :
+                                                        session.meeting_type === 'RODZINA' ? 'Family' : 'Solo'
                                             }
                                         />
                                     ))}

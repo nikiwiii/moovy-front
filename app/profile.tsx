@@ -466,12 +466,12 @@ export default function ProfileScreen() {
                 onRequestClose={() => setIsEditModalVisible(false)}
             >
                 <Pressable
-                    className="flex-1 justify-end bg-black/70"
+                    className="flex-1 justify-end bg-black/50"
                     onPress={() => setIsEditModalVisible(false)}
                 >
                     <Pressable
                         onPress={(e) => e.stopPropagation()}
-                        className="bg-[#141226] border-t border-white/10 p-6 rounded-t-[32px] gap-y-5"
+                        className="bg-[#000313]/70 border-t border-white/10 p-6 gap-y-3"
                     >
                         <View className="flex-row justify-between items-center">
                             <Text className="font-outfit-bold text-[20px] text-white">Edit Profile</Text>
@@ -484,7 +484,7 @@ export default function ProfileScreen() {
                         </View>
 
                         {/* Avatar preview & gallery picker */}
-                        <View className="items-center my-2 gap-y-3">
+                        <View className="items-center mt-2 mb-4 gap-y-3">
                             <TouchableOpacity onPress={handlePickImage} className="relative">
                                 {modalAvatarUri ? (
                                     <Image source={{ uri: modalAvatarUri }} className="w-24 h-24 rounded-full border-2 border-accent" />
@@ -531,7 +531,7 @@ export default function ProfileScreen() {
                         </View>
 
                         {/* Save / Cancel actions */}
-                        <View className="flex-row gap-x-3 pt-2">
+                        <View className="flex-row gap-x-3 mb-6">
                             <TouchableOpacity
                                 onPress={() => setIsEditModalVisible(false)}
                                 className="flex-1 py-4 rounded-2xl bg-white/5 border border-white/10 items-center"
