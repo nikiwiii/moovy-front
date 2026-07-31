@@ -22,7 +22,7 @@ import {
     sessionService, SessionResponse, SessionPreferences, SessionMember,
 } from '../services/sessionService';
 import { storageService } from '../services/storageService';
-import MoovyLogo from '../components/MoovyLogo';
+import MoovyLogo from '@/components/MoovyLogo';
 import Moodboard, { TAG_TERRITORIES } from '../components/Moodboard';
 import Slider from '@react-native-community/slider';
 import FilmView, { MovieViewProps } from '@/components/FilmView';
