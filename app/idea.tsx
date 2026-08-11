@@ -35,7 +35,8 @@ export default function IdeaScreen() {
             movie_id: parsedMovies.movie_id,
             tmdb_id: parsedMovies.tmdb_id,
             title: parsedMovies.movie_title,
-            description: parsedMovies.reasoning_pl,
+            description: parsedMovies.thought || parsedMovies.reasoning_pl || parsedMovies.reasoning,
+            thought: parsedMovies.thought || parsedMovies.reasoning_pl || parsedMovies.reasoning,
             genres: parsedMovies.genres,
             poster_path: parsedMovies.poster_path,
             release_date: parsedMovies.release_date,
@@ -45,11 +46,13 @@ export default function IdeaScreen() {
 
         if (parsedMovies.extra_movies && Array.isArray(parsedMovies.extra_movies)) {
             parsedMovies.extra_movies.forEach((extra: any) => {
+                const extraDescription = extra.thought || extra.reasoning_pl || extra.reasoning || extra.description || "An alternative suggestion from our system, tailored to your taste.";
                 moviesData.push({
                     movie_id: extra.movie_id,
                     tmdb_id: extra.tmdb_id,
                     title: extra.movie_title,
-                    description: "An alternative suggestion from our system, tailored to your taste.",
+                    description: extraDescription,
+                    thought: extra.thought || extra.reasoning_pl || extra.reasoning,
                     genres: extra.genres,
                     poster_path: extra.poster_path,
                     release_date: extra.release_date,

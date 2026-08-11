@@ -112,6 +112,7 @@ export interface MovieViewProps {
     director?: string;
     actors?: string[];
     description?: string;
+    thought?: string;
     genres?: string[];
     duration?: string;
     poster_path?: string;
@@ -184,7 +185,7 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
     const displayRating = data.rating || defaultData.rating;
     const displayDirector = data.director;
     const displayActors = data.actors;
-    const displayDescription = data.description || defaultData.description;
+    const displayDescription = data.thought || data.description || defaultData.description;
     const displayGenres = data.genres && data.genres.length > 0 ? data.genres : (defaultData.genres || []);
     const displayDuration = data.duration;
 

@@ -34,9 +34,9 @@ export default function HomeScreen() {
                         className="mb-12"
                     >
                         <Text className="font-outfit text-[42px] leading-[48px] tracking-tight text-white/90">
-                            welcome to{'\n'}{APP_NAME.includes('.') ? APP_NAME.split('.')[0] : APP_NAME}{'\n'}
-                            {APP_NAME.includes('.') && <Text style={{ color: ACCENT }}>{APP_NAME.split('.')[1]} </Text>}
-                            <Text style={{ color: ACCENT }}>(alpha*)</Text>
+                            welcome to{'\n'}
+                            <Text className="font-outfit-bold text-white">{APP_NAME.includes('.') ? APP_NAME.split('.')[0] : APP_NAME}</Text>{'\n'}
+                            {APP_NAME.includes('.') && <Text style={{ color: ACCENT }} className="font-outfit-bold">{APP_NAME.split('.')[1]}</Text>}
                         </Text>
 
                         {/* Decorative line */}

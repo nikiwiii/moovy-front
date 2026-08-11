@@ -437,7 +437,8 @@ export default function SessionLobbyScreen() {
             movie_id: rec.movie_id,
             tmdb_id: rec.tmdb_id,
             title: rec.movie_title,
-            description: rec.reasoning_pl,
+            description: rec.thought || rec.reasoning_pl || rec.reasoning,
+            thought: rec.thought || rec.reasoning_pl || rec.reasoning,
             genres: rec.genres,
             poster_path: rec.poster_path,
             release_date: rec.release_date,
@@ -447,11 +448,13 @@ export default function SessionLobbyScreen() {
 
         if (rec.extra_movies && Array.isArray(rec.extra_movies)) {
             rec.extra_movies.forEach((extra: any) => {
+                const extraDescription = extra.thought || extra.reasoning_pl || extra.reasoning || extra.description || "An alternative suggestion from our system, tailored to your taste.";
                 data.push({
                     movie_id: extra.movie_id,
                     tmdb_id: extra.tmdb_id,
                     title: extra.movie_title,
-                    description: "An alternative suggestion from our system, tailored to your taste.",
+                    description: extraDescription,
+                    thought: extra.thought || extra.reasoning_pl || extra.reasoning,
                     genres: extra.genres,
                     poster_path: extra.poster_path,
                     release_date: extra.release_date,
