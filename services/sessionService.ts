@@ -13,6 +13,8 @@ export interface SessionPreferences {
     max_runtime: number;
     allow_seen: boolean;
     eras: string[];
+    no_anime?: boolean;
+    no_animation?: boolean;
 }
 
 export interface SessionMember {

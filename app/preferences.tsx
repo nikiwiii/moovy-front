@@ -37,6 +37,8 @@ export default function PreferencesScreen() {
         eras: [] as string[],
         movies: [] as string[]
     });
+    const [noAnime, setNoAnime] = useState(false);
+    const [noAnimation, setNoAnimation] = useState(false);
     const [availableVibes, setAvailableVibes] = useState<string[]>(defaultVibes);
 
     useEffect(() => {
@@ -55,7 +57,7 @@ export default function PreferencesScreen() {
                 const lp = await storageService.getLocalPreferences();
                 const token = await storageService.getToken();
                 const userId = await storageService.getUserId();
-                const API_URL = process.env.EXPO_PUBLIC_API_URL;
+                const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
 
                 let prefsFound = false;
 
@@ -74,6 +76,8 @@ export default function PreferencesScreen() {
                                     eras: data.eras || [],
                                     movies: data.movies || []
                                 });
+                                setNoAnime(data.no_anime || false);
+                                setNoAnimation(data.no_animation || false);
                                 prefsFound = true;
                             }
                         }
@@ -88,6 +92,8 @@ export default function PreferencesScreen() {
                         eras: lp.eras || [],
                         movies: lp.movies || []
                     });
+                    setNoAnime(lp.no_anime || false);
+                    setNoAnimation(lp.no_animation || false);
                 }
             } finally {
                 setLoading(false);
@@ -122,7 +128,9 @@ export default function PreferencesScreen() {
                 vibes: preferences.vibes.liked,
                 hard_nos: preferences.vibes.disliked,
                 eras: preferences.eras,
-                movies: preferences.movies
+                movies: preferences.movies,
+                no_anime: noAnime,
+                no_animation: noAnimation
             };
 
             await storageService.saveLocalPreferences(payload);
@@ -130,7 +138,7 @@ export default function PreferencesScreen() {
             if (!isLocal) {
                 const token = await storageService.getToken();
                 const userId = await storageService.getUserId();
-                const API_URL = process.env.EXPO_PUBLIC_API_URL;
+                const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
 
                 if (token && userId && API_URL) {
                     await fetch(`${API_URL}/preferences/save?user_id=${userId}`, {
@@ -230,6 +238,33 @@ export default function PreferencesScreen() {
                                 options={availableVibes}
                                 revealed
                             />
+
+                            <View className="bg-white/[0.03] border border-white/[0.08] p-4 rounded-2xl gap-y-3 mt-4">
+                                <Text className="font-outfit-bold text-[12px] text-white/80 uppercase tracking-wider">
+                                    Content Restrictions
+                                </Text>
+                                <View className="gap-y-2">
+                                    <TouchableOpacity
+                                        onPress={() => setNoAnime(!noAnime)}
+                                        className="flex-row items-center justify-between p-3 rounded-xl bg-white/[0.04] border border-white/[0.06]"
+                                    >
+                                        <Text className="font-outfit text-[13px]">Exclude Anime</Text>
+                                        <View className={`w-5 h-5 rounded border items-center justify-center ${noAnime ? 'bg-accent border-accent' : 'border-white/40'}`}>
+                                            {noAnime && <Check color="#000" size={14} strokeWidth={3} />}
+                                        </View>
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        onPress={() => setNoAnimation(!noAnimation)}
+                                        className="flex-row items-center justify-between p-3 rounded-xl bg-white/[0.04] border border-white/[0.06]"
+                                    >
+                                        <Text className="font-outfit text-[13px]">Exclude Animated Movies</Text>
+                                        <View className={`w-5 h-5 rounded border items-center justify-center ${noAnimation ? 'bg-accent border-accent' : 'border-white/40'}`}>
+                                            {noAnimation && <Check color="#000" size={14} strokeWidth={3} />}
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
                         </MotiView>
                     </ScrollView>
                 )}

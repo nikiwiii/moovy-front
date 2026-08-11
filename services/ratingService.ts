@@ -60,10 +60,45 @@ export const ratingService = {
         return data;
     },
 
-    async unrateMovie(movieId: string, status: string): Promise<any> {
-        const response = await apiFetch(`${API_URL}/rating/rate`, {
+    async rateMovieByPath(movieId: string, status: 'LOVE' | 'LIKE' | 'DISLIKE' | 'HATE' | 'WATCHED' | 'WATCHLIST'): Promise<any> {
+        const response = await apiFetch(`${API_URL}/rating/rate/${encodeURIComponent(movieId)}/${encodeURIComponent(status)}`, {
+            method: 'POST',
+        });
+
+        const data = await parseResponse(response);
+        if (!response.ok) {
+            throw new Error(extractErrorMsg(data, 'Error rating movie by path'));
+        }
+        return data;
+    },
+
+    async addToWatchlist(movieId: string): Promise<any> {
+        const response = await apiFetch(`${API_URL}/rating/watchlist/${encodeURIComponent(movieId)}`, {
+            method: 'POST',
+        });
+
+        const data = await parseResponse(response);
+        if (!response.ok) {
+            throw new Error(extractErrorMsg(data, 'Error adding to watchlist'));
+        }
+        return data;
+    },
+
+    async removeFromWatchlist(movieId: string): Promise<any> {
+        const response = await apiFetch(`${API_URL}/rating/watchlist/${encodeURIComponent(movieId)}`, {
             method: 'DELETE',
-            body: JSON.stringify({ movie_id: movieId, status }),
+        });
+
+        const data = await parseResponse(response);
+        if (!response.ok) {
+            throw new Error(extractErrorMsg(data, 'Error removing from watchlist'));
+        }
+        return data;
+    },
+
+    async unrateMovie(movieId: string, status: string): Promise<any> {
+        const response = await apiFetch(`${API_URL}/rating/rate/${encodeURIComponent(movieId)}`, {
+            method: 'DELETE',
         });
 
         const data = await parseResponse(response);

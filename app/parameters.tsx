@@ -1,7 +1,7 @@
 import Slider from '@react-native-community/slider';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
-import { Check, Clock, Film, Handshake, Heart, LucideIcon, Palette, Plus, ScanEye, Cog, Sparkle, Sparkles, UserRound, UsersRound, Tag, EllipsisVertical } from 'lucide-react-native';
+import { Check, Clock, Film, Handshake, Heart, LucideIcon, Palette, Plus, ScanEye, Cog, Sparkle, Sparkles, UserRound, UsersRound, Tag, EllipsisVertical, Tv, Ban } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useState, useEffect } from 'react';
 import { Image, Modal, SafeAreaView, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -86,6 +86,8 @@ export default function ParametersScreen() {
     const [settings, setSettings] = useState<{ icon: LucideIcon; title: string; value: boolean | number; }[]>(() => cachedParametersState?.settings ?? [
         { icon: Heart, title: "Use profile preferences", value: true },
         { icon: ScanEye, title: "Watched movies", value: false },
+        { icon: Tv, title: "No anime", value: false },
+        { icon: Ban, title: "No animation", value: false },
         { icon: Clock, title: "Max runtime", value: 240 },
     ]);
 
@@ -229,6 +231,11 @@ export default function ParametersScreen() {
         const activeVibes = (vibeMethod as string) === 'moodboard' || (vibeMethod as string) === 'palette' ? paletteVibes : genres.liked;
         const activeHardNos = (vibeMethod as string) === 'moodboard' || (vibeMethod as string) === 'palette' ? [] : genres.disliked;
 
+        const maxRuntimeVal = settings.find(s => s.title === "Max runtime")?.value || 120;
+        const allowSeenVal = settings.find(s => s.title === "Watched movies")?.value || false;
+        const noAnimeVal = settings.find(s => s.title === "No anime")?.value || false;
+        const noAnimationVal = settings.find(s => s.title === "No animation")?.value || false;
+
         const payload = {
             host_id: "00000000-0000-0000-0000-000000000000",
             invite_code: "12345",
@@ -241,18 +248,22 @@ export default function ParametersScreen() {
                     personal_vibe: {
                         vibes: activeVibes,
                         hard_nos: activeHardNos,
-                        max_runtime: settings.find(s => s.title === "Max runtime")?.value || 120,
-                        allow_seen: settings.find(s => s.title === "Watched movies")?.value || false,
-                        eras: []
+                        max_runtime: maxRuntimeVal,
+                        allow_seen: allowSeenVal,
+                        eras: [],
+                        no_anime: noAnimeVal,
+                        no_animation: noAnimationVal
                     }
                 }
             ],
             final_preferences: {
                 vibes: activeVibes,
                 hard_nos: activeHardNos,
-                max_runtime: settings.find(s => s.title === "Max runtime")?.value || 120,
-                allow_seen: settings.find(s => s.title === "Watched movies")?.value || false,
-                eras: []
+                max_runtime: maxRuntimeVal,
+                allow_seen: allowSeenVal,
+                eras: [],
+                no_anime: noAnimeVal,
+                no_animation: noAnimationVal
             }
         };
 

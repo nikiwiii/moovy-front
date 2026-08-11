@@ -49,6 +49,8 @@ export default function ProfileScreen() {
     }>({ visible: false, message: '', type: 'info' });
 
     const [userVibes, setUserVibes] = useState<string[]>([]);
+    const [userNoAnime, setUserNoAnime] = useState(false);
+    const [userNoAnimation, setUserNoAnimation] = useState(false);
 
     const showToast = (message: string, type: 'success' | 'error' | 'info', title?: string) => {
         setToast({ visible: true, message, type, title });
@@ -82,9 +84,11 @@ export default function ProfileScreen() {
                 setMovies(watchlistData);
                 setRatings(historyData.filter(item => item.status !== 'WATCHLIST'));
 
-                // Fetch user preferences for border styling
+                // Fetch user preferences for border styling & restriction badges
                 try {
                     let prefVibes: string[] = [];
+                    let noAnimePref = false;
+                    let noAnimationPref = false;
                     if (token && userId && API_URL) {
                         const res = await fetch(`${API_URL}/preferences/get?user_id=${userId}`, {
                             headers: { Authorization: `Bearer ${token}` }
@@ -94,6 +98,8 @@ export default function ProfileScreen() {
                             if (data?.vibes && Array.isArray(data.vibes)) {
                                 prefVibes = data.vibes;
                             }
+                            noAnimePref = !!data?.no_anime;
+                            noAnimationPref = !!data?.no_animation;
                         }
                     }
                     if (prefVibes.length === 0) {
@@ -101,8 +107,12 @@ export default function ProfileScreen() {
                         if (lp?.vibes && Array.isArray(lp.vibes)) {
                             prefVibes = lp.vibes;
                         }
+                        if (lp?.no_anime) noAnimePref = true;
+                        if (lp?.no_animation) noAnimationPref = true;
                     }
                     setUserVibes(prefVibes);
+                    setUserNoAnime(noAnimePref);
+                    setUserNoAnimation(noAnimationPref);
                 } catch (e) {
                     console.error('Error fetching user preference vibes for profile:', e);
                 }
@@ -337,6 +347,20 @@ export default function ProfileScreen() {
                                         <View className="flex-1">
                                             <Text className="font-outfit-bold text-[18px] text-white capitalize">{username}</Text>
                                             <Text className="font-outfit text-[12px] opacity-35 mt-0.5">{email}</Text>
+                                            {(userNoAnime || userNoAnimation) && (
+                                                <View className="flex-row flex-wrap gap-1 mt-1.5">
+                                                    {userNoAnime && (
+                                                        <View className="px-2 py-0.5 rounded-full bg-accent/20 border border-accent/40">
+                                                            <Text style={{ color: ACCENT }} className="font-outfit-bold text-[10px] uppercase tracking-wider">No Anime</Text>
+                                                        </View>
+                                                    )}
+                                                    {userNoAnimation && (
+                                                        <View className="px-2 py-0.5 rounded-full bg-accent/20 border border-accent/40">
+                                                            <Text style={{ color: ACCENT }} className="font-outfit-bold text-[10px] uppercase tracking-wider">No Animation</Text>
+                                                        </View>
+                                                    )}
+                                                </View>
+                                            )}
                                         </View>
                                     </View>
                                     <TouchableOpacity

@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
     ArrowLeft, Check, CheckCheck, ChevronRight, Clapperboard, Clock, Cog, Crown,
-    Film, Heart, Home, Loader2, RefreshCw, Smile, Sparkles, Trash2, UserRound, UsersRound, X, Zap,
+    Film, Heart, Home, Loader2, RefreshCw, Smile, Sparkles, Trash2, UserRound, UsersRound, X, Zap, Tv, Ban
 } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -311,6 +311,8 @@ export default function SessionLobbyScreen() {
     const [genres, setGenres] = useState({ liked: [] as string[], disliked: [] as string[] });
     const [maxRuntime, setMaxRuntime] = useState(240);
     const [allowSeen, setAllowSeen] = useState(false);
+    const [noAnime, setNoAnime] = useState(false);
+    const [noAnimation, setNoAnimation] = useState(false);
     const [submittingPrefs, setSubmittingPrefs] = useState(false);
     const [scrollEnabled, setScrollEnabled] = useState(true);
 
@@ -378,6 +380,8 @@ export default function SessionLobbyScreen() {
                 max_runtime: maxRuntime,
                 allow_seen: allowSeen,
                 eras: [],
+                no_anime: noAnime,
+                no_animation: noAnimation
             };
             await sessionService.setPreferences(sessionId, prefs);
             setPrefsSubmitted(true);
@@ -694,7 +698,7 @@ export default function SessionLobbyScreen() {
 
                                         {/* Allow seen toggle */}
                                         <TouchableOpacity
-                                            className={`${FillStyles.pillBase} ${allowSeen ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center justify-between gap-x-2 min-h-14 ${FillStyles.pillLast}`}
+                                            className={`${FillStyles.pillBase} ${allowSeen ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center justify-between gap-x-2 min-h-14`}
                                             onPress={() => setAllowSeen(!allowSeen)}
                                         >
                                             <View className="flex-row items-center gap-x-2.5">
@@ -703,6 +707,34 @@ export default function SessionLobbyScreen() {
                                             </View>
                                             <Text style={allowSeen ? { color: ACCENT } : {}} className={`font-outfit uppercase tracking-wider text-[11px] ${allowSeen ? 'font-outfit-semi' : 'opacity-40'}`}>
                                                 {allowSeen ? 'Allow' : 'Disallow'}
+                                            </Text>
+                                        </TouchableOpacity>
+
+                                        {/* No anime toggle */}
+                                        <TouchableOpacity
+                                            className={`${FillStyles.pillBase} ${noAnime ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center justify-between gap-x-2 min-h-14`}
+                                            onPress={() => setNoAnime(!noAnime)}
+                                        >
+                                            <View className="flex-row items-center gap-x-2.5">
+                                                <Tv size={18} color={noAnime ? ACCENT : '#707080'} />
+                                                <Text className="font-outfit text-[13px]">No anime</Text>
+                                            </View>
+                                            <Text style={noAnime ? { color: ACCENT } : {}} className={`font-outfit uppercase tracking-wider text-[11px] ${noAnime ? 'font-outfit-semi' : 'opacity-40'}`}>
+                                                {noAnime ? 'Yes' : 'No'}
+                                            </Text>
+                                        </TouchableOpacity>
+
+                                        {/* No animation toggle */}
+                                        <TouchableOpacity
+                                            className={`${FillStyles.pillBase} ${noAnimation ? FillStyles.pillActive : FillStyles.pillInactive} flex-row items-center justify-between gap-x-2 min-h-14 ${FillStyles.pillLast}`}
+                                            onPress={() => setNoAnimation(!noAnimation)}
+                                        >
+                                            <View className="flex-row items-center gap-x-2.5">
+                                                <Ban size={18} color={noAnimation ? ACCENT : '#707080'} />
+                                                <Text className="font-outfit text-[13px]">No animation</Text>
+                                            </View>
+                                            <Text style={noAnimation ? { color: ACCENT } : {}} className={`font-outfit uppercase tracking-wider text-[11px] ${noAnimation ? 'font-outfit-semi' : 'opacity-40'}`}>
+                                                {noAnimation ? 'Yes' : 'No'}
                                             </Text>
                                         </TouchableOpacity>
                                     </View>
