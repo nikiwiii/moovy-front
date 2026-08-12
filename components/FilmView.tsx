@@ -1,5 +1,5 @@
 import { FillStyles } from "@/constants/themeStyles";
-import { Clock, Star, Heart, ThumbsUp, ThumbsDown, Skull, Bookmark, Ticket } from "lucide-react-native";
+import { Clock, Star, Heart, ThumbsUp, ThumbsDown, Skull, Bookmark, Ticket, Tv } from "lucide-react-native";
 import { MotiView } from "moti";
 import { Image, View } from 'react-native';
 import { AppText as Text } from '@/components/AppText';
@@ -7,10 +7,11 @@ import Animated, { LinearTransition } from "react-native-reanimated";
 import Svg, { Circle } from 'react-native-svg';
 import { Colors } from '@/constants/theme';
 import MiniCollapsibleSection from "./MiniCollapsibleSection";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TouchableOpacity from "./TouchableOpacity";
 import { storageService } from "../services/storageService";
 import { ratingService } from "../services/ratingService";
+import { moviesService, WatchProvidersData } from "../services/moviesService";
 import { getGenreColor } from "../constants/genres";
 
 const ACCENT = Colors.dark.accent;
@@ -118,6 +119,7 @@ export interface MovieViewProps {
     poster_path?: string;
     release_date?: string;
     initialReaction?: 'LIKE' | 'LOVE' | 'DISLIKE' | 'HATE' | 'WATCHLIST' | null;
+    providers?: WatchProvidersData;
 }
 
 const GENRE_TRANSLATIONS: Record<string, string> = {
@@ -193,6 +195,34 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
         data.initialReaction || null
     );
 
+    const [providers, setProviders] = useState<WatchProvidersData | null>(data.providers || null);
+    const [loadingProviders, setLoadingProviders] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (data.providers) {
+            setProviders(data.providers);
+            return;
+        }
+
+        const identifier = data.tmdb_id || data.movie_id;
+        if (!identifier) return;
+
+        let isMounted = true;
+        setLoadingProviders(true);
+        moviesService.getMovieProviders(identifier).then(res => {
+            if (isMounted) {
+                setProviders(res);
+                setLoadingProviders(false);
+            }
+        }).catch(() => {
+            if (isMounted) setLoadingProviders(false);
+        });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [data.tmdb_id, data.movie_id, data.providers]);
+
     const handleReaction = async (status: 'LIKE' | 'LOVE' | 'DISLIKE' | 'HATE' | 'WATCHLIST') => {
         if (!data.movie_id) return;
 
@@ -219,19 +249,6 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
             layout={LinearTransition}
             className="bg-white/[0.04] border border-white/[0.12] rounded-[24px] p-3 gap-y-2.5 overflow-hidden relative"
         >
-            {/* Top Ticket Header Stub */}
-            {/* <View className="flex-row justify-between items-center pb-3 border-b border-white/[0.08]">
-                <View className="flex-row items-center gap-1.5">
-                    <Ticket size={12} color={ACCENT} />
-                    <Text className="font-outfit-bold text-[9px] uppercase tracking-[2px]" style={{ color: ACCENT }}>
-                        {(groupName || "SOLO")} · MOOVY
-                    </Text>
-                </View>
-                <Text className="font-mono text-[9px] text-white/30 tracking-[1.5px]">
-                    TICKET{ticketNumber}
-                </Text>
-            </View> */}
-
             {/* Poster & Main Information */}
             <Animated.View layout={LinearTransition} className="flex-row gap-3.5">
                 <MotiView
@@ -254,12 +271,9 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
                                 <View
                                     key={i}
                                     style={{ backgroundColor: `${ACCENT}15`, borderColor: `${ACCENT}30` }}
-                                    className="border px-1.5 py-0.5 rounded-[5px] items-center justify-center"
+                                    className="border px-1.5 py-0.5 rounded-[5px]"
                                 >
-                                    <Text
-                                        style={{ color: ACCENT }}
-                                        className="text-[8px] font-outfit-bold uppercase tracking-wider"
-                                    >
+                                    <Text style={{ color: ACCENT }} className="text-[9px] font-outfit-bold uppercase tracking-wider">
                                         {translateGenre(genre)}
                                     </Text>
                                 </View>
@@ -267,31 +281,62 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
                         </View>
                     </View>
 
-                    {/* Score and Runtime Rings */}
-                    <View className="flex-row items-center gap-3 my-1 w-full">
+                    {/* Score & Duration Rings */}
+                    <View className="flex-row items-center gap-3 my-1">
                         {displayRating ? <RatingRing rating={displayRating} /> : null}
                         {displayDuration ? <DurationRing duration={displayDuration} /> : null}
                     </View>
 
-                    {displayDirector ? (
-                        <View className="flex-col">
-                            <Text className="text-[10px] font-outfit opacity-35 uppercase tracking-[1.5px]">Director</Text>
-                            <Text className="text-[12px] font-outfit-semi" numberOfLines={1}>{displayDirector}</Text>
+                    {displayDirector && (
+                        <View>
+                            <Text className="text-[9px] text-white/35 font-outfit-bold uppercase tracking-[1.5px]">Director</Text>
+                            <Text className="text-white/90 text-xs font-outfit-medium truncate">{displayDirector}</Text>
                         </View>
-                    ) : null}
-                    {displayActors && displayActors.length > 0 ? (
-                        <View className="flex-col">
-                            <Text className="text-[10px] font-outfit opacity-35 uppercase tracking-[1.5px]">Starring</Text>
-                            <Text className="text-[12px] font-outfit-semi" numberOfLines={1}>{displayActors.join(", ")}</Text>
+                    )}
+
+                    {displayActors && displayActors.length > 0 && (
+                        <View>
+                            <Text className="text-[9px] text-white/35 font-outfit-bold uppercase tracking-[1.5px]">Starring</Text>
+                            <Text className="text-white/90 text-xs font-outfit-medium truncate">{displayActors.join(", ")}</Text>
                         </View>
-                    ) : null}
+                    )}
+
+                    {/* Stream On Tiles */}
+                    <View>
+                        <Text className="text-[9px] text-white/35 font-outfit-bold uppercase tracking-[1.5px]">Stream On</Text>
+                        {loadingProviders ? (
+                            <View className="flex-row items-center gap-1.5 py-0.5">
+                                <Tv size={12} color="rgba(255,255,255,0.4)" />
+                                <Text className="text-[10px] text-white/40 font-outfit">Loading stream info...</Text>
+                            </View>
+                        ) : providers?.flatrate && providers.flatrate.length > 0 ? (
+                            <View className="flex-row flex-wrap gap-1.5">
+                                {providers.flatrate.map((p) => (
+                                    <View
+                                        key={p.provider_id}
+                                        className="flex-row items-center gap-1.5 bg-white/[0.08] border border-white/15 rounded-lg px-2 py-1"
+                                    >
+                                        {p.logo_path && (
+                                            <Image
+                                                source={{ uri: `https://image.tmdb.org/t/p/w92${p.logo_path}` }}
+                                                className="w-4 h-4 rounded"
+                                            />
+                                        )}
+                                        <Text className="font-outfit-bold text-[11px] text-white">{p.provider_name}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        ) : (
+                            <Text className="text-[10px] text-white/40 font-outfit italic">
+                                {providers ? "Not available on stream" : "Checking availability..."}
+                            </Text>
+                        )}
+                    </View>
                 </View>
             </Animated.View>
 
             {/* Ticket Perforation / Cutout Tear Line */}
             <View className="relative my-1">
-
-
                 {/* Colored vibe indicators bar at the bottom */}
                 {data.genres && data.genres.length > 0 && (
                     <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1, flexDirection: 'row', opacity: 0.6 }}>
@@ -347,8 +392,43 @@ export default function FilmView({ movieData, groupName }: { movieData?: MovieVi
                     >
                         <Text className="text-[13px] font-outfit opacity-70 leading-[20px]">{displayDescription}</Text>
                     </MiniCollapsibleSection>
-                </Animated.View>)
-            }
+                </Animated.View>
+            )}
+
+            {/* Rent / Buy Section */}
+            <Animated.View layout={LinearTransition} className="flex-col gap-2">
+                <MiniCollapsibleSection title="Rent / Buy" defaultOpen={false}>
+                    {loadingProviders ? (
+                        <View className="flex-row items-center gap-2 py-1">
+                            <Tv size={14} color="rgba(255,255,255,0.4)" />
+                            <Text className="text-xs text-white/40 font-outfit">Loading rental options...</Text>
+                        </View>
+                    ) : providers && ((providers.rent && providers.rent.length > 0) || (providers.buy && providers.buy.length > 0)) ? (
+                        <View className="flex-col gap-2 pt-1">
+                            <View className="flex-row flex-wrap gap-1.5">
+                                {(providers.rent && providers.rent.length > 0 ? providers.rent : providers.buy || []).map((p) => (
+                                    <View
+                                        key={p.provider_id}
+                                        className="flex-row items-center gap-1.5 bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-1"
+                                    >
+                                        {p.logo_path && (
+                                            <Image
+                                                source={{ uri: `https://image.tmdb.org/t/p/w92${p.logo_path}` }}
+                                                className="w-4 h-4 rounded opacity-80"
+                                            />
+                                        )}
+                                        <Text className="font-outfit-medium text-[11px] text-white/80">{p.provider_name}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        </View>
+                    ) : (
+                        <Text className="text-xs text-white/40 font-outfit italic py-0.5">
+                            {providers ? "No rental or purchase options listed." : "Rental info unavailable."}
+                        </Text>
+                    )}
+                </MiniCollapsibleSection>
+            </Animated.View>
 
             {/* Ticket Stub Action Buttons */}
             {data.movie_id && (
