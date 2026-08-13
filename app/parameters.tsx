@@ -1,7 +1,8 @@
 import Slider from '@react-native-community/slider';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
-import { Check, Clock, Film, Handshake, Heart, LucideIcon, Palette, Plus, ScanEye, Cog, Sparkle, Sparkles, UserRound, UsersRound, Tag, EllipsisVertical, Tv, Ban } from 'lucide-react-native';
+import { Check, Clock, Film, Handshake, Heart, LucideIcon, Palette, Plus, ScanEye, Cog, Sparkle, Sparkles, UserRound, UsersRound, Tag, EllipsisVertical, Tv, Ban, ArrowRight } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { MotiView } from 'moti';
 import React, { useState, useEffect } from 'react';
 import { Image, Modal, SafeAreaView, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -521,13 +522,22 @@ export default function ParametersScreen() {
                         </CollapsibleSection>
 
                         <Animated.View layout={LinearTransition}>
-                            <View className="flex-col items-end gap-4 mb-10 z-50">
+                            <View className="flex-col items-stretch gap-4 mb-10 z-50">
                                 <TouchableOpacity
-                                    className={`${FillStyles.actionBtnBase} ${FillStyles.actionBtnPrimary} bg-accent`}
+                                    activeOpacity={0.8}
+                                    className="w-full rounded-2xl overflow-hidden shadow-xl"
                                     onPress={handleFindMovie}
                                 >
-                                    <Text className="font-outfit-semi text-[15px] text-black">Find Movie</Text>
-                                    <Check color="#000" size={18} strokeWidth={2.5} />
+                                    <LinearGradient
+                                        colors={['#60D394', '#4ade80', '#38bdf8']}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                        style={{ paddingVertical: 16, paddingHorizontal: 20, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justify: 'center', gap: 10 }}
+                                    >
+                                        <Sparkles color="#000" size={18} strokeWidth={2.5} />
+                                        <Text className="font-outfit-bold text-[13px] text-black uppercase tracking-[2.5px]">Find Matching Movies</Text>
+                                        <ArrowRight color="#000" size={18} strokeWidth={2.5} />
+                                    </LinearGradient>
                                 </TouchableOpacity>
                             </View>
                         </Animated.View>

@@ -210,7 +210,7 @@ export default function PreferencesScreen() {
                     </View>
 
                     <View className="mt-1">
-                        <Text className="font-outfit-bold text-[24px]">Movie Vibes & Tags</Text>
+                        <Text className="font-outfit text-[22px] uppercase tracking-wide text-white/80">Movie Vibes & Tags</Text>
                         <Text className="font-outfit text-[13px] opacity-40 mt-0.5">
                             Select vibes and themes you love, and those you avoid.
                         </Text>

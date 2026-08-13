@@ -316,7 +316,7 @@ export default function SessionJoinScreen() {
                             >
                                 <Ticket color={ACCENT} size={28} strokeWidth={1.5} />
                             </MotiView>
-                            <Text className="font-outfit-bold text-[28px] text-center">Join session</Text>
+                            <Text className="font-outfit text-[24px] uppercase tracking-wide text-white/80 text-center">Join session</Text>
                             <Text className="font-outfit text-[14px] opacity-35 mt-2 text-center">Enter 6-character invite code</Text>
                         </View>
 

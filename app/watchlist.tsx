@@ -111,7 +111,7 @@ export default function WatchlistScreen() {
                             className="gap-y-4"
                         >
                             <View className="mb-2">
-                                <Text className="font-outfit-bold text-[24px]">Saved Movies</Text>
+                                <Text className="font-outfit text-[22px] uppercase tracking-wide text-white/80">Saved Movies</Text>
                                 <Text className="font-outfit text-[12px] opacity-30 mt-0.5">
                                     You have {movies.length} {movies.length === 1 ? 'movie' : 'movies'} in your list
                                 </Text>

@@ -299,7 +299,7 @@ export default function FavouritesScreen() {
                                     </Text>
                                 </View>
                             ) : (
-                                <Text className="font-outfit-bold text-[24px]">Favorite Movies</Text>
+                                <Text className="font-outfit text-[22px] uppercase tracking-wide text-white/80">Favorite Movies</Text>
                             )}
                         </View>
                     </View>
@@ -312,7 +312,7 @@ export default function FavouritesScreen() {
                             </View>
 
                             <View className="mt-1">
-                                <Text className="font-outfit-bold text-[24px]">Favorite Movies</Text>
+                                <Text className="font-outfit text-[22px] uppercase tracking-wide text-white/80">Favorite Movies</Text>
                                 <Text className="font-outfit text-[13px] opacity-40 mt-0.5">
                                     Search and add your favorite movies to complete your profile.
                                 </Text>

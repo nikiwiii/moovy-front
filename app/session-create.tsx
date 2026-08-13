@@ -116,7 +116,7 @@ export default function SessionCreateScreen() {
                                 >
                                     <Hand color={ACCENT} size={28} strokeWidth={1.5} />
                                 </MotiView>
-                                <Text className="font-outfit-bold text-[28px] text-center">Create session</Text>
+                                <Text className="font-outfit text-[24px] uppercase tracking-wide text-white/80 text-center">Create session</Text>
                                 <Text className="font-outfit text-[14px] opacity-35 mt-2 text-center">Select meeting type and invite friends</Text>
                             </View>
 
@@ -163,7 +163,7 @@ export default function SessionCreateScreen() {
                                 >
                                     <Check color={ACCENT} size={36} strokeWidth={2.5} />
                                 </MotiView>
-                                <Text className="font-outfit-bold text-[24px]">Session created!</Text>
+                                <Text className="font-outfit text-[22px] uppercase tracking-wide text-white/80">Session created!</Text>
                                 <Text className="font-outfit text-[14px] opacity-35 mt-1 text-center">Share invite code with friends</Text>
                             </View>
 

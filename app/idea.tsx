@@ -73,7 +73,7 @@ export default function IdeaScreen() {
                     transition={{ duration: 600 }}
                     className="px-4 pt-5 pb-3 flex-row justify-between items-center"
                 >
-                    <Text className="font-outfit-bold text-[24px]">Ideas</Text>
+                    <Text className="font-outfit text-[22px] uppercase tracking-wide text-white/80">Film Recommendations</Text>
                     <TouchableOpacity
                         onPress={() => router.back()}
                         className="flex-row items-center gap-2"

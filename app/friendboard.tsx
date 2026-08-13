@@ -60,7 +60,7 @@ export default function FriendBoard() {
                 transition={{ duration: 600 }}
                 className="px-6 pt-5 pb-3 flex-row justify-between items-center"
             >
-                <Text className="font-outfit-bold text-[24px]">Friendboard</Text>
+                <Text className="font-outfit text-[22px] uppercase tracking-wide text-white/80">Friendboard</Text>
                 <View className="flex-row gap-2">
                     <TouchableOpacity
                         onPress={loadSessions}

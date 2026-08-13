@@ -104,7 +104,7 @@ export default function Settings() {
                     >
                         <ArrowLeft color="#fff" size={20} />
                     </TouchableOpacity>
-                    <Text className="font-outfit-bold text-[24px]">Settings</Text>
+                    <Text className="font-outfit text-[22px] uppercase tracking-wide text-white/80">Settings</Text>
                 </View>
             </MotiView>
 
