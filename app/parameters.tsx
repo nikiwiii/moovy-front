@@ -532,7 +532,7 @@ export default function ParametersScreen() {
                                         colors={['#60D394', '#4ade80', '#38bdf8']}
                                         start={{ x: 0, y: 0 }}
                                         end={{ x: 1, y: 0 }}
-                                        style={{ paddingVertical: 16, paddingHorizontal: 20, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justify: 'center', gap: 10 }}
+                                        style={{ paddingVertical: 16, paddingHorizontal: 20, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}
                                     >
                                         <Sparkles color="#000" size={18} strokeWidth={2.5} />
                                         <Text className="font-outfit-bold text-[13px] text-black uppercase tracking-[2.5px]">Find Matching Movies</Text>

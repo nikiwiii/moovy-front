@@ -2,7 +2,7 @@
   "expo": {
     "name": "moovy",
     "slug": "movienight",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "moovy",
@@ -11,7 +11,7 @@
       "supportsTablet": true
     },
     "android": {
-      "versionCode": 5,
+      "versionCode": 6,
       "adaptiveIcon": {
         "backgroundColor": "#050c18",
         "foregroundImage": "./assets/images/adaptive-icon.png"
