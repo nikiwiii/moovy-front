@@ -160,7 +160,7 @@ export default function WelcomeScreen() {
                     >
                         <Text className="font-outfit text-[10px] uppercase tracking-[2px] opacity-30">{APP_NAME} © {new Date().getFullYear()}</Text>
                         <Text className="font-outfit text-[10px] text-white/40 mt-1 max-w-[150px]">
-                            we'll find your{'\n'}perfect screening
+                            {"we'll find your"}{'\n'}perfect screening
                         </Text>
                     </MotiView>
                 </View>

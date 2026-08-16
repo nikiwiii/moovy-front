@@ -104,6 +104,7 @@ const AnimatedOrb = React.memo(({ id, color, size, startPos, animDuration, trans
         </Animated.View>
     );
 });
+AnimatedOrb.displayName = 'AnimatedOrb';
 
 interface VibeCornerLightProps {
     id: string;
@@ -210,6 +211,7 @@ const VibeCornerLight = React.memo(({ id, color, size, startPos, animDuration, t
         </Animated.View>
     );
 });
+VibeCornerLight.displayName = 'VibeCornerLight';
 
 export type BackgroundTheme = 'default' | 'ocean' | 'cyberpunk' | 'sunset' | 'aurora' | 'monochrome' | 'nebula' | 'midnight' | 'emerald' | 'day' | 'cloudy' | 'black';
 
