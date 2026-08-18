@@ -31,6 +31,8 @@ export default function FavouritesScreen() {
     const [favoriteMovies, setFavoriteMovies] = useState<MovieItem[]>([]);
     const [vibes, setVibes] = useState<{ liked: string[]; disliked: string[] }>({ liked: [], disliked: [] });
     const [eras, setEras] = useState<string[]>([]);
+    const [noAnime, setNoAnime] = useState(false);
+    const [noAnimation, setNoAnimation] = useState(false);
     const [favouriteTmdbIds, setFavouriteTmdbIds] = useState<number[]>([]);
 
     // Search state
@@ -74,6 +76,8 @@ export default function FavouritesScreen() {
                             if (data) {
                                 setVibes({ liked: data.vibes || [], disliked: data.hard_nos || [] });
                                 setEras(data.eras || []);
+                                setNoAnime(data.no_anime || false);
+                                setNoAnimation(data.no_animation || false);
 
                                 const rawMovies: string[] = data.movies || [];
                                 const parsedMovies: MovieItem[] = rawMovies.map((m, idx) => ({
@@ -92,6 +96,8 @@ export default function FavouritesScreen() {
                 if (!loadedFromCloud && lp) {
                     setVibes({ liked: lp.vibes || [], disliked: lp.hard_nos || [] });
                     setEras(lp.eras || []);
+                    setNoAnime(lp.no_anime || false);
+                    setNoAnimation(lp.no_animation || false);
                     const rawMovies: string[] = lp.movies || [];
                     setFavoriteMovies(rawMovies.map((m, idx) => ({ id: `local-${idx}`, title: m })));
                 }
@@ -210,7 +216,9 @@ export default function FavouritesScreen() {
                 vibes: vibes.liked,
                 hard_nos: vibes.disliked,
                 eras: eras,
-                movies: movieTitles
+                movies: movieTitles,
+                no_anime: noAnime,
+                no_animation: noAnimation
             };
 
             await storageService.saveLocalPreferences(payload);
