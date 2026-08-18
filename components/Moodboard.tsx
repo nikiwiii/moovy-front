@@ -31,6 +31,7 @@ import {
     type LucideIcon,
 } from 'lucide-react-native';
 import { Colors } from '@/constants/theme';
+import VibeBadge from './VibeBadge';
 
 const ACCENT = Colors.dark.accent;
 
@@ -310,12 +311,11 @@ export default function Moodboard({ onMoodSelected, onTouchStart, onTouchEnd, hi
                                         position: 'absolute',
                                         left: `${posX}%`,
                                         top: `${posY}%`,
-                                        width: 100,
-                                        height: 40,
                                         transform: [{ translateX: -50 }, { translateY: -20 }],
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         zIndex: isPrimary ? 25 : isNearby ? 15 : 5,
+                                        opacity: isPrimary ? 1 : isNearby ? 0.9 : 0.7,
                                     }}
                                     pointerEvents="none"
                                 >
@@ -328,16 +328,17 @@ export default function Moodboard({ onMoodSelected, onTouchStart, onTouchEnd, hi
                                         }}
                                     >
                                         <IconComponent
-                                            color={isPrimary || isNearby ? territory.color : `${territory.color}60`}
-                                            size={isPrimary ? 14 : 12}
+                                            color={territory.color}
+                                            size={isPrimary ? 16 : 14}
                                             strokeWidth={isPrimary ? 2.5 : 1.8}
                                         />
                                         <Text
                                             style={{
-                                                fontSize: isPrimary ? 11 : 9.5,
-                                                color: isPrimary ? '#FFFFFF' : isNearby ? territory.color : `${territory.color}60`,
-                                                fontFamily: isPrimary ? 'Outfit_700Bold' : 'Outfit_400Regular',
+                                                fontSize: 8,
+                                                color: isPrimary ? '#FFFFFF' : territory.color,
+                                                fontFamily: isPrimary ? 'Outfit_700Bold' : 'Outfit_500Medium',
                                                 textAlign: 'center',
+                                                textTransform: 'uppercase',
                                             }}
                                             numberOfLines={1}
                                         >
@@ -428,9 +429,9 @@ export default function Moodboard({ onMoodSelected, onTouchStart, onTouchEnd, hi
                     <View className="flex-row items-center gap-3">
                         <View
                             style={{
-                                width: 42,
-                                height: 42,
-                                borderRadius: 21,
+                                width: 40,
+                                height: 40,
+                                borderRadius: 20,
                                 backgroundColor: `${selection.primaryTerritory.color}25`,
                                 borderWidth: 1,
                                 borderColor: `${selection.primaryTerritory.color}50`,
@@ -446,42 +447,24 @@ export default function Moodboard({ onMoodSelected, onTouchStart, onTouchEnd, hi
                         </View>
 
                         <View className="flex-1">
-                            <Text className="font-outfit-bold text-[16px] text-white">
+                            <Text className="font-outfit-bold text-[14px] text-white">
                                 {selection.primaryTerritory.label}
                             </Text>
                             <Text className="font-outfit text-[12px] opacity-40 mt-0.5">
                                 {selection.primaryTerritory.description}
                             </Text>
                         </View>
-
-                        <View className="items-end">
-                            <Text className="font-outfit-bold text-[11px] text-accent uppercase tracking-wider">
-                                {selection.tempo > 75 ? 'Max' : selection.tempo > 50 ? 'High' : selection.tempo > 25 ? 'Moderate' : 'Chill'} Tempo
-                            </Text>
-                            <Text className="font-outfit text-[10px] opacity-35 mt-0.5">
-                                {selection.tone > 66 ? 'Dark' : selection.tone > 33 ? 'Dramatic' : 'Light'} Tone
-                            </Text>
-                        </View>
                     </View>
 
                     {/* Nearby territories */}
                     {selection.nearbyTerritories.length > 0 && (
-                        <View className="flex-row items-center gap-x-2 pt-1 border-t border-white/[0.06]">
-                            <Text className="font-outfit text-[11px] opacity-35 uppercase tracking-wider">
+                        <View className="flex-row items-center gap-x-2 pt-2 border-t border-white/[0.06]">
+                            <Text className="font-outfit-bold text-[11px] text-white/35 uppercase tracking-wider">
                                 Proximity Vibes:
                             </Text>
-                            <View className="flex-row gap-x-1.5 flex-wrap">
+                            <View className="flex-row gap-1.5 flex-wrap">
                                 {selection.nearbyTerritories.map(n => (
-                                    <View
-                                        key={n.id}
-                                        style={{ backgroundColor: `${n.color}15`, borderColor: `${n.color}35` }}
-                                        className="px-2 py-0.5 rounded-full border flex-row items-center gap-x-1"
-                                    >
-                                        <View style={{ backgroundColor: n.color }} className="w-1.5 h-1.5 rounded-full" />
-                                        <Text className="font-outfit-bold text-[10px] text-white/70">
-                                            {n.label}
-                                        </Text>
-                                    </View>
+                                    <VibeBadge key={n.id} vibe={n.vibe} />
                                 ))}
                             </View>
                         </View>

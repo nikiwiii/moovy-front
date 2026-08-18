@@ -525,16 +525,22 @@ export default function ParametersScreen() {
                             <View className="flex-col items-stretch gap-4 mb-10 z-50">
                                 <TouchableOpacity
                                     activeOpacity={0.8}
-                                    className="w-full rounded-2xl overflow-hidden shadow-xl"
+                                    className="w-full rounded-2xl overflow-hidden border border-white/20"
+                                    style={{
+                                        shadowColor: '#99ecb8',
+                                        shadowOffset: { width: 0, height: 0 },
+                                        shadowOpacity: 0.4,
+                                        shadowRadius: 20,
+                                        elevation: 8,
+                                    }}
                                     onPress={handleFindMovie}
                                 >
                                     <LinearGradient
-                                        colors={['#60D394', '#4ade80', '#38bdf8']}
+                                        colors={['#fae7da', '#e5f1af', '#caf7bf']}
                                         start={{ x: 0, y: 0 }}
                                         end={{ x: 1, y: 0 }}
                                         style={{ paddingVertical: 16, paddingHorizontal: 20, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}
                                     >
-                                        <Sparkles color="#000" size={18} strokeWidth={2.5} />
                                         <Text className="font-outfit-bold text-[13px] text-black uppercase tracking-[2.5px]">Find Matching Movies</Text>
                                         <ArrowRight color="#000" size={18} strokeWidth={2.5} />
                                     </LinearGradient>
