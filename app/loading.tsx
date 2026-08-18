@@ -241,7 +241,16 @@ export default function LoadingScreen() {
 
                 if (!res.ok) {
                     console.error('Error creating session:', res.status);
-                    router.back();
+                    const errorData = await res.json().catch(() => ({}));
+                    const detail = errorData?.detail;
+                    let errMsg = `Server error while creating session (${res.status}).`;
+                    if (typeof detail === 'string') errMsg = detail;
+                    else if (detail) errMsg = JSON.stringify(detail);
+
+                    showToast(errMsg, `Session Error (${res.status})`, 'error');
+                    setTimeout(() => {
+                        router.back();
+                    }, 3000);
                     return;
                 }
 
@@ -259,27 +268,31 @@ export default function LoadingScreen() {
 
                 if (!recRes.ok) {
                     console.error('Error fetching recommendation:', recRes.status);
-                    if (recRes.status === 404) {
-                        const errorData = await recRes.json().catch(() => ({}));
-                        let errMsg =
-                            'No movies found matching your criteria. Try increasing the maximum duration.';
-                        const detail = errorData?.detail;
-                        if (typeof detail === 'string') errMsg = detail;
-                        else if (Array.isArray(detail))
-                            errMsg = detail
-                                .map((e: any) => {
-                                    const field = e?.loc ? `${e.loc.slice(1).join('.')}: ` : '';
-                                    return `${field}${e.msg || JSON.stringify(e)}`;
-                                })
-                                .join('\n');
-                        else if (detail) errMsg = JSON.stringify(detail);
-                        showToast(errMsg, 'No movies found', 'error');
-                        setTimeout(() => {
-                            router.back();
-                        }, 2500);
-                    } else {
-                        router.back();
+                    const errorData = await recRes.json().catch(() => ({}));
+                    let errMsg =
+                        recRes.status === 404
+                            ? 'No movies found matching your criteria. Try increasing the maximum duration.'
+                            : `Server error (${recRes.status}). Please try again later.`;
+
+                    const detail = errorData?.detail;
+                    if (typeof detail === 'string') {
+                        errMsg = detail;
+                    } else if (Array.isArray(detail)) {
+                        errMsg = detail
+                            .map((e: any) => {
+                                const field = e?.loc ? `${e.loc.slice(1).join('.')}: ` : '';
+                                return `${field}${e.msg || JSON.stringify(e)}`;
+                            })
+                            .join('\n');
+                    } else if (detail) {
+                        errMsg = JSON.stringify(detail);
                     }
+
+                    const toastTitle = recRes.status === 404 ? 'No movies found' : `Error (${recRes.status})`;
+                    showToast(errMsg, toastTitle, 'error');
+                    setTimeout(() => {
+                        router.back();
+                    }, 3000);
                     return;
                 }
 
@@ -292,9 +305,12 @@ export default function LoadingScreen() {
                         criteriaData: JSON.stringify(criteriaData),
                     },
                 });
-            } catch (err) {
+            } catch (err: any) {
                 console.error('LoadingScreen fetch failed:', err);
-                router.back();
+                showToast(err?.message || 'Network error occurred. Please check your connection.', 'Connection Error', 'error');
+                setTimeout(() => {
+                    router.back();
+                }, 3000);
             }
         })();
     }, []);
