@@ -6,7 +6,7 @@ import { SafeAreaView, ScrollView, View, ActivityIndicator } from 'react-native'
 import { AppText as Text } from '@/components/AppText';
 import VibeSelection from '../components/GenreSelection';
 import TouchableOpacity from '../components/TouchableOpacity';
-import { defaultVibes } from '../constants/vibes';
+import { defaultVibes, sanitizeVibesForBackend } from '../constants/vibes';
 import { FillStyles } from '../constants/themeStyles';
 import { storageService } from '../services/storageService';
 import { metadataService } from '../services/metadataService';
@@ -125,7 +125,7 @@ export default function PreferencesScreen() {
         setSaving(true);
         try {
             const payload = {
-                vibes: preferences.vibes.liked,
+                vibes: sanitizeVibesForBackend(preferences.vibes.liked),
                 hard_nos: preferences.vibes.disliked,
                 eras: preferences.eras,
                 movies: preferences.movies,

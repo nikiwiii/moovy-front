@@ -8,6 +8,7 @@ import { AppText as Text } from '@/components/AppText';
 import Toast from '@/components/Toast';
 import TouchableOpacity from '@/components/TouchableOpacity';
 import { Colors } from '@/constants/theme';
+import { sanitizeVibesForBackend } from '@/constants/vibes';
 import { storageService } from '@/services/storageService';
 
 const ACCENT = Colors.dark.accent;
@@ -213,7 +214,7 @@ export default function FavouritesScreen() {
         try {
             const movieTitles = favoriteMovies.map(m => m.title);
             const payload = {
-                vibes: vibes.liked,
+                vibes: sanitizeVibesForBackend(vibes.liked),
                 hard_nos: vibes.disliked,
                 eras: eras,
                 movies: movieTitles,

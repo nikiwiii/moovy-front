@@ -68,4 +68,12 @@ export function getVibeColor(vibe: string): string {
     return dynamicVibeColors[key] || vibeColors[key] || '#9BA1A6';
 }
 
+export function sanitizeVibesForBackend(vibes: string[]): string[] {
+    if (!Array.isArray(vibes)) return [];
+    const validSet = new Set(defaultVibes);
+    return vibes
+        .map(v => typeof v === 'string' ? v.toUpperCase().trim().replace(/[\s-]/g, '_') : '')
+        .filter(v => validSet.has(v));
+}
+
 
