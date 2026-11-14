@@ -13,6 +13,7 @@ import React from 'react';
 import AnimatedBackground from '../components/AnimatedBackground';
 import Navbar from '../components/Navbar';
 import { Colors } from '@/constants/theme';
+import { API_URL } from '@/constants/config';
 import { storageService } from '../services/storageService';
 import ConfirmDialog from '../components/ConfirmDialog';
 
@@ -33,7 +34,6 @@ async function executeTokenRefresh(): Promise<string | null> {
                 return null;
             }
 
-            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
             const response = await originalFetch(`${API_URL}/auth/refresh`, {
                 method: 'POST',
                 headers: {

@@ -1,7 +1,6 @@
 import { apiFetch } from './authService';
 import { storageService } from './storageService';
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
+import { API_URL } from '../constants/config';
 
 export interface UserProfile {
   user_id: string;

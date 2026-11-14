@@ -9,6 +9,7 @@ import { ratingService, WatchlistMovie, RatingHistoryItem } from '@/services/rat
 import { profileService, UserProfile } from '@/services/profileService';
 import { storageService } from '@/services/storageService';
 import { Colors } from '@/constants/theme';
+import { API_URL } from '@/constants/config';
 import { getVibeColor } from '@/constants/vibes';
 import { LinearGradient } from 'expo-linear-gradient';
 import TouchableOpacity from '@/components/TouchableOpacity';
@@ -68,7 +69,6 @@ export default function ProfileScreen() {
                 setEmail(userEmail);
 
                 const userId = await storageService.getUserId();
-                const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
 
                 // Fetch profile, watchlist, rating history and user preferences in parallel
                 const [userProf, watchlistData, historyData] = await Promise.all([

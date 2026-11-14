@@ -8,6 +8,7 @@ import { AppText as Text } from '@/components/AppText';
 import Toast from '@/components/Toast';
 import TouchableOpacity from '@/components/TouchableOpacity';
 import { Colors } from '@/constants/theme';
+import { API_URL } from '@/constants/config';
 import { sanitizeVibesForBackend } from '@/constants/vibes';
 import { storageService } from '@/services/storageService';
 
@@ -61,7 +62,6 @@ export default function FavouritesScreen() {
                 const lp = await storageService.getLocalPreferences();
                 const token = await storageService.getToken();
                 const userId = await storageService.getUserId();
-                const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
                 let loadedFromCloud = false;
 
@@ -125,7 +125,6 @@ export default function FavouritesScreen() {
             setSearching(true);
             try {
                 const token = await storageService.getToken();
-                const API_URL = process.env.EXPO_PUBLIC_API_URL;
                 const response = await fetch(`${API_URL}/movies/search?title=${encodeURIComponent(q)}&limit=6`, {
                     method: 'GET',
                     headers: {
@@ -226,7 +225,6 @@ export default function FavouritesScreen() {
 
             const token = await storageService.getToken();
             const userId = await storageService.getUserId();
-            const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
             if (token && userId && API_URL && !isLocal) {
                 const response = await fetch(`${API_URL}/preferences/save?user_id=${userId}`, {

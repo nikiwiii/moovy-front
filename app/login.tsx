@@ -9,6 +9,7 @@ import { authService } from '../services/authService';
 import { storageService } from '../services/storageService';
 import { FillStyles } from '../constants/themeStyles';
 import { Colors } from '@/constants/theme';
+import { API_URL } from '@/constants/config';
 import { APP_NAME } from '../constants/app';
 import Toast from '../components/Toast';
 
@@ -87,7 +88,6 @@ export default function LoginScreen() {
                 // Sprawdź, czy użytkownik ma już zapisane preferencje w chmurze
                 const token = result.access_token;
                 const userId = result.user_id;
-                const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
                 let hasPrefs = false;
 
                 if (token && userId && API_URL) {

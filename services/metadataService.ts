@@ -1,7 +1,7 @@
 import { storageService } from './storageService';
 import { setBackendVibeColors } from '../constants/vibes';
+import { API_URL } from '../constants/config';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
 console.log('[metadataService] API_URL:', API_URL);
 
 export interface PreferencesOptions {

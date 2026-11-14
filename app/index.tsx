@@ -10,6 +10,7 @@ import { FillStyles } from '../constants/themeStyles';
 import { storageService } from '../services/storageService';
 import { authService } from '../services/authService';
 import { Colors } from '@/constants/theme';
+import { API_URL } from '@/constants/config';
 import { APP_NAME } from '../constants/app';
 import MoovyLogo from '../components/MoovyLogo';
 
@@ -32,7 +33,6 @@ export default function WelcomeScreen() {
                         if (refreshed && refreshed.access_token) {
                             const userId = await storageService.getUserId();
                             const token = refreshed.access_token;
-                            const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
                             let hasPrefs = false;
                             if (userId && API_URL) {

@@ -12,6 +12,7 @@ import { storageService } from '../services/storageService';
 import { metadataService } from '../services/metadataService';
 import { Toast } from '@/components/Toast';
 import { Colors } from '@/constants/theme';
+import { API_URL } from '@/constants/config';
 
 const ACCENT = Colors.dark.accent;
 
@@ -57,7 +58,6 @@ export default function PreferencesScreen() {
                 const lp = await storageService.getLocalPreferences();
                 const token = await storageService.getToken();
                 const userId = await storageService.getUserId();
-                const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
 
                 let prefsFound = false;
 
@@ -138,7 +138,6 @@ export default function PreferencesScreen() {
             if (!isLocal) {
                 const token = await storageService.getToken();
                 const userId = await storageService.getUserId();
-                const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
 
                 if (token && userId && API_URL) {
                     await fetch(`${API_URL}/preferences/save?user_id=${userId}`, {

@@ -17,6 +17,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { AppText as Text } from '@/components/AppText';
 import { Colors } from '@/constants/theme';
+import { API_URL } from '@/constants/config';
 import { storageService } from '@/services/storageService';
 import { getVibeColor } from '@/constants/vibes';
 import Svg, { Circle } from 'react-native-svg';
@@ -226,7 +227,6 @@ export default function LoadingScreen() {
                 const payload = JSON.parse(params.payload as string);
                 const criteriaData = JSON.parse(params.groups as string);
 
-                const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://34.118.42.82:8010';
                 const token = await storageService.getToken();
 
                 // Step 1 — create session

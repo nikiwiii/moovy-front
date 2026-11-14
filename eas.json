@@ -6,10 +6,7 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal",
-      "env": {
-        "EXPO_PUBLIC_API_URL": "http://34.118.42.82:8010"
-      }
+      "distribution": "internal"
     },
     "dev-fast": {
       "developmentClient": true,
@@ -20,9 +17,6 @@
       },
       "cache": {
         "key": "dev-fast-v1"
-      },
-      "env": {
-        "EXPO_PUBLIC_API_URL": "http://34.118.42.82:8010"
       }
     },
     "preview": {
@@ -31,16 +25,9 @@
       },
       "ios": {
         "simulator": true
-      },
-      "env": {
-        "EXPO_PUBLIC_API_URL": "http://34.118.42.82:8010"
       }
     },
-    "production": {
-      "env": {
-        "EXPO_PUBLIC_API_URL": "http://34.118.42.82:8010"
-      }
-    }
+    "production": {}
   },
   "submit": {
     "production": {}
